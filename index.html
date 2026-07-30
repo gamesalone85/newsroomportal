@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Newsroom</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Swiper -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
+    <!-- CSS -->
+    <link href="styles.css" rel="stylesheet">
+    <link href="header.css" rel="stylesheet">
+    <link href="footer.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- IA -->
+<div class="ai-button" onclick="toggleAssistant()">
+    <i class="fa-solid fa-robot"></i>
+</div>
+
+<div class="ai-chat" id="aiChat">
+    <div class="ai-header">
+        <div>
+            <strong>Newsroom Assistant</strong>
+            <small>Soporte Inteligente</small>
+        </div>
+        <button onclick="toggleAssistant()">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+
+    <div class="ai-body">
+        <p class="mb-3">👋 Hola, describe tu problema técnico.</p>
+
+        <textarea id="aiInput" class="form-control mb-3" rows="4"></textarea>
+
+        <button class="btn btn-primary w-100" onclick="procesarIA()">
+            Analizar Problema
+        </button>
+
+        <div id="aiResponse" class="mt-4"></div>
+    </div>
+</div>
+
+<!-- HEADER DINÁMICO -->
+    
+<div id="header"></div>
+
+<div class="main-content">
+
+    <!-- SWIPER -->
+    <section class="swiper-section">
+        <div class="swiper mySwiper">
+        <div class="container text-center">
+            <h1>Bienvenido al Ecosistema Newsroom</h1>            
+        </div>
+            <div class="swiper-wrapper">
+
+                <div class="swiper-slide"><img src="img/slide1.png"></div>
+                <div class="swiper-slide"><img src="img/slide2.png"></div>
+                <div class="swiper-slide"><img src="img/slide3.png"></div>
+                <div class="swiper-slide"><img src="img/slide4.png"></div>
+                <div class="swiper-slide"><img src="img/slide5.png"></div>
+
+            </div>
+
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-pagination"></div>
+
+        </div>
+    </section>
+       <!-- =======================================================
+         NEWSROOM COMPLETO
+    ======================================================== -->
+
+    <section class="newsroom-section">
+
+        <div class="container">
+
+            <div class="row g-4">
+
+                <!-- NEWSLETTER COMPLETO -->
+                <div class="col-lg-8">
+
+                    <div class="newsroom-card featured-news">
+
+                        <div class="news-badge">
+                            NEWSLETTER MENSUAL
+                        </div>
+
+                        <h2>Bienvenidos a la edición mensual</h2>
+
+                        <p>
+                            Le damos la bienvenida a la edición del boletín mensual del Newsroom.
+                            Nos complace compartir las últimas noticias, actualizaciones e historias de nuestra comunidad,
+                            tenemos una gran cantidad de eventos y recursos interesantes que le ayudarán a mantenerse activo
+                            y comprometido. Empecemos
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- CUMPLEAÑOS COMPLETO -->
+                <div class="col-lg-4">
+                    <div class="newsroom-card birthday-card">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-cake-candles"></i>
+                        </div>
+                        <h4>Cumpleañeros del Mes</h4>
+                        <ul class="birthday-list">
+                            <li>🎉 Ana López - 05 Mayo</li>
+                            <li>🎉 Carlos Ramírez - 12 Mayo</li>
+                            <li>🎉 Fernanda Cruz - 20 Mayo</li>
+                            <li>🎉 Luis Herrera - 28 Mayo</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- DÍAS FESTIVOS -->
+                <div class="col-lg-4">
+
+                    <div class="newsroom-card mini-info">
+
+                        <div class="card-icon">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </div>
+
+                        <h5>Días Festivos</h5>
+
+                        <p>
+                            16 Septiembre - Independencia de México<br>
+                            25 Diciembre - Navidad
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- AVISOS INTERNOS -->
+                <div class="col-lg-4">
+
+                    <div class="newsroom-card mini-info">
+
+                        <div class="card-icon">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </div>
+
+                        <h5>Avisos Internos</h5>
+
+                        <p>
+                            Recuerda actualizar tu contraseña corporativa antes del fin de mes.
+                            Se realizarán mantenimientos el viernes.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- PRÓXIMOS EVENTOS -->
+                <div class="col-lg-4">
+
+                    <div class="newsroom-card mini-info">
+
+                        <div class="card-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+
+                        <h5>Próximos Eventos</h5>
+
+                        <p>
+                            Junta general corporativa el viernes 10:00 AM.<br>
+                            Capacitación TI el próximo martes.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>    
+    <!-- SERVICIOS -->
+<section class="services-section">
+    <div class="container">
+
+        <div class="row g-4 justify-content-center">
+
+            <!-- POLÍTICAS -->
+            <div class="col-lg-3 col-md-6">
+                <a href="politicas/index.php" class="text-decoration-none">
+                    <div class="service-card">
+                        <i class="fa-solid fa-network-wired"></i>
+                        <h3>Políticas y Procedimientos</h3>
+                    </div>
+                </a>
+            </div>
+
+            <!-- SOPORTE -->
+            <div class="col-lg-3 col-md-6">
+                <div class="service-card support-card"
+                    data-bs-toggle="modal"
+                    data-bs-target="#supportModal">
+
+                    <i class="fa-solid fa-headset"></i>
+                    <h3>Soporte Técnico</h3>
+
+                </div>
+            </div>
+
+            <!-- SALAS -->
+            <div class="col-lg-3 col-md-6">
+                <a href="login.php" class="text-decoration-none">
+                    <div class="service-card">
+                        <i class="fa-solid fa-tv"></i>
+                        <h3>Administración de Salas</h3>
+                    </div>
+                </a>
+            </div>
+
+            <!-- CREDENCIALIZACIÓN -->
+            <div class="col-lg-3 col-md-6">
+                <a href="/newsroomportal/credencializacion/index.php" class="text-decoration-none">
+                    <div class="service-card">
+                        <i class="fas fa-id-card"></i>
+                        <h3>Sistema de Credencialización</h3>                        
+                    </div>
+                </a>
+            </div>
+
+	    <!-- CAPITAL HUMANO -->
+		<div class="col-lg-3 col-md-6">
+    			<a href="/newsroomportal/capitalhumano/index.php"
+       				class="text-decoration-none">
+        			<div class="service-card">
+            				<i class="fa-solid fa-user-plus"></i>
+            				<h3>Capital Humano</h3>
+        			</div>
+    			</a>
+		</div>
+
+            <!-- VEHICULAR -->
+            <div class="col-lg-3 col-md-6">
+                <a href="cvehicular/index.php" class="text-decoration-none">
+                    <div class="service-card">
+                        <i class="fa-solid fa-car-side"></i>
+                        <h3>Control Vehicular</h3>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- =======================================================
+     TICKETS EN TIEMPO REAL 
+======================================================= -->
+<section class="rooms-section py-5">
+<section class="ticket-board">
+
+    <div class="container">
+
+        <div class="text-center mb-4">
+            <h2>🎫 Centro de Atención en Vivo</h2>
+            <p class="text-muted">Tickets en tiempo real</p>
+        </div>
+
+        <div id="ticketQueue" class="ticket-grid"></div>
+
+    </div>
+
+</section>
+</section>
+
+
+
+
+</div>
+
+<section class="rooms-section py-5">
+
+    <div class="container">
+
+        <div class="text-center mb-4">
+            <h2>Reservación de Salas</h2>
+            <p class="text-muted">Estado en tiempo real</p>
+        </div>
+
+        <div class="row g-4" id="roomsContainer">
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =======================================================
+     MODAL SOPORTE
+======================================================= -->
+
+<div
+    class="modal fade"
+    id="supportModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+
+        <div class="modal-content support-modal-content">
+
+            <div class="modal-header support-modal-header">
+
+                <div>
+
+                    <h4 class="mb-0">
+                        Portal de Soporte TI
+                    </h4>
+
+                    <small>
+                        Genera y da seguimiento a incidentes
+                    </small>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+
+            </div>
+
+            <div class="modal-body support-modal-body">
+
+                <iframe
+    			id="supportFrame"
+    			src="portal/crear_ticket.php"
+    			frameborder="0"
+    			class="support-frame"
+		></iframe>
+		<script>
+
+const supportModal =
+document.getElementById('supportModal');
+
+supportModal.addEventListener(
+    'hidden.bs.modal',
+    function(){
+
+        const frame =
+        document.getElementById('supportFrame');
+
+        frame.src =
+        'portal/crear_ticket.php?ts=' +
+        new Date().getTime();
+
+    }
+);
+
+</script>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- FOOTER DINÁMICO -->
+<div id="footer"></div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script src="scripts.js"></script>
+<script src="assistant.js"></script>
+
+<script>
+async function loadComponent(id, file){
+    const res = await fetch(file);
+    const html = await res.text();
+    document.getElementById(id).innerHTML = html;
+}
+
+loadComponent("header", "header.html");
+loadComponent("footer", "footer.html");
+</script>
+
+
+
+<!-- TICKETS EN TIEMPO REAL -->
+<script>
+
+async function cargarTickets(){
+
+    try {
+
+        const res = await fetch('portal/api/tickets_publicos.php');
+        const data = await res.json();
+
+        let html = "";
+
+        data.forEach((t, index) => {
+
+            let color = "secondary";
+
+            if(t.estatus === "Registrado") color = "primary";
+            if(t.estatus === "En proceso") color = "warning";
+            if(t.estatus === "Resuelto") color = "success";
+
+            html += `
+                <div class="ticket-card">
+                    
+                    <div class="ticket-number">
+                        #${t.folio}
+                    </div>
+
+                    <div class="ticket-status badge bg-${color}">
+                        ${t.estatus}
+                    </div>
+
+                    <div class="ticket-date">
+                        ${t.fecha_creacion ?? ''}
+                    </div>
+
+                    <div class="ticket-position">
+                        Posición: ${index + 1}
+                    </div>
+
+                </div>
+            `;
+        });
+
+        document.getElementById("ticketQueue").innerHTML = html;
+
+    } catch (e) {
+        console.error("Error cargando tickets:", e);
+    }
+}
+
+// init
+cargarTickets();
+setInterval(cargarTickets, 4000);
+
+</script>
+
+<script>
+
+async function cargarSalas(){
+
+    try {
+
+        const res = await fetch('rooms/api/salas_estado.php');
+        const data = await res.json();
+
+        let html = "";
+
+        data.forEach(sala => {
+
+            const ocupada = Number(sala.ocupada) === 1;
+
+            html += `
+            <div class="col-lg-6">
+                <div class="room-card">
+
+                    <div class="room-header">
+                        <h4>${sala.nombre}</h4>
+
+                        <span class="status ${ocupada ? 'occupied' : 'available'}">
+                            ${ocupada ? 'Ocupada' : 'Disponible'}
+                        </span>
+                    </div>
+
+                    <div class="room-body">
+
+                        <p><strong>Estado actual:</strong>
+                            ${ocupada ? 'En uso' : 'Libre'}
+                        </p>
+
+                        <p><strong>Próxima liberación:</strong>
+                            ${ocupada ? (sala.libera ?? 'En curso') : '--:--'}
+                        </p>
+
+                        <div class="room-actions">
+
+                            <a href="rooms/index.php?sala=${sala.id}"
+                               class="btn btn-primary w-100">
+                                Reservar Sala
+                            </a>
+
+                            <a href="rooms/mis_reservas.php"
+                               class="btn btn-outline-secondary w-100 mt-2">
+                                Ver agenda
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            `;
+        });
+
+        document.getElementById("roomsContainer").innerHTML = html;
+
+    } catch (error) {
+        console.error("Error cargando salas:", error);
+    }
+}
+
+// inicial
+cargarSalas();
+
+// refresh más agresivo para tiempo real real
+setInterval(cargarSalas, 8000);
+
+</script>
+
+</body>
+
+</html>

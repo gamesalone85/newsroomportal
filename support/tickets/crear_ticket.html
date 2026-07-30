@@ -1,0 +1,474 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Crear Ticket | Newsroom Portal
+    </title>
+
+
+    <!-- ==================================================
+         ESTILOS
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/layout-corporate.css"
+    >
+
+
+    <!-- ==================================================
+         ICONOS
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+    <!-- ==================================================
+         SIDEBAR
+    ================================================== -->
+
+    <div
+        id="sidebarContainer"
+        data-sidebar="../includes/sidebar.html"
+    ></div>
+
+
+
+    <!-- ==================================================
+         MAIN
+    ================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ==================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+
+            <div class="page-title">
+
+                Crear Ticket
+
+            </div>
+
+
+
+            <div class="topbar-user">
+
+
+                <div
+                    class="user-avatar"
+                    id="userAvatar"
+                >
+                    A
+                </div>
+
+
+
+                <div class="user-info">
+
+
+                    <strong id="userName">
+                        Usuario
+                    </strong>
+
+
+                    <span>
+                        Support Portal
+                    </span>
+
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- ==================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="content">
+
+
+            <!-- ==================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <div class="page-header">
+
+
+                <div>
+
+
+                    <h2>
+                        Nuevo Ticket
+                    </h2>
+
+
+                    <p class="page-subtitle">
+                        Registro de incidencias y solicitudes internas
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 FORMULARIO
+            ================================================== -->
+
+            <div class="form-container ticket-form-card">
+
+
+                <form
+                    id="ticketForm"
+                    class="ticket-form-grid"
+                    autocomplete="off"
+                >
+
+
+                    <!-- ==================================================
+                         EMPLEADO
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="empleado">
+                            Nombre del Empleado
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="empleado"
+                            required
+                        >
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         CONTACTO
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="contacto">
+                            Contacto
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="contacto"
+                            placeholder="Extensión, teléfono o correo"
+                            required
+                        >
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         DIVISIÓN
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="division">
+                            División
+                        </label>
+
+
+                        <select
+                            id="division"
+                            required
+                        >
+
+                            <option value="">
+                                Seleccionar División
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         ÁREA
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="area">
+                            Área
+                        </label>
+
+
+                        <select
+                            id="area"
+                            required
+                        >
+
+                            <option value="">
+                                Seleccionar Área
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         CATEGORÍA
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="categoria">
+                            Categoría
+                        </label>
+
+
+                        <select
+                            id="categoria"
+                            required
+                        >
+
+                            <option value="">
+                                Seleccionar Categoría
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         EQUIPO
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="equipo">
+                            Equipo Afectado
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="equipo"
+                            placeholder="Laptop, impresora, desktop..."
+                        >
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         TÍTULO
+                    ================================================== -->
+
+                    <div class="form-group full-width">
+
+
+                        <label for="titulo">
+                            Título
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="titulo"
+                            required
+                        >
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         DESCRIPCIÓN
+                    ================================================== -->
+
+                    <div class="form-group full-width">
+
+
+                        <label for="descripcion">
+                            Descripción
+                        </label>
+
+
+                        <textarea
+                            id="descripcion"
+                            rows="7"
+                            required
+                        ></textarea>
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         PRIORIDAD
+                    ================================================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="prioridad">
+                            Prioridad
+                        </label>
+
+
+                        <select
+                            id="prioridad"
+                        >
+
+                            <option value="Baja">
+                                Baja
+                            </option>
+
+                            <option value="Media" selected>
+                                Media
+                            </option>
+
+                            <option value="Alta">
+                                Alta
+                            </option>
+
+                            <option value="Crítica">
+                                Crítica
+                            </option>
+
+                        </select>
+
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         MENSAJE
+                    ================================================== -->
+
+                    <div
+                        id="ticketMessage"
+                        class="full-width"
+                        style="display:none;"
+                    ></div>
+
+
+
+                    <!-- ==================================================
+                         ACTIONS
+                    ================================================== -->
+
+                    <div class="form-actions full-width">
+
+
+                        <button
+                            class="btn-primary"
+                            type="submit"
+                            id="crearTicketBtn"
+                        >
+
+                            <i class="fa-solid fa-ticket"></i>
+
+                            Crear Ticket
+
+                        </button>
+
+
+                    </div>
+
+
+                </form>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="../js/data.js"></script>
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/sidebar.js"></script>
+
+<script src="tickets.js"></script>
+
+
+</body>
+
+</html>
+```

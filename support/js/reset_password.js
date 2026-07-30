@@ -1,4 +1,4 @@
-```javascript
+
 /* =========================================================
    NEWSROOM PORTAL
    RESET PASSWORD
@@ -490,4 +490,3 @@ document.addEventListener(
 
     }
 );
-```

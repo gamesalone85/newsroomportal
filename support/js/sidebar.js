@@ -1,23 +1,7 @@
 /* =========================================================
    NEWSROOM PORTAL
    SIDEBAR CONTROLLER
-   =========================================================
-
-   Archivo:
-   support/js/sidebar.js
-
-   Funciones:
-
-   - Cargar sidebar.html
-   - Controlar permisos por rol
-   - Abrir/cerrar submenús
-   - Contraer sidebar
-   - Detectar página actual
-   - Abrir automáticamente el grupo activo
-   - Cerrar sesión
-
    ========================================================= */
-
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -25,7 +9,7 @@ document.addEventListener(
 
 
         /* =================================================
-           CONTENEDOR DEL SIDEBAR
+           CONTENEDOR
         ================================================== */
 
         const container =
@@ -47,15 +31,24 @@ document.addEventListener(
 
 
         /* =================================================
-           CARGAR SIDEBAR.HTML
+           DETERMINAR RUTA DEL SIDEBAR
+        ================================================== */
+
+        const sidebarPath =
+            container.dataset.sidebar ||
+            "../includes/sidebar.html";
+
+
+
+        /* =================================================
+           CARGAR SIDEBAR
         ================================================== */
 
         try {
 
-
             const response =
                 await fetch(
-                    "../includes/sidebar.html"
+                    sidebarPath
                 );
 
 
@@ -78,12 +71,10 @@ document.addEventListener(
 
         } catch (error) {
 
-
             console.error(
-                "Newsroom Portal: No fue posible cargar sidebar.html",
+                "No fue posible cargar el sidebar:",
                 error
             );
-
 
             return;
 
@@ -92,7 +83,7 @@ document.addEventListener(
 
 
         /* =================================================
-           ELEMENTOS DEL SIDEBAR
+           ELEMENTOS
         ================================================== */
 
         const sidebar =
@@ -115,345 +106,216 @@ document.addEventListener(
 
 
         /* =================================================
-           OBTENER SESIÓN
-        ==================================================
-
-           auth.js debe cargarse antes que sidebar.js.
-
+           SESIÓN
         ================================================== */
 
-        let session = null;
-
-
-        if (
+        const session =
             typeof obtenerSesion ===
             "function"
-        ) {
 
-            session =
-                obtenerSesion();
+                ? obtenerSesion()
 
-        }
-
-
-
-        /* =================================================
-           DETERMINAR ROL
-        ================================================== */
-
-        const rol =
-            session
-                ? Number(session.rol_id)
                 : null;
 
 
 
         /* =================================================
-           CONTROL DE ELEMENTOS POR ROL
-        ==================================================
+           ROL
+        ================================================== */
 
-           Ejemplo:
+        const rol =
+            session
+                ? Number(
+                    session.rol_id
+                )
+                : null;
 
-           data-role="1"
 
-           Solo aparece para rol 1.
 
+        /* =================================================
+           ELEMENTOS SEGÚN ROL
         ================================================== */
 
         document
             .querySelectorAll(
                 "[data-role]"
             )
-            .forEach(element => {
+            .forEach(
+                group => {
+
+                    const requiredRole =
+                        Number(
+                            group.dataset.role
+                        );
 
 
-                const requiredRole =
-                    Number(
-                        element.dataset.role
-                    );
+                    if (
+                        rol !==
+                        requiredRole
+                    ) {
 
+                        group.style.display =
+                            "none";
 
-                /*
-                 * Si no existe sesión,
-                 * ocultamos el elemento.
-                 */
-
-                if (!session) {
-
-                    element.style.display =
-                        "none";
-
-                    return;
+                    }
 
                 }
-
-
-                /*
-                 * Si el rol no coincide,
-                 * ocultamos el elemento.
-                 */
-
-                if (
-                    rol !== requiredRole
-                ) {
-
-                    element.style.display =
-                        "none";
-
-                }
-
-            });
+            );
 
 
 
         /* =================================================
-           CONTRAER / EXPANDIR SIDEBAR
+           COLAPSAR SIDEBAR
         ================================================== */
 
-        if (toggle && sidebar) {
-
+        if (toggle) {
 
             toggle.addEventListener(
                 "click",
                 () => {
 
+                    if (!sidebar) {
+                        return;
+                    }
 
                     sidebar.classList.toggle(
                         "collapsed"
                     );
 
+                }
+            );
 
-                    /*
-                     * Guardamos la preferencia
-                     * del usuario.
-                     */
+        }
 
-                    const collapsed =
-                        sidebar.classList.contains(
-                            "collapsed"
+
+
+        /* =================================================
+           DROPDOWNS
+        ================================================== */
+
+        document
+            .querySelectorAll(
+                ".nav-group"
+            )
+            .forEach(
+                group => {
+
+                    const button =
+                        group.querySelector(
+                            ".nav-dropdown-btn"
                         );
 
 
-                    localStorage.setItem(
-                        "newsroomSidebarCollapsed",
-                        collapsed
+                    if (!button) {
+                        return;
+                    }
+
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            if (
+                                sidebar &&
+                                sidebar.classList
+                                    .contains(
+                                        "collapsed"
+                                    )
+                            ) {
+
+                                return;
+                            }
+
+
+                            group.classList.toggle(
+                                "open"
+                            );
+
+                        }
                     );
 
                 }
             );
 
 
-        }
-
-
 
         /* =================================================
-           RESTAURAR ESTADO DEL SIDEBAR
+           PÁGINA ACTUAL
         ================================================== */
 
-        if (sidebar) {
-
-
-            const savedState =
-                localStorage.getItem(
-                    "newsroomSidebarCollapsed"
-                );
-
-
-            if (
-                savedState === "true"
-            ) {
-
-                sidebar.classList.add(
-                    "collapsed"
-                );
-
-            }
-
-        }
-
-
-
-        /* =================================================
-           MENÚS DESPLEGABLES
-        ================================================== */
-
-        document
-            .querySelectorAll(
-                ".nav-group"
-            )
-            .forEach(group => {
-
-
-                const button =
-                    group.querySelector(
-                        ".nav-dropdown-btn"
-                    );
-
-
-                if (!button) {
-
-                    return;
-
-                }
-
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-
-                        /*
-                         * Si el sidebar está
-                         * contraído no abrimos
-                         * submenús.
-                         */
-
-                        if (
-                            sidebar &&
-                            sidebar.classList.contains(
-                                "collapsed"
-                            )
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        group.classList.toggle(
-                            "open"
-                        );
-
-                    }
-                );
-
-
-            });
-
-
-
-        /* =================================================
-           DETECTAR PÁGINA ACTUAL
-        ================================================== */
-
-        const pathname =
+        const currentPath =
             window.location.pathname;
 
 
-        let currentFile =
-            pathname
+        const currentFile =
+            currentPath
                 .split("/")
                 .pop()
-                .toLowerCase();
+                .replace(
+                    ".html",
+                    ""
+                )
+                .replace(
+                    ".php",
+                    ""
+                );
 
 
-        /*
-         * Si estamos en:
-
-         * /admin/
-         *
-         * o
-         *
-         * /admin/index.html
-         *
-         * lo consideramos "admin".
-         */
-
-        if (
-            !currentFile ||
-            currentFile === "index.html"
-        ) {
-
-
-            const folders =
-                pathname
-                    .split("/")
-                    .filter(Boolean);
-
-
-            const currentFolder =
-                folders.length > 1
-                    ? folders[folders.length - 2]
-                    : "";
-
-
-            currentFile =
-                currentFolder
-                    .toLowerCase();
-
-        } else {
-
-
-            currentFile =
-                currentFile
-                    .replace(
-                        ".html",
-                        ""
-                    );
-
-        }
-
-
-
-        /* =================================================
-           MARCAR OPCIÓN ACTIVA
-        ================================================== */
 
         document
             .querySelectorAll(
                 "[data-page]"
             )
-            .forEach(link => {
+            .forEach(
+                link => {
+
+                    const page =
+                        link.dataset.page;
 
 
-                const page =
-                    String(
-                        link.dataset.page || ""
-                    )
-                    .toLowerCase();
+                    if (
+                        page ===
+                        currentFile
+                    ) {
 
+                        link.classList.add(
+                            "active"
+                        );
 
-                if (
-                    page === currentFile
-                ) {
-
-                    link.classList.add(
-                        "active"
-                    );
+                    }
 
                 }
-
-            });
+            );
 
 
 
         /* =================================================
-           ABRIR AUTOMÁTICAMENTE EL GRUPO ACTIVO
+           ABRIR GRUPO ACTIVO
         ================================================== */
 
         document
             .querySelectorAll(
                 ".nav-group"
             )
-            .forEach(group => {
+            .forEach(
+                group => {
+
+                    const active =
+                        group.querySelector(
+                            ".active"
+                        );
 
 
-                const active =
-                    group.querySelector(
-                        ".active"
-                    );
+                    if (active) {
 
+                        group.classList.add(
+                            "open"
+                        );
 
-                if (active) {
-
-                    group.classList.add(
-                        "open"
-                    );
+                    }
 
                 }
-
-            });
+            );
 
 
 
@@ -463,11 +325,9 @@ document.addEventListener(
 
         if (logoutLink) {
 
-
             logoutLink.addEventListener(
                 "click",
                 event => {
-
 
                     event.preventDefault();
 
@@ -479,64 +339,74 @@ document.addEventListener(
 
 
                     if (!confirmar) {
-
                         return;
+                    }
+
+
+                    /*
+                     * login.html está en la raíz.
+                     *
+                     * Calculamos automáticamente
+                     * cuántos niveles debemos subir.
+                     */
+
+                    const path =
+                        window.location.pathname;
+
+
+                    const segmentos =
+                        path
+                            .split("/")
+                            .filter(Boolean);
+
+
+                    /*
+                     * Eliminamos el archivo actual.
+                     */
+
+                    if (
+                        segmentos.length >
+                        0
+                    ) {
+
+                        segmentos.pop();
 
                     }
 
 
+                    /*
+                     * Desde la carpeta actual
+                     * regresamos a la raíz.
+                     */
 
-                    /* =========================================
-                       UTILIZAR AUTH.JS
-                    ========================================= */
+                    const niveles =
+                        segmentos.length;
+
+
+                    const loginUrl =
+                        "../"
+                            .repeat(
+                                niveles
+                            ) +
+                        "login.html";
+
 
                     if (
                         typeof cerrarSesion ===
                         "function"
                     ) {
 
-                        cerrarSesion();
-
-
-                        return;
+                        cerrarSesion(
+                            loginUrl
+                        );
 
                     }
-
-
-
-                    /* =========================================
-                       RESPALDO
-                    =========================================
-
-                       Si auth.js no está disponible,
-                       cerramos manualmente la sesión.
-
-                    ========================================= */
-
-                    localStorage.removeItem(
-                        "newsroomSession"
-                    );
-
-
-                    window.location.href =
-                        "../../login.html";
-
 
                 }
             );
 
         }
 
-
-
-        /* =================================================
-           FIN
-        ================================================== */
-
-        console.log(
-            "Newsroom Portal: Sidebar cargado correctamente."
-        );
-
-
     }
 );
+

@@ -1,0 +1,893 @@
+```html
+<!-- =========================================================
+     NEWSROOM PORTAL
+     SIDEBAR PRINCIPAL
+     ========================================================= -->
+
+<link
+    rel="stylesheet"
+    href="../css/core-layout.css"
+>
+
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+>
+
+
+<aside
+    class="sidebar"
+    id="sidebar"
+>
+
+
+    <!-- =====================================================
+         LOGO
+    ====================================================== -->
+
+    <div
+        class="logo"
+        id="sidebarToggle"
+    >
+
+        <img
+            src="../../img/logo.png"
+            class="logo-img"
+            alt="Newsroom Portal"
+        >
+
+    </div>
+
+
+
+    <!-- =====================================================
+         NAVEGACIÓN
+    ====================================================== -->
+
+    <nav class="sidebar-nav">
+
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
+
+        <a
+            href="../dashboard/index.html"
+            class="nav-item"
+            data-page="dashboard"
+        >
+
+            <i class="fa-solid fa-chart-pie"></i>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+
+
+        <!-- =================================================
+             OPERACIÓN
+        ================================================== -->
+
+        <div
+            class="nav-group"
+            data-group="operation"
+        >
+
+
+            <button
+                class="nav-dropdown-btn"
+                type="button"
+            >
+
+                <div class="nav-dropdown-left">
+
+                    <i class="fa-solid fa-ticket"></i>
+
+                    <span>
+                        Operación
+                    </span>
+
+                </div>
+
+
+                <i
+                    class="fa-solid fa-chevron-down nav-arrow"
+                ></i>
+
+            </button>
+
+
+
+            <div class="nav-dropdown-menu">
+
+
+                <a
+                    href="../tickets/crear_ticket.html"
+                    data-page="crear_ticket"
+                >
+
+                    <i class="fa-solid fa-circle-plus"></i>
+
+                    <span>
+                        Crear Ticket
+                    </span>
+
+                </a>
+
+
+
+                <a
+                    href="../tickets/mis_reportes.html"
+                    data-page="mis_reportes"
+                >
+
+                    <i class="fa-solid fa-clipboard-list"></i>
+
+                    <span>
+                        Mis Reportes
+                    </span>
+
+                </a>
+
+
+
+                <a
+                    href="../tickets/estatus_reportes.html"
+                    data-page="estatus_reportes"
+                >
+
+                    <i class="fa-solid fa-chart-line"></i>
+
+                    <span>
+                        Estatus Reportes
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             ANALYTICS
+             SOLO ROL 1
+        ================================================== -->
+
+        <div
+            class="nav-group"
+            data-group="analytics"
+            data-role="1"
+        >
+
+
+            <button
+                class="nav-dropdown-btn"
+                type="button"
+            >
+
+                <div class="nav-dropdown-left">
+
+                    <i class="fa-solid fa-chart-simple"></i>
+
+                    <span>
+                        Analytics
+                    </span>
+
+                </div>
+
+
+                <i
+                    class="fa-solid fa-chevron-down nav-arrow"
+                ></i>
+
+            </button>
+
+
+
+            <div class="nav-dropdown-menu">
+
+
+                <a
+                    href="../tickets/dashboard_admin_tickets.html"
+                    data-page="dashboard_admin_tickets"
+                >
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    <span>
+                        Executive Dashboard
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             TÉCNICO
+             SOLO ROL 2
+        ================================================== -->
+
+        <div
+            class="nav-group"
+            data-group="tecnico"
+            data-role="2"
+        >
+
+
+            <button
+                class="nav-dropdown-btn"
+                type="button"
+            >
+
+                <div class="nav-dropdown-left">
+
+                    <i class="fa-solid fa-user-gear"></i>
+
+                    <span>
+                        Mi Rendimiento
+                    </span>
+
+                </div>
+
+
+                <i
+                    class="fa-solid fa-chevron-down nav-arrow"
+                ></i>
+
+            </button>
+
+
+
+            <div class="nav-dropdown-menu">
+
+
+                <a
+                    href="../tickets/dashboard_tecnico.html"
+                    data-page="dashboard_tecnico"
+                >
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    <span>
+                        Mi Dashboard
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             INVENTARIO
+        ================================================== -->
+
+        <div
+            class="nav-group"
+            data-group="inventory"
+        >
+
+
+            <button
+                class="nav-dropdown-btn"
+                type="button"
+            >
+
+                <div class="nav-dropdown-left">
+
+                    <i class="fa-solid fa-computer"></i>
+
+                    <span>
+                        Inventario
+                    </span>
+
+                </div>
+
+
+                <i
+                    class="fa-solid fa-chevron-down nav-arrow"
+                ></i>
+
+            </button>
+
+
+
+            <div class="nav-dropdown-menu">
+
+
+                <a
+                    href="../inventory/empleados.html"
+                    data-page="empleados"
+                >
+
+                    <i class="fa-solid fa-users"></i>
+
+                    <span>
+                        Empleados
+                    </span>
+
+                </a>
+
+
+
+                <a
+                    href="../inventory/equipos.html"
+                    data-page="equipos"
+                >
+
+                    <i class="fa-solid fa-laptop"></i>
+
+                    <span>
+                        Equipos
+                    </span>
+
+                </a>
+
+
+
+                <a
+                    href="../inventory/asignaciones.html"
+                    data-page="asignaciones"
+                >
+
+                    <i class="fa-solid fa-user-check"></i>
+
+                    <span>
+                        Asignaciones
+                    </span>
+
+                </a>
+
+
+
+                <a
+                    href="../inventory/mantenimientos.html"
+                    data-page="mantenimientos"
+                >
+
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+
+                    <span>
+                        Mantenimientos
+                    </span>
+
+                </a>
+
+
+
+                <!-- BAJAS -->
+
+                <a
+                    href="../inventory/bajas.html"
+                    data-page="bajas"
+                >
+
+                    <i class="fa-solid fa-circle-xmark"></i>
+
+                    <span>
+                        Bajas
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             REPORTES
+        ================================================== -->
+
+        <div
+            class="nav-group"
+            data-group="reports"
+        >
+
+
+            <button
+                class="nav-dropdown-btn"
+                type="button"
+            >
+
+                <div class="nav-dropdown-left">
+
+                    <i class="fa-solid fa-file-export"></i>
+
+                    <span>
+                        Informes
+                    </span>
+
+                </div>
+
+
+                <i
+                    class="fa-solid fa-chevron-down nav-arrow"
+                ></i>
+
+            </button>
+
+
+
+            <div class="nav-dropdown-menu">
+
+
+                <a
+                    href="../dashboard/reportes.html"
+                    data-page="reportes"
+                >
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    <span>
+                        Centro de Informes
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             GESTIÓN
+             SOLO ROL 1
+        ================================================== -->
+
+        <div
+            class="nav-group"
+            data-group="admin"
+            data-role="1"
+        >
+
+
+            <button
+                class="nav-dropdown-btn"
+                type="button"
+            >
+
+                <div class="nav-dropdown-left">
+
+                    <i class="fa-solid fa-users-gear"></i>
+
+                    <span>
+                        Gestión
+                    </span>
+
+                </div>
+
+
+                <i
+                    class="fa-solid fa-chevron-down nav-arrow"
+                ></i>
+
+            </button>
+
+
+
+            <div class="nav-dropdown-menu">
+
+
+                <a
+                    href="../admin/index.html"
+                    data-page="admin"
+                >
+
+                    <i class="fa-solid fa-user-shield"></i>
+
+                    <span>
+                        Usuarios
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             HOME
+        ================================================== -->
+
+        <a
+            href="../../index.html"
+            class="nav-item"
+            data-page="home"
+        >
+
+            <i class="fa-solid fa-house"></i>
+
+            <span>
+                Inicio
+            </span>
+
+        </a>
+
+
+
+        <!-- =================================================
+             LOGOUT
+        ================================================== -->
+
+        <a
+            href="#"
+            class="nav-item"
+            id="logoutLink"
+        >
+
+            <i class="fa-solid fa-right-from-bracket"></i>
+
+            <span>
+                Cerrar Sesión
+            </span>
+
+        </a>
+
+
+    </nav>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <div class="sidebar-footer">
+
+        <strong>
+            SUPPORT PORTAL
+        </strong>
+
+        <span>
+            v1.0 Corporate Edition
+        </span>
+
+    </div>
+
+
+</aside>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT DEL SIDEBAR
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+
+        /* =================================================
+           ELEMENTOS
+        ================================================== */
+
+        const sidebar =
+            document.getElementById("sidebar");
+
+
+        const toggle =
+            document.getElementById("sidebarToggle");
+
+
+        const logoutLink =
+            document.getElementById("logoutLink");
+
+
+
+        /* =================================================
+           SESIÓN
+        ================================================== */
+
+        let session = null;
+
+
+        const sessionData =
+            localStorage.getItem(
+                "newsroomSession"
+            );
+
+
+        if (sessionData) {
+
+            try {
+
+                session =
+                    JSON.parse(sessionData);
+
+            } catch (error) {
+
+                console.error(
+                    "Sesión inválida:",
+                    error
+                );
+
+            }
+
+        }
+
+
+
+        /* =================================================
+           ROL
+        ================================================== */
+
+        const rol =
+            session
+                ? Number(session.rol_id)
+                : null;
+
+
+
+        /* =================================================
+           OCULTAR ELEMENTOS SEGÚN ROL
+        ================================================== */
+
+        document
+            .querySelectorAll(
+                "[data-role]"
+            )
+            .forEach(group => {
+
+
+                const requiredRole =
+                    Number(
+                        group.dataset.role
+                    );
+
+
+                if (rol !== requiredRole) {
+
+                    group.style.display =
+                        "none";
+
+                }
+
+            });
+
+
+
+        /* =================================================
+           SIDEBAR COLLAPSE
+        ================================================== */
+
+        if (toggle) {
+
+
+            toggle.addEventListener(
+                "click",
+                () => {
+
+
+                    if (!sidebar) {
+
+                        return;
+
+                    }
+
+
+                    sidebar.classList.toggle(
+                        "collapsed"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* =================================================
+           DROPDOWNS
+        ================================================== */
+
+        document
+            .querySelectorAll(
+                ".nav-group"
+            )
+            .forEach(group => {
+
+
+                const button =
+                    group.querySelector(
+                        ".nav-dropdown-btn"
+                    );
+
+
+                if (!button) {
+
+                    return;
+
+                }
+
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+
+                        if (
+                            sidebar &&
+                            sidebar.classList.contains(
+                                "collapsed"
+                            )
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        group.classList.toggle(
+                            "open"
+                        );
+
+                    }
+                );
+
+            });
+
+
+
+        /* =================================================
+           PÁGINA ACTUAL
+        ==================================================
+
+           Sustituye la lógica PHP:
+
+           basename($_SERVER['PHP_SELF'])
+
+        ================================================== */
+
+        const currentPath =
+            window.location.pathname;
+
+
+        const currentFile =
+            currentPath
+                .split("/")
+                .pop()
+                .replace(
+                    ".html",
+                    ""
+                );
+
+
+
+        document
+            .querySelectorAll(
+                "[data-page]"
+            )
+            .forEach(link => {
+
+
+                const page =
+                    link.dataset.page;
+
+
+                if (
+                    page === currentFile
+                ) {
+
+                    link.classList.add(
+                        "active"
+                    );
+
+                }
+
+            });
+
+
+
+        /* =================================================
+           ABRIR GRUPO DE LA PÁGINA ACTUAL
+        ================================================== */
+
+        document
+            .querySelectorAll(
+                ".nav-group"
+            )
+            .forEach(group => {
+
+
+                const active =
+                    group.querySelector(
+                        ".active"
+                    );
+
+
+                if (active) {
+
+                    group.classList.add(
+                        "open"
+                    );
+
+                }
+
+            });
+
+
+
+        /* =================================================
+           CERRAR SESIÓN
+        ================================================== */
+
+        if (logoutLink) {
+
+
+            logoutLink.addEventListener(
+                "click",
+                event => {
+
+
+                    event.preventDefault();
+
+
+                    const confirmar =
+                        confirm(
+                            "¿Deseas cerrar la sesión?"
+                        );
+
+
+                    if (!confirmar) {
+
+                        return;
+
+                    }
+
+
+                    /*
+                     * FUTURA AUTENTICACIÓN
+                     *
+                     * Aquí podremos llamar a:
+                     *
+                     * Firebase Auth
+                     * Supabase Auth
+                     * API
+                     *
+                     */
+
+
+                    localStorage.removeItem(
+                        "newsroomSession"
+                    );
+
+
+                    window.location.href =
+                        "../../login.html";
+
+                }
+            );
+
+        }
+
+
+    }
+);
+
+</script>
+```

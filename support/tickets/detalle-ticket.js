@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    NEWSROOM PORTAL
    DETALLE DE TICKET
@@ -1769,4 +1768,3 @@ function escapeHTML(
     );
 
 }
-```

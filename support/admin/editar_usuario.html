@@ -1,0 +1,302 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Editar Usuario | Newsroom Portal
+    </title>
+
+
+    <!-- CSS -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/core-layout.css"
+    >
+
+
+    <!-- Font Awesome -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+    <!-- ==================================================
+         SIDEBAR
+    =================================================== -->
+
+    <div id="sidebarContainer"></div>
+
+
+
+    <!-- ==================================================
+         CONTENIDO PRINCIPAL
+    =================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ==================================================
+             TOPBAR
+        =================================================== -->
+
+        <header class="topbar">
+
+
+            <div class="page-title">
+
+                Editar Usuario
+
+            </div>
+
+
+
+            <div class="topbar-user">
+
+
+                <div
+                    class="user-avatar"
+                    id="userAvatar"
+                >
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong id="userName">
+                        Administrador
+                    </strong>
+
+                    <span>
+                        Support Portal
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- ==================================================
+             CONTENIDO
+        ================================================== -->
+
+        <section class="content">
+
+
+            <div class="form-container">
+
+
+                <!-- ==================================================
+                     HEADER
+                ================================================== -->
+
+                <div class="form-header">
+
+                    <h1>
+                        Editar Usuario
+                    </h1>
+
+                    <p>
+                        Modifica la información y permisos del usuario.
+                    </p>
+
+                </div>
+
+
+
+                <!-- ==================================================
+                     MENSAJE
+                ================================================== -->
+
+                <div
+                    id="formMessage"
+                    class="form-message"
+                    style="display:none;"
+                ></div>
+
+
+
+                <!-- ==================================================
+                     FORMULARIO
+                ================================================== -->
+
+                <form
+                    id="editarUsuarioForm"
+                    autocomplete="off"
+                >
+
+
+                    <!-- ID OCULTO -->
+
+                    <input
+                        type="hidden"
+                        id="usuarioId"
+                    >
+
+
+
+                    <!-- NOMBRE -->
+
+                    <div class="form-group">
+
+                        <label for="nombre">
+                            Nombre
+                        </label>
+
+                        <input
+                            type="text"
+                            id="nombre"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- USUARIO -->
+
+                    <div class="form-group">
+
+                        <label for="usuario">
+                            Usuario
+                        </label>
+
+                        <input
+                            type="text"
+                            id="usuario"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- CORREO -->
+
+                    <div class="form-group">
+
+                        <label for="correo">
+                            Correo
+                        </label>
+
+                        <input
+                            type="email"
+                            id="correo"
+                            required
+                        >
+
+                    </div>
+
+
+
+                    <!-- ROL -->
+
+                    <div class="form-group">
+
+                        <label for="rol_id">
+                            Rol
+                        </label>
+
+                        <select
+                            id="rol_id"
+                            required
+                        >
+
+                            <option value="">
+                                Selecciona un rol
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- ACCIONES -->
+
+                    <div class="form-actions">
+
+
+                        <a
+                            href="index.html"
+                            class="btn-secondary"
+                        >
+                            Cancelar
+                        </a>
+
+
+                        <button
+                            type="submit"
+                            class="btn-primary"
+                            id="guardarCambios"
+                        >
+                            Guardar Cambios
+                        </button>
+
+
+                    </div>
+
+
+                </form>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/data.js"></script>
+
+<script src="../js/sidebar.js"></script>
+
+<script src="../js/editar_usuario.js"></script>
+
+
+</body>
+
+</html>
+```

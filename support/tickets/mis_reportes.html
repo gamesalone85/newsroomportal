@@ -1,0 +1,691 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Mis Reportes | Newsroom Portal
+    </title>
+
+
+    <!-- ==================================================
+         ESTILOS
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/layout-corporate.css"
+    >
+
+
+    <!-- ==================================================
+         ICONOS
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+
+    <!-- ==================================================
+         ESTILOS DE ESTA PÁGINA
+    ================================================== -->
+
+    <style>
+
+        /* =========================================
+           PAGE HEADER
+        ========================================= */
+
+        .page-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+
+            gap: 15px;
+
+            flex-wrap: wrap;
+
+        }
+
+
+        .page-header h2 {
+
+            font-size: 24px;
+
+            font-weight: 800;
+
+            color: #1f2937;
+
+        }
+
+
+        /* =========================================
+           BUTTON PRIMARY
+        ========================================= */
+
+        .btn-primary {
+
+            background: #c8102e;
+
+            color: #fff;
+
+            padding: 12px 18px;
+
+            border-radius: 12px;
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            transition: .2s ease;
+
+            box-shadow:
+                0 4px 12px rgba(200,16,46,.18);
+
+        }
+
+
+        .btn-primary:hover {
+
+            background: #a30d26;
+
+            transform: translateY(-1px);
+
+        }
+
+
+        /* =========================================
+           TABLE CONTAINER
+        ========================================= */
+
+        .table-container {
+
+            overflow: auto;
+
+            background: #ffffff;
+
+            border-radius: 18px;
+
+            padding: 18px;
+
+            border: 1px solid #edf0f4;
+
+            box-shadow:
+                0 5px 18px rgba(0,0,0,.05);
+
+        }
+
+
+        /* =========================================
+           TABLE
+        ========================================= */
+
+        .tickets-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            min-width: 1250px;
+
+        }
+
+
+        /* =========================================
+           TABLE HEAD
+        ========================================= */
+
+        .tickets-table thead th {
+
+            background: #f8fafc;
+
+            color: #374151;
+
+            padding: 13px 14px;
+
+            text-align: left;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            white-space: nowrap;
+
+        }
+
+
+        /* =========================================
+           TABLE BODY
+        ========================================= */
+
+        .tickets-table tbody td {
+
+            padding: 14px;
+
+            border-bottom:
+                1px solid #edf0f4;
+
+            font-size: 12px;
+
+            color: #374151;
+
+            vertical-align: middle;
+
+        }
+
+
+        .tickets-table tbody tr {
+
+            transition: .18s ease;
+
+        }
+
+
+        .tickets-table tbody tr:hover {
+
+            background: #fafafa;
+
+        }
+
+
+        /* =========================================
+           TICKET
+        ========================================= */
+
+        .ticket-number {
+
+            font-weight: 800;
+
+            color: #1f2937;
+
+        }
+
+
+        .ticket-title {
+
+            margin-top: 4px;
+
+            color: #6b7280;
+
+            max-width: 220px;
+
+        }
+
+
+        /* =========================================
+           BADGES
+        ========================================= */
+
+        .priority-badge,
+        .status-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 6px 10px;
+
+            border-radius: 50px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+
+        }
+
+
+        /* =========================================
+           PRIORIDADES
+        ========================================= */
+
+        .priority-crítica {
+
+            background: #fee2e2;
+
+            color: #991b1b;
+
+        }
+
+
+        .priority-alta {
+
+            background: #fef3c7;
+
+            color: #92400e;
+
+        }
+
+
+        .priority-media {
+
+            background: #dbeafe;
+
+            color: #1d4ed8;
+
+        }
+
+
+        .priority-baja {
+
+            background: #dcfce7;
+
+            color: #166534;
+
+        }
+
+
+        /* =========================================
+           ESTATUS
+        ========================================= */
+
+        .status-registrado {
+
+            background: #e0e7ff;
+
+            color: #3730a3;
+
+        }
+
+
+        .status-pendiente {
+
+            background: #fde68a;
+
+            color: #92400e;
+
+        }
+
+
+        .status-en-proceso {
+
+            background: #fef3c7;
+
+            color: #b45309;
+
+        }
+
+
+        .status-resuelto {
+
+            background: #dcfce7;
+
+            color: #166534;
+
+        }
+
+
+        .status-cancelado {
+
+            background: #fee2e2;
+
+            color: #991b1b;
+
+        }
+
+
+        /* =========================================
+           BUTTON VIEW
+        ========================================= */
+
+        .btn-view {
+
+            background: #c8102e;
+
+            color: #fff;
+
+            padding: 8px 12px;
+
+            border-radius: 10px;
+
+            text-decoration: none;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 6px;
+
+            transition: .2s ease;
+
+            white-space: nowrap;
+
+        }
+
+
+        .btn-view:hover {
+
+            background: #a30d26;
+
+            transform: translateY(-1px);
+
+        }
+
+
+        /* =========================================
+           EMPTY STATE
+        ========================================= */
+
+        .empty-state {
+
+            text-align: center;
+
+            padding: 60px 20px;
+
+            color: #6b7280;
+
+        }
+
+
+        .empty-state i {
+
+            font-size: 42px;
+
+            margin-bottom: 15px;
+
+            color: #c8102e;
+
+        }
+
+
+        .empty-state h3 {
+
+            margin-bottom: 8px;
+
+            color: #374151;
+
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media(max-width:900px) {
+
+            .table-container {
+
+                padding: 12px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+    <!-- ==================================================
+         SIDEBAR
+    ================================================== -->
+
+    <div
+        id="sidebarContainer"
+        data-sidebar="../includes/sidebar.html"
+    ></div>
+
+
+
+    <!-- ==================================================
+         MAIN
+    ================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ==================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+
+            <div class="page-title">
+
+                Mis Reportes
+
+            </div>
+
+
+
+            <div class="topbar-user">
+
+
+                <div
+                    class="user-avatar"
+                    id="userAvatar"
+                >
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong id="userName">
+                        Usuario
+                    </strong>
+
+                    <span>
+                        Support Portal
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- ==================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="content">
+
+
+            <!-- ==================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <div class="page-header">
+
+
+                <h2>
+                    Tickets Activos
+                </h2>
+
+
+                <a
+                    href="crear_ticket.html"
+                    class="btn-primary"
+                >
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Nuevo Ticket
+
+                </a>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 TABLE
+            ================================================== -->
+
+            <div class="table-container">
+
+
+                <table class="tickets-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Ticket
+                            </th>
+
+                            <th>
+                                Empleado
+                            </th>
+
+                            <th>
+                                División
+                            </th>
+
+                            <th>
+                                Área
+                            </th>
+
+                            <th>
+                                Categoría
+                            </th>
+
+                            <th>
+                                Prioridad
+                            </th>
+
+                            <th>
+                                Estatus
+                            </th>
+
+                            <th>
+                                Técnico
+                            </th>
+
+                            <th>
+                                Fecha
+                            </th>
+
+                            <th>
+                                Acción
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="ticketsTableBody">
+
+                        <!--
+                            Los tickets serán cargados
+                            dinámicamente por tickets-list.js
+                        -->
+
+                    </tbody>
+
+
+                </table>
+
+
+                <!-- ==================================================
+                     EMPTY STATE
+                ================================================== -->
+
+                <div
+                    id="emptyState"
+                    class="empty-state"
+                    style="display:none;"
+                >
+
+                    <i class="fa-solid fa-ticket"></i>
+
+                    <h3>
+                        No hay tickets activos
+                    </h3>
+
+                    <p>
+                        Actualmente no existen reportes
+                        pendientes o en atención.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="../js/data.js"></script>
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/sidebar.js"></script>
+
+<script src="tickets-list.js"></script>
+
+
+</body>
+
+</html>
+```

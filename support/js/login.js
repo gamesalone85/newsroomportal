@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    NEWSROOM PORTAL
    LOGIN CENTRAL
@@ -452,4 +451,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 });
-```

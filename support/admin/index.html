@@ -10,7 +10,14 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Administración | Newsroom Portal</title>
+    <title>
+        Administración | Newsroom Portal
+    </title>
+
+
+    <!-- ==================================================
+         ESTILOS
+    ================================================== -->
 
     <link
         rel="stylesheet"
@@ -22,9 +29,14 @@
         href="../css/admin.css"
     >
 
+
+    <!-- ==================================================
+         ICONOS
+    ================================================== -->
+
     <link
         rel="stylesheet"
-        href="../css/core-layout.css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
 </head>
@@ -38,38 +50,32 @@
 
     <!-- ==================================================
          SIDEBAR
-         ==================================================
+    ================================================== -->
 
-         Se carga desde:
-
-         support/includes/sidebar.html
-
-    =================================================== -->
-
-    <div id="sidebarContainer"></div>
+    <div
+        id="sidebarContainer"
+        data-sidebar="../includes/sidebar.html"
+    ></div>
 
 
 
     <!-- ==================================================
-         CONTENIDO PRINCIPAL
-    =================================================== -->
+         MAIN CONTENT
+    ================================================== -->
 
     <main class="main-content">
 
 
         <!-- ==================================================
              TOPBAR
-        =================================================== -->
+        ================================================== -->
 
         <header class="topbar">
 
 
             <div class="page-title">
-
                 Administración de Usuarios
-
             </div>
-
 
 
             <div class="topbar-user">
@@ -85,13 +91,16 @@
 
                 <div class="user-info">
 
+
                     <strong id="userName">
                         Administrador
                     </strong>
 
+
                     <span>
-                        Support Portal
+                        Newsroom Portal
                     </span>
+
 
                 </div>
 
@@ -104,27 +113,35 @@
 
 
         <!-- ==================================================
-             CONTENIDO ADMINISTRATIVO
+             ADMIN CONTENT
         ================================================== -->
 
         <section class="admin-content">
 
 
-            <!-- HEADER -->
+            <!-- ==================================================
+                 HEADER
+            ================================================== -->
 
             <div class="admin-header">
 
+
                 <div class="admin-header-left">
+
 
                     <h1>
                         Gestión Administrativa
                     </h1>
 
+
                     <p>
-                        Administración de usuarios y accesos del sistema
+                        Administración de usuarios y accesos
+                        del sistema
                     </p>
 
+
                 </div>
+
 
             </div>
 
@@ -137,67 +154,97 @@
             <div class="admin-grid">
 
 
-                <div class="admin-card admin-red">
+                <!-- TOTAL -->
+
+                <div
+                    class="admin-card admin-red"
+                >
+
 
                     <div class="admin-icon">
-                        👤
+                        <i class="fa-solid fa-users"></i>
                     </div>
 
+
                     <div>
+
 
                         <span>
                             Usuarios Totales
                         </span>
 
+
                         <h2 id="totalUsuarios">
                             0
                         </h2>
 
+
                     </div>
+
 
                 </div>
 
 
 
-                <div class="admin-card admin-green">
+                <!-- ACTIVOS -->
+
+                <div
+                    class="admin-card admin-green"
+                >
+
 
                     <div class="admin-icon">
-                        ✓
+                        <i class="fa-solid fa-user-check"></i>
                     </div>
 
+
                     <div>
+
 
                         <span>
                             Usuarios Activos
                         </span>
 
+
                         <h2 id="usuariosActivos">
                             0
                         </h2>
 
+
                     </div>
+
 
                 </div>
 
 
 
-                <div class="admin-card admin-gray">
+                <!-- SUSPENDIDOS -->
+
+                <div
+                    class="admin-card admin-gray"
+                >
+
 
                     <div class="admin-icon">
-                        ⏸
+                        <i class="fa-solid fa-user-clock"></i>
                     </div>
 
+
                     <div>
+
 
                         <span>
                             Suspendidos
                         </span>
 
+
                         <h2 id="usuariosSuspendidos">
                             0
                         </h2>
 
+
                     </div>
+
 
                 </div>
 
@@ -207,24 +254,31 @@
 
 
             <!-- ==================================================
-                 ACCIONES
+                 ACTIONS
             ================================================== -->
 
             <div class="admin-actions">
 
-                <a
+
+                <button
+                    type="button"
                     class="btn-primary"
-                    href="nuevo_usuario.html"
+                    id="nuevoUsuarioBtn"
                 >
-                    + Nuevo Usuario
-                </a>
+
+                    <i class="fa-solid fa-plus"></i>
+
+                    Nuevo Usuario
+
+                </button>
+
 
             </div>
 
 
 
             <!-- ==================================================
-                 TABLA
+                 TABLE
             ================================================== -->
 
             <div class="admin-table-card">
@@ -235,28 +289,51 @@
 
                     <thead>
 
+
                         <tr>
 
-                            <th>ID</th>
+                            <th>
+                                ID
+                            </th>
 
-                            <th>Nombre</th>
+                            <th>
+                                Nombre
+                            </th>
 
-                            <th>Usuario</th>
+                            <th>
+                                Usuario
+                            </th>
 
-                            <th>Correo</th>
+                            <th>
+                                Correo
+                            </th>
 
-                            <th>Rol</th>
+                            <th>
+                                Rol
+                            </th>
 
-                            <th>Estado</th>
+                            <th>
+                                Estado
+                            </th>
 
-                            <th>Acciones</th>
+                            <th>
+                                Acciones
+                            </th>
 
                         </tr>
+
 
                     </thead>
 
 
-                    <tbody id="usuariosTableBody">
+                    <tbody
+                        id="usuariosTableBody"
+                    >
+
+                        <!--
+                            Los usuarios serán
+                            generados por admin.js.
+                        -->
 
                     </tbody>
 
@@ -278,13 +355,378 @@
 
 
 <!-- =========================================================
+     MODAL NUEVO / EDITAR USUARIO
+========================================================= -->
+
+<div
+    id="usuarioModal"
+    class="admin-modal"
+    style="display:none;"
+>
+
+
+    <div class="admin-modal-content">
+
+
+        <div class="admin-modal-header">
+
+
+            <div>
+
+
+                <h2 id="modalTitle">
+                    Nuevo Usuario
+                </h2>
+
+
+                <p>
+                    Administración de acceso
+                </p>
+
+
+            </div>
+
+
+            <button
+                type="button"
+                class="modal-close"
+                id="cerrarModal"
+            >
+                &times;
+            </button>
+
+
+        </div>
+
+
+
+        <form
+            id="usuarioForm"
+            autocomplete="off"
+        >
+
+
+            <input
+                type="hidden"
+                id="usuarioId"
+            >
+
+
+
+            <div class="form-group">
+
+
+                <label for="nombre">
+                    Nombre
+                </label>
+
+
+                <input
+                    type="text"
+                    id="nombre"
+                    required
+                >
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+                <label for="usuario">
+                    Usuario
+                </label>
+
+
+                <input
+                    type="text"
+                    id="usuario"
+                    required
+                >
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+                <label for="correo">
+                    Correo
+                </label>
+
+
+                <input
+                    type="email"
+                    id="correo"
+                >
+
+
+            </div>
+
+
+
+            <div
+                class="form-group"
+                id="passwordGroup"
+            >
+
+
+                <label for="password">
+                    Contraseña
+                </label>
+
+
+                <input
+                    type="password"
+                    id="password"
+                >
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+                <label for="rolId">
+                    Rol
+                </label>
+
+
+                <select
+                    id="rolId"
+                    required
+                >
+
+                    <option value="1">
+                        Administrador
+                    </option>
+
+                    <option value="2">
+                        Support
+                    </option>
+
+                    <option value="3">
+                        Rooms
+                    </option>
+
+                    <option value="4">
+                        Rooms Admin
+                    </option>
+
+                    <option value="5">
+                        Vehicular
+                    </option>
+
+                    <option value="7">
+                        Credencialización
+                    </option>
+
+                    <option value="8">
+                        Capital Humano
+                    </option>
+
+                </select>
+
+
+            </div>
+
+
+
+            <div
+                id="formError"
+                class="error-message"
+                style="display:none;"
+            ></div>
+
+
+
+            <div class="modal-actions">
+
+
+                <button
+                    type="button"
+                    class="btn-back"
+                    id="cancelarUsuario"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Guardar Usuario
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     RESET PASSWORD MODAL
+========================================================= -->
+
+<div
+    id="passwordModal"
+    class="admin-modal"
+    style="display:none;"
+>
+
+
+    <div class="admin-modal-content">
+
+
+        <div class="admin-modal-header">
+
+
+            <div>
+
+
+                <h2>
+                    Reset Password
+                </h2>
+
+
+                <p id="passwordUserName">
+                    Usuario
+                </p>
+
+
+            </div>
+
+
+            <button
+                type="button"
+                class="modal-close"
+                id="cerrarPasswordModal"
+            >
+                &times;
+            </button>
+
+
+        </div>
+
+
+
+        <form
+            id="passwordForm"
+            autocomplete="off"
+        >
+
+
+            <input
+                type="hidden"
+                id="passwordUserId"
+            >
+
+
+            <div class="form-group">
+
+
+                <label for="newPassword">
+                    Nueva Contraseña
+                </label>
+
+
+                <input
+                    type="password"
+                    id="newPassword"
+                    required
+                >
+
+
+            </div>
+
+
+
+            <div class="form-group">
+
+
+                <label for="confirmPassword">
+                    Confirmar Contraseña
+                </label>
+
+
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    required
+                >
+
+
+            </div>
+
+
+
+            <div
+                id="passwordError"
+                class="error-message"
+                style="display:none;"
+            ></div>
+
+
+
+            <div class="modal-actions">
+
+
+                <button
+                    type="button"
+                    class="btn-back"
+                    id="cancelarPassword"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Guardar Nueva Contraseña
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================================================
      JAVASCRIPT
 ========================================================= -->
 
-<script src="../js/auth.js"></script>
 <script src="../js/data.js"></script>
+
+<script src="../js/auth.js"></script>
+
 <script src="../js/sidebar.js"></script>
-<script src="../js/admin.js"></script>
+
+<script src="admin.js"></script>
 
 
 </body>

@@ -725,9 +725,6 @@ function generarIdTicket() {
    GUARDAR TICKET TEMPORAL
 ========================================================= */
 
-function guardarTicketTemporal(
-    ticket
-) {
 
     /*
      * =====================================================
@@ -748,26 +745,30 @@ function guardarTicketTemporal(
      * =====================================================
      */
 
+   function guardarTicketTemporal(ticket) {
 
-    if (
-        typeof NEWSROOM_TICKETS ===
-        "undefined"
-    ) {
-
-        window.NEWSROOM_TICKETS = [];
-
-    }
+    const ticketsGuardados =
+        JSON.parse(
+            localStorage.getItem(
+                "newsroomTickets"
+            )
+        ) || [];
 
 
-    NEWSROOM_TICKETS.push(
+    ticketsGuardados.push(
         ticket
     );
 
 
+    localStorage.setItem(
+        "newsroomTickets",
+        JSON.stringify(
+            ticketsGuardados
+        )
+    );
+
 }
-
-
-
+   
 /* =========================================================
    MENSAJES
 ========================================================= */

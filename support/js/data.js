@@ -278,3 +278,134 @@ function obtenerEstadisticasUsuarios() {
     };
 
 }
+/* =========================================================
+   CATÁLOGOS TEMPORALES
+   ========================================================= */
+
+const NEWSROOM_DIVISIONES = [
+
+    {
+        id: 1,
+        nombre: "Administración"
+    },
+
+    {
+        id: 2,
+        nombre: "Noticias"
+    },
+
+    {
+        id: 3,
+        nombre: "Producción"
+    },
+
+    {
+        id: 4,
+        nombre: "Editorial"
+    }
+
+];
+
+
+const NEWSROOM_AREAS = [
+
+    {
+        id: 1,
+        nombre: "Sistemas"
+    },
+
+    {
+        id: 2,
+        nombre: "Recursos Humanos"
+    },
+
+    {
+        id: 3,
+        nombre: "Producción"
+    },
+
+    {
+        id: 4,
+        nombre: "Redacción"
+    }
+
+];
+
+
+const NEWSROOM_CATEGORIAS = [
+
+    {
+        id: 1,
+        nombre: "Hardware"
+    },
+
+    {
+        id: 2,
+        nombre: "Software"
+    },
+
+    {
+        id: 3,
+        nombre: "Red"
+    },
+
+    {
+        id: 4,
+        nombre: "Impresoras"
+    },
+
+    {
+        id: 5,
+        nombre: "Correo"
+    },
+
+    {
+        id: 6,
+        nombre: "Accesos"
+    },
+
+    {
+        id: 7,
+        nombre: "Otro"
+    }
+
+];
+
+
+/* =========================================================
+   TICKETS
+   ========================================================= */
+
+const NEWSROOM_TICKETS = [];
+
+
+/* =========================================================
+   FUNCIONES DE ACCESO
+   ========================================================= */
+
+function obtenerDivisiones() {
+
+    return NEWSROOM_DIVISIONES;
+
+}
+
+
+function obtenerAreas() {
+
+    return NEWSROOM_AREAS;
+
+}
+
+
+function obtenerCategorias() {
+
+    return NEWSROOM_CATEGORIAS;
+
+}
+
+
+function obtenerTickets() {
+
+    return NEWSROOM_TICKETS;
+
+}

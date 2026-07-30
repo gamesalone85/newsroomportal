@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    NEWSROOM PORTAL
    SIDEBAR CONTROLLER
@@ -344,4 +343,3 @@ document.addEventListener(
 
     }
 );
-```

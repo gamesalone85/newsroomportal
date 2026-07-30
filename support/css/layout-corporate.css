@@ -1,0 +1,460 @@
+/* =========================================
+   CORPORATE LAYOUT V3
+========================================= */
+
+.layout{
+    display:flex;
+    min-height:100vh;
+    background:#f4f6f9;
+}
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.sidebar{
+
+    width:280px;
+    height:100vh;
+
+    position:fixed;
+    top:0;
+    left:0;
+
+    overflow-y:auto;
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(84,86,90,.97),
+        rgba(45,47,50,.98)
+    ),
+    url('../img/sidebar-bg.jpg');
+
+    background-size:cover;
+    background-position:center;
+
+    backdrop-filter:blur(10px);
+
+    color:#fff;
+
+    padding:18px 14px;
+
+    display:flex;
+    flex-direction:column;
+
+    transition:.25s ease;
+
+    box-shadow:
+    8px 0 30px rgba(0,0,0,.18);
+
+    z-index:1000;
+
+}
+
+/* =========================================
+   LOGO
+========================================= */
+
+.logo{
+
+    background:
+    rgba(255,255,255,.06);
+
+    border:
+    1px solid rgba(255,255,255,.08);
+
+    border-radius:20px;
+
+    padding:18px;
+
+    margin-bottom:24px;
+
+    cursor:pointer;
+
+    transition:.25s ease;
+
+    text-align:center;
+
+}
+
+.logo:hover{
+
+    background:
+    rgba(255,255,255,.10);
+
+    transform:translateY(-2px);
+
+}
+
+.logo-img{
+
+    width:150px;
+
+    transition:.25s ease;
+
+}
+
+/* =========================================
+   NAV
+========================================= */
+
+.sidebar-nav{
+
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+
+    flex:1;
+
+}
+
+/* =========================================
+   ITEMS
+========================================= */
+
+.nav-item{
+
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    padding:15px 16px;
+
+    border-radius:16px;
+
+    text-decoration:none;
+
+    color:#fff;
+
+    font-size:14px;
+    font-weight:600;
+
+    transition:.22s ease;
+
+    position:relative;
+
+}
+
+.nav-item i{
+
+    width:18px;
+    text-align:center;
+    font-size:15px;
+
+}
+
+.nav-item:hover{
+
+    background:
+    rgba(255,255,255,.08);
+
+    transform:translateX(4px);
+
+}
+
+.nav-item.active{
+
+    background:
+    linear-gradient(
+        135deg,
+        #c8102e,
+        #a30d26
+    );
+
+    box-shadow:
+    0 10px 25px rgba(200,16,46,.30);
+
+}
+
+/* =========================================
+   GROUPS
+========================================= */
+
+.nav-group{
+
+    background:
+    rgba(255,255,255,.04);
+
+    border:
+    1px solid rgba(255,255,255,.05);
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+}
+
+/* =========================================
+   DROPDOWN BTN
+========================================= */
+
+.nav-dropdown-btn{
+
+    width:100%;
+
+    border:none;
+    background:none;
+
+    color:#fff;
+
+    padding:16px;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    transition:.2s ease;
+
+}
+
+.nav-dropdown-btn:hover{
+
+    background:
+    rgba(255,255,255,.05);
+
+}
+
+.nav-dropdown-left{
+
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    font-size:14px;
+    font-weight:600;
+
+}
+
+.nav-arrow{
+
+    font-size:12px;
+    transition:.25s ease;
+
+}
+
+/* =========================================
+   SUBMENUS
+========================================= */
+
+.nav-dropdown-menu{
+
+    display:none;
+
+    flex-direction:column;
+
+    gap:6px;
+
+    padding:
+    0 10px 12px 10px;
+
+}
+
+.nav-group.open .nav-dropdown-menu{
+
+    display:flex;
+
+}
+
+.nav-group.open .nav-arrow{
+
+    transform:rotate(180deg);
+
+}
+
+.nav-dropdown-menu a{
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    padding:12px 14px;
+
+    border-radius:12px;
+
+    text-decoration:none;
+
+    color:#dce3eb;
+
+    transition:.2s ease;
+
+    font-size:13px;
+
+}
+
+.nav-dropdown-menu a:hover{
+
+    background:
+    rgba(255,255,255,.07);
+
+    color:#fff;
+
+    transform:translateX(3px);
+
+}
+
+.nav-dropdown-menu a.active{
+
+    background:
+    linear-gradient(
+        90deg,
+        rgba(200,16,46,.95),
+        rgba(200,16,46,.75)
+    );
+
+    color:#fff;
+
+    font-weight:700;
+
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.sidebar-footer{
+
+    margin-top:25px;
+
+    padding-top:20px;
+
+    border-top:
+    1px solid rgba(255,255,255,.08);
+
+    text-align:center;
+
+}
+
+.sidebar-footer strong{
+
+    display:block;
+
+    font-size:12px;
+
+    letter-spacing:1px;
+
+}
+
+.sidebar-footer span{
+
+    font-size:11px;
+
+    color:rgba(255,255,255,.6);
+
+}
+
+/* =========================================
+   COLLAPSED
+========================================= */
+
+.sidebar.collapsed{
+
+    width:92px;
+
+}
+
+.sidebar.collapsed .logo-img{
+
+    width:42px;
+
+}
+
+.sidebar.collapsed span,
+.sidebar.collapsed .nav-arrow,
+.sidebar.collapsed .sidebar-footer{
+
+    display:none;
+
+}
+
+.sidebar.collapsed .nav-item,
+.sidebar.collapsed .nav-dropdown-btn{
+
+    justify-content:center;
+
+    padding:16px 0;
+
+}
+
+.sidebar.collapsed .nav-dropdown-menu{
+
+    display:none !important;
+
+}
+
+/* =========================================
+   MAIN
+========================================= */
+
+.main-content{
+
+    flex:1;
+
+    margin-left:280px;
+
+    width:calc(100% - 280px);
+
+    padding:22px;
+
+    transition:.25s ease;
+
+}
+
+/* =========================================
+   TOPBAR
+========================================= */
+
+.topbar{
+
+    background:rgba(255,255,255,.94);
+
+    backdrop-filter:blur(10px);
+
+    padding:18px 24px;
+
+    border-radius:18px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:22px;
+
+    box-shadow:0 5px 18px rgba(0,0,0,.05);
+
+    border:1px solid rgba(255,255,255,.7);
+
+}
+.page-title{
+
+    font-size:24px;
+    font-weight:700;
+
+    color:#54565a;
+
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media(max-width:900px){
+
+    .sidebar{
+
+        width:100%;
+        height:auto;
+        position:relative;
+
+    }
+
+    .main-content{
+
+        margin-left:0;
+        width:100%;
+
+    }
+
+}

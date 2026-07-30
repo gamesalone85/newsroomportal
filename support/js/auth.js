@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    NEWSROOM PORTAL
    SISTEMA DE AUTENTICACIÓN
@@ -244,4 +243,3 @@ function obtenerRolActual() {
     );
 
 }
-```

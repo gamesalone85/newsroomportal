@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Detalle Ticket | Newsroom Portal
+    </title>
+
+
+    <!-- ==================================================
+         ESTILOS
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/layout-corporate.css"
+    >
+
+
+    <!-- ==================================================
+         ICONOS
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+
+    <!-- ==================================================
+         ESTILOS DEL MÓDULO
+    ================================================== -->
+
+    <style>
+
+        /* =========================================
+           TICKET DETAIL
+        ========================================= */
+
+        .ticket-detail {
+
+            background: #ffffff;
+
+            padding: 25px;
+
+            border-radius: 18px;
+
+            border: 1px solid #edf0f4;
+
+            box-shadow:
+                0 5px 18px rgba(0,0,0,.05);
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .ticket-detail h2 {
+
+            margin-top: 0;
+
+            margin-bottom: 15px;
+
+            font-size: 24px;
+
+            color: #1f2937;
+
+        }
+
+
+        .ticket-description {
+
+            color: #4b5563;
+
+            line-height: 1.7;
+
+            white-space: pre-wrap;
+
+        }
+
+
+        /* =========================================
+           INFO GRID
+        ========================================= */
+
+        .ticket-info-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 15px;
+
+            margin-top: 20px;
+
+        }
+
+
+        .ticket-info-item {
+
+            background: #f8fafc;
+
+            padding: 15px;
+
+            border-radius: 12px;
+
+        }
+
+
+        .ticket-info-item span {
+
+            display: block;
+
+            font-size: 11px;
+
+            color: #6b7280;
+
+            margin-bottom: 5px;
+
+            font-weight: 600;
+
+        }
+
+
+        .ticket-info-item strong {
+
+            color: #1f2937;
+
+            font-size: 13px;
+
+        }
+
+
+        /* =========================================
+           SOLUTION
+        ========================================= */
+
+        .solution-box {
+
+            margin-top: 20px;
+
+            padding: 20px;
+
+            background: #ecfdf5;
+
+            border-left: 5px solid #16a34a;
+
+            border-radius: 8px;
+
+        }
+
+
+        .solution-box h4 {
+
+            margin-top: 0;
+
+            color: #166534;
+
+        }
+
+
+        .solution-box p {
+
+            color: #374151;
+
+            line-height: 1.6;
+
+            white-space: pre-wrap;
+
+        }
+
+
+        /* =========================================
+           FORM
+        ========================================= */
+
+        .form-container {
+
+            background: #ffffff;
+
+            padding: 25px;
+
+            border-radius: 18px;
+
+            border: 1px solid #edf0f4;
+
+            box-shadow:
+                0 5px 18px rgba(0,0,0,.05);
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .form-group {
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .form-group label {
+
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: #374151;
+
+        }
+
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+
+            width: 100%;
+
+            box-sizing: border-box;
+
+            padding: 11px 13px;
+
+            border: 1px solid #d1d5db;
+
+            border-radius: 10px;
+
+            font-family: inherit;
+
+            font-size: 13px;
+
+        }
+
+
+        .form-group textarea {
+
+            resize: vertical;
+
+        }
+
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+
+            outline: none;
+
+            border-color: #c8102e;
+
+            box-shadow:
+                0 0 0 3px rgba(200,16,46,.08);
+
+        }
+
+
+        /* =========================================
+           BUTTON
+        ========================================= */
+
+        .btn-primary {
+
+            background: #c8102e;
+
+            color: #ffffff;
+
+            border: none;
+
+            padding: 12px 18px;
+
+            border-radius: 12px;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+
+        .btn-primary:hover {
+
+            background: #a30d26;
+
+        }
+
+
+        /* =========================================
+           HISTORIAL
+        ========================================= */
+
+        .history-title {
+
+            margin-top: 0;
+
+            margin-bottom: 20px;
+
+            color: #1f2937;
+
+        }
+
+
+        .table-seguimiento {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            background: #ffffff;
+
+        }
+
+
+        .table-seguimiento th {
+
+            background: #1f2937;
+
+            color: #ffffff;
+
+            padding: 12px;
+
+            text-align: left;
+
+            font-size: 12px;
+
+        }
+
+
+        .table-seguimiento td {
+
+            padding: 12px;
+
+            border-bottom:
+                1px solid #e5e7eb;
+
+            font-size: 12px;
+
+            color: #374151;
+
+            vertical-align: top;
+
+        }
+
+
+        .table-seguimiento tr:hover {
+
+            background: #f8fafc;
+
+        }
+
+
+        /* =========================================
+           HISTORY BADGES
+        ========================================= */
+
+        .history-badge {
+
+            color: #ffffff;
+
+            padding: 5px 10px;
+
+            border-radius: 20px;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            display: inline-block;
+
+        }
+
+
+        .badge-comentario {
+
+            background: #2563eb;
+
+        }
+
+
+        .badge-estatus {
+
+            background: #f59e0b;
+
+        }
+
+
+        .badge-solucion {
+
+            background: #16a34a;
+
+        }
+
+
+        .badge-asignacion {
+
+            background: #7c3aed;
+
+        }
+
+
+        .badge-sistema {
+
+            background: #6b7280;
+
+        }
+
+
+        /* =========================================
+           KNOWLEDGE BASE
+        ========================================= */
+
+        .kb-results {
+
+            margin-top: 10px;
+
+        }
+
+
+        .kb-result {
+
+            background: #f8fafc;
+
+            padding: 15px;
+
+            border-radius: 12px;
+
+            margin-top: 10px;
+
+            border: 1px solid #e5e7eb;
+
+        }
+
+
+        .kb-result strong {
+
+            color: #1f2937;
+
+        }
+
+
+        .kb-result p {
+
+            color: #4b5563;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+        }
+
+
+        .kb-result details {
+
+            margin-top: 10px;
+
+        }
+
+
+        .kb-result summary {
+
+            cursor: pointer;
+
+            color: #c8102e;
+
+            font-weight: 700;
+
+            font-size: 12px;
+
+        }
+
+
+        /* =========================================
+           LOCKED
+        ========================================= */
+
+        .ticket-locked {
+
+            background: #f3f4f6;
+
+            border: 1px solid #d1d5db;
+
+            padding: 15px;
+
+            border-radius: 12px;
+
+            margin-bottom: 20px;
+
+            color: #374151;
+
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media(max-width:900px) {
+
+            .ticket-info-grid {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+        }
+
+
+        @media(max-width:600px) {
+
+            .ticket-info-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+            .table-seguimiento {
+
+                min-width: 700px;
+
+            }
+
+            .form-container {
+
+                padding: 18px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+    <!-- ==================================================
+         SIDEBAR
+    ================================================== -->
+
+    <div id="sidebarContainer"></div>
+
+
+
+    <!-- ==================================================
+         MAIN
+    ================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ==================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+
+            <div
+                class="page-title"
+                id="pageTitle"
+            >
+                Detalle Ticket
+            </div>
+
+
+            <div class="topbar-user">
+
+
+                <div
+                    class="user-avatar"
+                    id="userAvatar"
+                >
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong id="userName">
+                        Usuario
+                    </strong>
+
+                    <span>
+                        Support Portal
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- ==================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="content">
+
+
+            <!-- ==================================================
+                 DETALLE
+            ================================================== -->
+
+            <div
+                id="ticketDetail"
+                class="ticket-detail"
+            >
+
+                <h2 id="ticketTitle">
+                    Cargando ticket...
+                </h2>
+
+
+                <p
+                    id="ticketDescription"
+                    class="ticket-description"
+                >
+                </p>
+
+
+                <div
+                    id="ticketInfoGrid"
+                    class="ticket-info-grid"
+                >
+                </div>
+
+
+                <div
+                    id="solutionBox"
+                    class="solution-box"
+                    style="display:none;"
+                >
+
+                    <h4>
+                        <i class="fa-solid fa-circle-check"></i>
+                        Solución Técnica Final
+                    </h4>
+
+
+                    <p id="ticketSolution"></p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 FORMULARIO
+            ================================================== -->
+
+            <div
+                id="updateContainer"
+                class="form-container"
+                style="display:none;"
+            >
+
+                <form id="ticketForm">
+
+
+                    <div
+                        id="adminActionGroup"
+                        class="form-group"
+                        style="display:none;"
+                    >
+
+                        <label>
+                            Acción Administrativa
+                        </label>
+
+
+                        <select id="adminStatus">
+
+                            <option value="Cerrado">
+                                Cerrado
+                            </option>
+
+                            <option value="En Proceso">
+                                Reabrir Ticket
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div
+                        id="statusGroup"
+                        class="form-group"
+                    >
+
+                        <label>
+                            Estatus
+                        </label>
+
+
+                        <select
+                            id="ticketStatus"
+                            required
+                        >
+
+                            <option value="En Proceso">
+                                En Proceso
+                            </option>
+
+                            <option value="Pendiente">
+                                Pendiente
+                            </option>
+
+                            <option value="Resuelto">
+                                Resolver y Cerrar
+                            </option>
+
+                            <option value="Cerrado">
+                                Cerrar Manualmente
+                            </option>
+
+                            <option value="Cancelado">
+                                Cancelado
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div
+                        id="technicianGroup"
+                        class="form-group"
+                    >
+
+                        <label>
+                            Técnico Asignado
+                        </label>
+
+
+                        <select
+                            id="technicianSelect"
+                        >
+
+                            <option value="">
+                                Sin asignar
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Comentario
+                        </label>
+
+
+                        <textarea
+                            id="commentInput"
+                            rows="4"
+                            placeholder="Agregar comentario..."
+                        ></textarea>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Solución Técnica
+                        </label>
+
+
+                        <textarea
+                            id="solutionInput"
+                            rows="6"
+                            placeholder="Describe la solución aplicada..."
+                        ></textarea>
+
+                    </div>
+
+
+
+                    <!-- ==================================================
+                         KNOWLEDGE BASE
+                    ================================================== -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Base de Conocimiento
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="kbSearch"
+                            placeholder="Buscar solución..."
+                        >
+
+
+                        <div
+                            id="kbResults"
+                            class="kb-results"
+                        ></div>
+
+                    </div>
+
+
+
+                    <button
+                        class="btn-primary"
+                        type="submit"
+                    >
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+
+                        Actualizar Ticket
+
+                    </button>
+
+
+                </form>
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 TICKET BLOQUEADO
+            ================================================== -->
+
+            <div
+                id="lockedMessage"
+                class="ticket-locked"
+                style="display:none;"
+            >
+
+                <i class="fa-solid fa-lock"></i>
+
+                Este ticket se encuentra cerrado o cancelado.
+                Solo un administrador puede realizar acciones
+                adicionales.
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 HISTORIAL
+            ================================================== -->
+
+            <div class="form-container">
+
+
+                <h3 class="history-title">
+
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                    Historial del Ticket
+
+                </h3>
+
+
+                <div style="overflow:auto;">
+
+                    <table class="table-seguimiento">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Fecha
+                                </th>
+
+                                <th>
+                                    Usuario
+                                </th>
+
+                                <th>
+                                    Tipo
+                                </th>
+
+                                <th>
+                                    Detalle
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody
+                            id="historyBody"
+                        >
+
+                        </tbody>
+
+
+                    </table>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="../js/data.js"></script>
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/sidebar.js"></script>
+
+<script src="detalle-ticket.js"></script>
+
+
+</body>
+
+</html>

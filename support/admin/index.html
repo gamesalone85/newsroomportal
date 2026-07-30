@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 
@@ -12,20 +13,19 @@
 
     <title>Administración | Newsroom Portal</title>
 
-
-    <!-- CSS GENERAL -->
-
     <link
         rel="stylesheet"
         href="../css/styles.css"
     >
 
-
-    <!-- CSS ADMINISTRACIÓN -->
-
     <link
         rel="stylesheet"
         href="../css/admin.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/core-layout.css"
     >
 
 </head>
@@ -41,78 +41,13 @@
          SIDEBAR
          ==================================================
 
-         Posteriormente sustituiremos este bloque por el
-         componente HTML definitivo del sidebar.
+         Se carga desde:
+
+         support/includes/sidebar.html
 
     =================================================== -->
 
-    <aside class="sidebar">
-
-        <div class="sidebar-brand">
-
-            <img
-                src="../../img/logo1.png"
-                alt="Newsroom Portal"
-            >
-
-            <span>
-                Newsroom Portal
-            </span>
-
-        </div>
-
-
-        <nav class="sidebar-nav">
-
-
-            <a
-                href="../dashboard/index.html"
-                class="sidebar-link"
-            >
-                Dashboard
-            </a>
-
-
-            <a
-                href="index.html"
-                class="sidebar-link active"
-            >
-                Administración
-            </a>
-
-
-            <a
-                href="../dashboard/index.html"
-                class="sidebar-link"
-            >
-                Soporte
-            </a>
-
-
-            <a
-                href="../../index.html"
-                class="sidebar-link"
-            >
-                Inicio
-            </a>
-
-
-        </nav>
-
-
-        <div class="sidebar-footer">
-
-            <button
-                type="button"
-                id="logoutButton"
-                class="sidebar-logout"
-            >
-                Cerrar sesión
-            </button>
-
-        </div>
-
-    </aside>
+    <div id="sidebarContainer"></div>
 
 
 
@@ -171,33 +106,26 @@
 
         <!-- ==================================================
              CONTENIDO ADMINISTRATIVO
-        =================================================== -->
+        ================================================== -->
 
         <section class="admin-content">
 
 
-            <!-- ==================================================
-                 HEADER
-            =================================================== -->
+            <!-- HEADER -->
 
             <div class="admin-header">
 
-
                 <div class="admin-header-left">
-
 
                     <h1>
                         Gestión Administrativa
                     </h1>
 
-
                     <p>
                         Administración de usuarios y accesos del sistema
                     </p>
 
-
                 </div>
-
 
             </div>
 
@@ -205,20 +133,16 @@
 
             <!-- ==================================================
                  KPIs
-            =================================================== -->
+            ================================================== -->
 
             <div class="admin-grid">
 
 
-                <!-- USUARIOS TOTALES -->
-
                 <div class="admin-card admin-red">
-
 
                     <div class="admin-icon">
                         👤
                     </div>
-
 
                     <div>
 
@@ -226,27 +150,21 @@
                             Usuarios Totales
                         </span>
 
-
                         <h2 id="totalUsuarios">
                             0
                         </h2>
 
                     </div>
 
-
                 </div>
 
 
 
-                <!-- USUARIOS ACTIVOS -->
-
                 <div class="admin-card admin-green">
-
 
                     <div class="admin-icon">
                         ✓
                     </div>
-
 
                     <div>
 
@@ -254,27 +172,21 @@
                             Usuarios Activos
                         </span>
 
-
                         <h2 id="usuariosActivos">
                             0
                         </h2>
 
                     </div>
 
-
                 </div>
 
 
 
-                <!-- SUSPENDIDOS -->
-
                 <div class="admin-card admin-gray">
-
 
                     <div class="admin-icon">
                         ⏸
                     </div>
-
 
                     <div>
 
@@ -282,13 +194,11 @@
                             Suspendidos
                         </span>
 
-
                         <h2 id="usuariosSuspendidos">
                             0
                         </h2>
 
                     </div>
-
 
                 </div>
 
@@ -299,10 +209,9 @@
 
             <!-- ==================================================
                  ACCIONES
-            =================================================== -->
+            ================================================== -->
 
             <div class="admin-actions">
-
 
                 <a
                     class="btn-primary"
@@ -311,14 +220,13 @@
                     + Nuevo Usuario
                 </a>
 
-
             </div>
 
 
 
             <!-- ==================================================
-                 TABLA DE USUARIOS
-            =================================================== -->
+                 TABLA
+            ================================================== -->
 
             <div class="admin-table-card">
 
@@ -330,48 +238,26 @@
 
                         <tr>
 
-                            <th>
-                                ID
-                            </th>
+                            <th>ID</th>
 
-                            <th>
-                                Nombre
-                            </th>
+                            <th>Nombre</th>
 
-                            <th>
-                                Usuario
-                            </th>
+                            <th>Usuario</th>
 
-                            <th>
-                                Correo
-                            </th>
+                            <th>Correo</th>
 
-                            <th>
-                                Rol
-                            </th>
+                            <th>Rol</th>
 
-                            <th>
-                                Estado
-                            </th>
+                            <th>Estado</th>
 
-                            <th>
-                                Acciones
-                            </th>
+                            <th>Acciones</th>
 
                         </tr>
 
                     </thead>
 
 
-
                     <tbody id="usuariosTableBody">
-
-                        <!--
-
-                            Los usuarios serán cargados
-                            mediante JavaScript.
-
-                        -->
 
                     </tbody>
 
@@ -392,9 +278,13 @@
 
 
 
-<!-- ==================================================
+<!-- =========================================================
      JAVASCRIPT
-=================================================== -->
+========================================================= -->
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/sidebar.js"></script>
 
 <script src="../js/admin.js"></script>
 
@@ -402,3 +292,4 @@
 </body>
 
 </html>
+```

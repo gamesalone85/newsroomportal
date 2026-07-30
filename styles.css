@@ -1,0 +1,495 @@
+/* =======================================================
+   ADENERGY NEWSROOM
+   MAIN STYLES (CLEAN + CORPORATE SYSTEM)
+======================================================= */
+
+/* =======================================================
+   VARIABLES CORPORATIVAS
+======================================================= */
+
+:root{
+
+    --primary-red:#c8102e;
+    --primary-gray:#54565a;
+    --primary-green:#00ae42;
+
+    --white:#ffffff;
+    --light-gray:#d2d0cd;
+    --warm-gray:#968c83;
+
+    --text-dark:#1d2939;
+    --text-gray:#54565a;
+
+    --shadow:0 10px 30px rgba(0,0,0,.12);
+}
+
+/* =======================================================
+   GLOBAL
+======================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    overflow-x:hidden;
+    background:var(--light-gray);
+    color:var(--text-dark);
+}
+
+/* =======================================================
+   MAIN CONTENT
+======================================================= */
+
+.main-content{
+    position:relative;
+    z-index:2;
+}
+
+/* =======================================================
+   SWIPER (AJUSTADO - MÁS DISCRETO)
+======================================================= */
+
+.swiper-section{
+    padding:20px 5% 40px;
+    max-width:1100px;
+    margin:auto;
+}
+
+.swiper{
+    width:100%;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+.swiper-slide img{
+    width:100%;
+    height:320px;
+    object-fit:cover;
+    transition:.5s ease;
+}
+
+.swiper-slide:hover img{
+    transform:scale(1.03);
+}
+
+.swiper-slide::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+        90deg,
+        rgba(0,0,0,.15),
+        rgba(0,0,0,.05)
+    );
+    z-index:2;
+}
+
+/* CONTROLES SWIPER */
+.swiper-button-next,
+.swiper-button-prev{
+    width:45px !important;
+    height:45px !important;
+    border-radius:50%;
+    background:rgba(255,255,255,.25);
+    backdrop-filter:blur(8px);
+    color:#fff !important;
+    transition:.3s;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover{
+    background:var(--primary-red);
+}
+
+.swiper-pagination-bullet{
+    width:10px !important;
+    height:10px !important;
+    background:#fff !important;
+    opacity:.6;
+}
+
+.swiper-pagination-bullet-active{
+    background:var(--primary-red) !important;
+    opacity:1;
+}
+
+/* =======================================================
+   HERO (si lo usas en otras páginas)
+======================================================= */
+
+.hero{
+    padding:80px 20px 50px;
+}
+
+.hero h1{
+    font-size:64px;
+    font-weight:700;
+    color:var(--primary-gray);
+    line-height:1.1;
+    margin-bottom:25px;
+}
+
+/* =======================================================
+   TEXTOS
+======================================================= */
+
+.highlight{
+    color:var(--primary-red);
+    font-size:24px;
+    font-weight:600;
+    margin-bottom:20px;
+}
+
+.description{
+    color:var(--text-gray);
+    font-size:18px;
+    line-height:1.9;
+}
+
+/* =======================================================
+   BOTONES
+======================================================= */
+
+.btn-main{
+    background:linear-gradient(135deg,var(--primary-red),#ff3c45);
+    border:none;
+    color:#fff;
+    padding:16px 34px;
+    border-radius:50px;
+    font-weight:600;
+    transition:.3s;
+    box-shadow:0 10px 25px rgba(200,16,46,.25);
+}
+
+.btn-second{
+    background:linear-gradient(135deg,var(--primary-gray),var(--warm-gray));
+    border:none;
+    color:#fff;
+    padding:16px 34px;
+    border-radius:50px;
+    font-weight:600;
+    transition:.3s;
+}
+
+.btn-main:hover,
+.btn-second:hover{
+    transform:translateY(-5px);
+}
+
+/* =======================================================
+   SERVICES
+======================================================= */
+
+.services-section{
+    padding:90px 0;
+}
+
+.service-card{
+    background:rgba(255,255,255,.85);
+    backdrop-filter:blur(10px);
+    border-radius:18px;
+
+    padding:22px 18px;
+
+    text-align:center;
+    transition:.25s ease;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+    min-height:170px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.service-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 28px rgba(0,0,0,.12);
+}
+
+.service-card i{
+    font-size:34px;
+    color:var(--primary-red);
+    margin-bottom:12px;
+}
+
+.service-card h3{
+    font-size:15px;
+    font-weight:600;
+    margin:0;
+    color:var(--text-dark);
+}
+
+/* =======================================================
+   NEWSROOM
+======================================================= */
+
+.newsroom-section{
+    padding:80px 0;
+}
+
+.newsroom-card{
+    background:rgba(255,255,255,0.88);
+    backdrop-filter:blur(12px);
+    border-radius:24px;
+    padding:30px;
+    height:100%;
+    box-shadow:var(--shadow);
+    transition:.3s;
+}
+
+.newsroom-card:hover{
+    transform:translateY(-5px);
+}
+
+/* BADGE */
+.news-badge{
+    display:inline-block;
+    background:var(--primary-red);
+    color:#fff;
+    padding:8px 16px;
+    border-radius:50px;
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+/* ICONOS */
+.card-icon{
+    width:60px;
+    height:60px;
+    background:rgba(200,16,46,.1);
+    color:var(--primary-red);
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:20px;
+    font-size:24px;
+}
+
+/* ======================================================
+   AI ASSISTANT
+====================================================== */
+
+.ai-button{
+    position:fixed;
+    bottom:30px;
+    right:30px;
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background:#0d6efd;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-size:28px;
+    cursor:pointer;
+    z-index:9999;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    transition:.3s;
+}
+
+.ai-button:hover{
+    transform:scale(1.1);
+}
+
+.ai-chat{
+    position:fixed;
+    bottom:120px;
+    right:30px;
+    width:380px;
+    max-width:90%;
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    z-index:9999;
+    display:none;
+    box-shadow:0 20px 50px rgba(0,0,0,.2);
+}
+
+.ai-header{
+    background:#0d6efd;
+    color:white;
+    padding:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.ai-body{
+    padding:20px;
+}
+
+/* =======================================================
+   ROOMS
+======================================================= */
+
+.rooms-section{
+    background:#f8fafc;
+}
+
+.room-card{
+    background:#fff;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.06);
+    transition:.3s;
+}
+
+.room-card:hover{
+    transform:translateY(-3px);
+}
+
+.status.available{
+    background:#e8fff1;
+    color:#1a7f37;
+}
+
+.status.occupied{
+    background:#ffe8e8;
+    color:#b42318;
+}
+
+/* =========================================================
+   SUPPORT MODAL
+========================================================= */
+
+.support-card{
+    cursor:pointer;
+}
+
+.support-modal-content{
+    border:none;
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,.18);
+}
+
+.support-modal-header{
+    background:linear-gradient(135deg,#c8102e,#a50d26);
+    color:#fff;
+    padding:22px 28px;
+}
+
+.support-frame{
+    width:100%;
+    height:85vh;
+    background:#fff;
+}
+
+/* =======================================================
+   RESPONSIVE
+======================================================= */
+
+@media(max-width:992px){
+    .hero h1{font-size:46px;}
+    .swiper-slide img{height:260px;}
+}
+
+@media(max-width:768px){
+    .hero h1{font-size:36px;}
+    .swiper-slide img{height:220px;}
+}
+
+@media(max-width:576px){
+    .hero h1{font-size:30px;}
+    .swiper-slide img{height:180px;}
+}
+
+/* =======================================================
+   VEHICULAR MODULE
+======================================================= */
+
+.vehicle-header{
+    background:linear-gradient(135deg,#c8102e,#a50d26);
+    color:#fff;
+    padding:30px;
+    border-radius:20px;
+}
+
+.vehicle-form label{
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+.vehicle-form input,
+.vehicle-form textarea{
+    border-radius:12px;
+    border:1px solid #ddd;
+    padding:12px;
+}
+
+.vehicle-card{
+    background:#fff;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:var(--shadow);
+}
+
+.ticket-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap:15px;
+}
+
+.ticket-card{
+    background:#fff;
+    border-radius:12px;
+    padding:15px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
+    border:1px solid #eee;
+}
+
+.ticket-number{
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+.ticket-status{
+    margin-bottom:10px;
+}
+
+.ticket-date{
+    font-size:12px;
+    color:#777;
+}
+
+.ticket-position{
+    margin-top:8px;
+    font-size:11px;
+    color:#999;
+}
+
+/* =======================================================
+   CREDENCIAL
+======================================================= */
+
+
+.credencial-card{
+    min-height: 150px;   /* más pequeña que las otras */
+    padding: 18px 14px;
+}
+
+.credencial-card i{
+    font-size: 30px;
+    margin-bottom: 10px;
+}
+
+.credencial-card h3{
+    font-size: 14px;
+}

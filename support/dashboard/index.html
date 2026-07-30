@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Dashboard | Newsroom Portal
+    </title>
+
+
+    <!-- ==================================================
+         CSS
+    =================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/layout-corporate.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/dashboard.css"
+    >
+
+
+    <!-- ==================================================
+         ICONOS
+    =================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+    <!-- ==================================================
+         SIDEBAR
+    =================================================== -->
+
+    <div
+        id="sidebarContainer"
+        data-sidebar="../includes/sidebar.html"
+    ></div>
+
+
+
+    <!-- ==================================================
+         MAIN
+    =================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ==================================================
+             TOPBAR
+        =================================================== -->
+
+        <header class="topbar">
+
+            <div class="page-title">
+                Dashboard Ejecutivo
+            </div>
+
+
+            <div class="topbar-user">
+
+                <div
+                    class="user-avatar"
+                    id="userAvatar"
+                >
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong id="userName">
+                        Administrador
+                    </strong>
+
+                    <span>
+                        Support Portal
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- ==================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="content">
+
+
+            <div class="dashboard-wrapper">
+
+
+                <!-- ==================================================
+                     HERO
+                ================================================== -->
+
+                <div class="dashboard-hero">
+
+
+                    <div>
+
+                        <span class="dashboard-tag">
+                            Dashboard Ejecutivo
+                        </span>
+
+
+                        <h1>
+                            Centro Operativo TI
+                        </h1>
+
+
+                        <p>
+                            Monitoreo estratégico de operación TI,
+                            cumplimiento SLA y desempeño operativo.
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="dashboard-hero-stats">
+
+
+                        <div class="hero-stat-card">
+
+                            <span>
+                                Tickets Activos
+                            </span>
+
+
+                            <strong
+                                id="ticketsAbiertos"
+                            >
+                                0
+                            </strong>
+
+                        </div>
+
+
+
+                        <div
+                            class="hero-stat-card critical"
+                        >
+
+                            <span>
+                                Incidencias Críticas
+                            </span>
+
+
+                            <strong
+                                id="ticketsCriticos"
+                            >
+                                0
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ==================================================
+                     KPIs EJECUTIVOS
+                ================================================== -->
+
+                <div class="executive-grid">
+
+
+                    <div
+                        class="executive-card executive-primary"
+                    >
+
+                        <div class="executive-top">
+
+                            <span>
+                                SLA Global
+                            </span>
+
+                            <i
+                                class="fa-solid fa-shield-halved"
+                            ></i>
+
+                        </div>
+
+
+                        <h2 id="slaGlobal">
+                            100%
+                        </h2>
+
+
+                        <p>
+                            Cumplimiento operativo
+                        </p>
+
+                    </div>
+
+
+
+                    <div
+                        class="executive-card executive-danger"
+                    >
+
+                        <div class="executive-top">
+
+                            <span>
+                                Tickets Activos Fuera SLA
+                            </span>
+
+                            <i
+                                class="fa-solid fa-triangle-exclamation"
+                            ></i>
+
+                        </div>
+
+
+                        <h2 id="ticketsVencidos">
+                            0
+                        </h2>
+
+
+                        <p>
+                            Incidencias abiertas vencidas
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="executive-card">
+
+                        <div class="executive-top">
+
+                            <span>
+                                Tiempo Promedio
+                            </span>
+
+                            <i
+                                class="fa-solid fa-clock"
+                            ></i>
+
+                        </div>
+
+
+                        <h2 id="promedioResolucion">
+                            0h
+                        </h2>
+
+
+                        <p>
+                            Resolución promedio
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="executive-card">
+
+                        <div class="executive-top">
+
+                            <span>
+                                Tendencia
+                            </span>
+
+                            <i
+                                class="fa-solid fa-chart-line"
+                            ></i>
+
+                        </div>
+
+
+                        <h2 id="tendencia">
+                            0%
+                        </h2>
+
+
+                        <p>
+                            Vs mes anterior
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ==================================================
+                     MINI KPIs
+                ================================================== -->
+
+                <div class="mini-grid">
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            Abiertos
+                        </span>
+
+                        <strong id="miniAbiertos">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            En Proceso
+                        </span>
+
+                        <strong id="miniProceso">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            Pendientes
+                        </span>
+
+                        <strong id="miniPendientes">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            Cerrados
+                        </span>
+
+                        <strong id="miniCerrados">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            Críticos
+                        </span>
+
+                        <strong id="miniCriticos">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            Técnicos
+                        </span>
+
+                        <strong id="miniTecnicos">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            Equipos
+                        </span>
+
+                        <strong id="miniEquipos">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="mini-card">
+
+                        <span>
+                            Tickets Mes
+                        </span>
+
+                        <strong id="miniTicketsMes">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- ==================================================
+                     SLA
+                ================================================== -->
+
+                <div class="section-heading">
+
+                    <h3>
+                        Cumplimiento SLA Histórico
+                    </h3>
+
+
+                    <p>
+                        Indicadores mensuales de desempeño.
+                    </p>
+
+                </div>
+
+
+
+                <div
+                    class="sla-grid"
+                    id="slaGrid"
+                >
+
+                    <!--
+                        Los indicadores mensuales
+                        serán generados por dashboard.js.
+                    -->
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script src="../js/data.js"></script>
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/sidebar.js"></script>
+
+<script src="../dashboard/dashboard.js"></script>
+
+
+</body>
+
+</html>

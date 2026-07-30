@@ -1,26 +1,7 @@
 /* =========================================================
    NEWSROOM PORTAL
    AUTHENTICATION CONTROLLER
-   =========================================================
-
-   Este archivo sustituye temporalmente:
-
-       PHP Sessions
-       MySQL Authentication
-
-   Actualmente funciona con:
-
-       localStorage
-
-   FUTURA IMPLEMENTACIÓN:
-
-       Firebase Authentication
-       Supabase Auth
-       API propia
-       etc.
-
    ========================================================= */
-
 
 
 /* =========================================================
@@ -31,48 +12,27 @@ const NEWSROOM_SESSION_KEY =
     "newsroomSession";
 
 
-
 /* =========================================================
    RUTAS POR ROL
-=========================================================
-
-   Equivalente al PHP original:
-
-   1 => support/dashboard/index.php
-   2 => support/dashboard/index.php
-   3 => rooms/index.php
-   4 => rooms_admin/index.php
-   5 => cvehicular/admin/index.php
-   7 => credencializacion/index.php
-   8 => capitalhumano/index.php
-
 ========================================================= */
 
 const NEWSROOM_ROUTES = {
 
-    1:
-        "support/dashboard/index.html",
+    1: "support/dashboard/index.html",
 
-    2:
-        "support/dashboard/index.html",
+    2: "support/dashboard/index.html",
 
-    3:
-        "rooms/index.html",
+    3: "rooms/index.html",
 
-    4:
-        "rooms_admin/index.html",
+    4: "rooms_admin/index.html",
 
-    5:
-        "cvehicular/admin/index.html",
+    5: "cvehicular/admin/index.html",
 
-    7:
-        "credencializacion/index.html",
+    7: "credencializacion/index.html",
 
-    8:
-        "capitalhumano/index.html"
+    8: "capitalhumano/index.html"
 
 };
-
 
 
 /* =========================================================
@@ -81,19 +41,14 @@ const NEWSROOM_ROUTES = {
 
 function obtenerSesion() {
 
-
     const session =
         localStorage.getItem(
             NEWSROOM_SESSION_KEY
         );
 
-
     if (!session) {
-
         return null;
-
     }
-
 
     try {
 
@@ -103,24 +58,18 @@ function obtenerSesion() {
 
     } catch (error) {
 
-
         console.error(
             "Newsroom Portal: sesión inválida.",
             error
         );
 
-
         localStorage.removeItem(
             NEWSROOM_SESSION_KEY
         );
 
-
         return null;
-
     }
-
 }
-
 
 
 /* =========================================================
@@ -130,7 +79,6 @@ function obtenerSesion() {
 function guardarSesion(
     usuario
 ) {
-
 
     const session = {
 
@@ -155,135 +103,87 @@ function guardarSesion(
         estado:
             usuario.estado,
 
-        /*
-         * Fecha de inicio de sesión.
-         */
-
         loginAt:
             new Date().toISOString()
 
     };
 
-
     localStorage.setItem(
         NEWSROOM_SESSION_KEY,
-        JSON.stringify(
-            session
-        )
+        JSON.stringify(session)
     );
 
-
     return session;
-
 }
-
 
 
 /* =========================================================
    CERRAR SESIÓN
 ========================================================= */
 
-function cerrarSesion() {
-
+function cerrarSesion(
+    loginUrl = "../../login.html"
+) {
 
     localStorage.removeItem(
         NEWSROOM_SESSION_KEY
     );
 
-
-    /*
-     * También podemos limpiar
-     * cualquier información temporal
-     * relacionada con sesión.
-     */
-
-
     window.location.href =
-        "../../login.html";
-
+        loginUrl;
 }
 
 
-
 /* =========================================================
-   OBTENER RUTA SEGÚN ROL
+   OBTENER RUTA POR ROL
 ========================================================= */
 
 function obtenerRutaPorRol(
     rol
 ) {
 
-
-    const ruta =
+    return (
         NEWSROOM_ROUTES[
             Number(rol)
-        ];
-
-
-    return ruta ||
-        "index.html";
-
+        ] ||
+        "index.html"
+    );
 }
-
 
 
 /* =========================================================
    VERIFICAR SESIÓN
-=========================================================
-
-   Uso:
-
-       verificarSesion(
-           "../../login.html"
-       );
-
 ========================================================= */
 
 function verificarSesion(
     loginUrl = "../../login.html"
 ) {
 
-
     const session =
         obtenerSesion();
 
-
     if (!session) {
-
 
         window.location.href =
             loginUrl;
 
-
         return false;
-
     }
-
-
-
-    /*
-     * Validar estado.
-     */
 
     if (
         session.estado &&
-        session.estado !==
-            "Activo"
+        session.estado !== "Activo"
     ) {
 
-
-        cerrarSesion();
-
+        cerrarSesion(
+            loginUrl
+        );
 
         return false;
-
     }
 
-
     return true;
-
 }
-
 
 
 /* =========================================================
@@ -294,84 +194,86 @@ function verificarRol(
     rolesPermitidos = []
 ) {
 
-
     const session =
         obtenerSesion();
 
-
     if (!session) {
-
         return false;
-
     }
-
 
     const rol =
         Number(
             session.rol_id
         );
 
-
     return rolesPermitidos
         .map(Number)
-        .includes(
-            rol
-        );
-
+        .includes(rol);
 }
 
 
-
 /* =========================================================
-   REDIRECCIÓN CENTRAL
+   REDIRECCIÓN POR ROL
 ========================================================= */
 
 function redirigirSegunRol() {
 
-
     const session =
         obtenerSesion();
 
-
     if (!session) {
-
 
         window.location.href =
             "login.html";
 
-
         return;
-
     }
 
-
-    const ruta =
+    window.location.href =
         obtenerRutaPorRol(
             session.rol_id
         );
-
-
-    window.location.href =
-        ruta;
-
 }
 
 
-
 /* =========================================================
-   LOGIN
+   CREDENCIALES TEMPORALES DE DESARROLLO
 =========================================================
 
-   IMPORTANTE:
+   SOLO PARA DESARROLLO.
 
-   Esta función es temporal.
+   No utilizar en producción.
 
-   NO debemos utilizarla como sistema
-   de autenticación definitivo.
+========================================================= */
 
-   Cuando conectemos Firebase/Supabase/API,
-   esta será la función que sustituiremos.
+const NEWSROOM_DEMO_PASSWORDS = {
 
+    admin:
+        "admin123",
+
+    support:
+        "support123",
+
+    rooms:
+        "rooms123",
+
+    roomsadmin:
+        "rooms123",
+
+    vehicular:
+        "vehicular123",
+
+    credencializacion:
+        "credencial123",
+
+    capitalhumano:
+        "capital123"
+
+};
+
+
+/* =========================================================
+   AUTENTICAR USUARIO
 ========================================================= */
 
 async function autenticarUsuario(
@@ -379,22 +281,14 @@ async function autenticarUsuario(
     password
 ) {
 
-
-    /*
-     * Actualmente utilizamos los usuarios
-     * temporales definidos en data.js.
-     */
-
     if (
         typeof obtenerUsuarios !==
         "function"
     ) {
 
-
         throw new Error(
-            "No se encontró data.js."
+            "data.js no está cargado."
         );
-
     }
 
 
@@ -403,16 +297,10 @@ async function autenticarUsuario(
 
 
     const usuarioBuscado =
-        String(
-            usuario
-        )
+        String(usuario)
             .trim()
             .toLowerCase();
 
-
-    /*
-     * Buscar usuario.
-     */
 
     const encontrado =
         usuarios.find(
@@ -428,168 +316,98 @@ async function autenticarUsuario(
 
     if (!encontrado) {
 
-
         return {
 
-            success:
-                false,
+            success: false,
 
             message:
                 "Usuario o contraseña incorrectos."
 
         };
-
     }
 
 
-
-    /*
-     * IMPORTANTE
-     *
-     * Como todavía no tenemos backend,
-     * no existe una contraseña real almacenada.
-     *
-     * Para desarrollo utilizaremos
-     * una contraseña temporal basada
-     * en el usuario.
-     *
-     * ESTO NO DEBE UTILIZARSE EN PRODUCCIÓN.
-     *
-     * Posteriormente esta sección será
-     * reemplazada completamente por:
-     *
-     * Firebase Authentication
-     * Supabase Auth
-     * API
-     *
-     */
-
-    const credencialesDemo = {
-
-        admin:
-            "admin123",
-
-        support:
-            "support123",
-
-        rooms:
-            "rooms123",
-
-        roomsadmin:
-            "rooms123",
-
-        vehicular:
-            "vehicular123",
-
-        credencializacion:
-            "credencial123",
-
-        capitalhumano:
-            "capital123"
-
-    };
-
-
-
-    const passwordDemo =
-        credencialesDemo[
-            encontrado.usuario
-                .toLowerCase()
-        ];
-
-
-
-    /*
-     * Usuario nuevo creado desde
-     * Administración.
-     *
-     * Como todavía no tiene backend,
-     * permitimos temporalmente cualquier
-     * contraseña válida de 6 caracteres.
-     *
-     * Esto será reemplazado por Auth real.
-     */
-
-    const esUsuarioDemo =
-        Boolean(
-            passwordDemo
-        );
-
-
-    if (esUsuarioDemo) {
-
-
-        if (
-            password !==
-            passwordDemo
-        ) {
-
-
-            return {
-
-                success:
-                    false,
-
-                message:
-                    "Usuario o contraseña incorrectos."
-
-            };
-
-        }
-
-    } else {
-
-
-        if (
-            !password ||
-            password.length <
-                6
-        ) {
-
-
-            return {
-
-                success:
-                    false,
-
-                message:
-                    "Usuario o contraseña incorrectos."
-
-            };
-
-        }
-
-    }
-
-
-
-    /*
-     * Validar estado.
-     */
+    /* =========================================
+       ESTADO
+    ========================================== */
 
     if (
         encontrado.estado !==
         "Activo"
     ) {
 
-
         return {
 
-            success:
-                false,
+            success: false,
 
             message:
                 "Este usuario se encuentra suspendido."
 
         };
-
     }
 
 
+    /* =========================================
+       CONTRASEÑA DEMO
+    ========================================== */
+
+    const passwordDemo =
+        NEWSROOM_DEMO_PASSWORDS[
+            encontrado.usuario
+                .toLowerCase()
+        ];
+
 
     /*
-     * Crear sesión.
+     * Usuarios originales del sistema.
      */
+
+    if (passwordDemo) {
+
+        if (
+            password !==
+            passwordDemo
+        ) {
+
+            return {
+
+                success: false,
+
+                message:
+                    "Usuario o contraseña incorrectos."
+
+            };
+        }
+
+    } else {
+
+        /*
+         * Usuario creado temporalmente
+         * desde Administración.
+         *
+         * Todavía no existe backend.
+         */
+
+        if (
+            !password ||
+            password.length < 6
+        ) {
+
+            return {
+
+                success: false,
+
+                message:
+                    "Usuario o contraseña incorrectos."
+
+            };
+        }
+    }
+
+
+    /* =========================================
+       CREAR SESIÓN
+    ========================================== */
 
     const session =
         guardarSesion(
@@ -599,45 +417,31 @@ async function autenticarUsuario(
 
     return {
 
-        success:
-            true,
+        success: true,
 
         session:
             session
 
     };
-
 }
 
 
-
 /* =========================================================
-   CONTROL DEL LOGIN
+   LOGIN CENTRAL
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-
         const form =
             document.getElementById(
                 "loginForm"
             );
 
-
-        /*
-         * Si esta página no tiene
-         * formulario de login,
-         * no hacemos nada.
-         */
-
         if (!form) {
-
             return;
-
         }
-
 
 
         const usuarioInput =
@@ -645,18 +449,15 @@ document.addEventListener(
                 "usuario"
             );
 
-
         const passwordInput =
             document.getElementById(
                 "password"
             );
 
-
         const error =
             document.getElementById(
                 "loginError"
             );
-
 
         const button =
             document.getElementById(
@@ -664,73 +465,43 @@ document.addEventListener(
             );
 
 
-
-        /* =================================================
-           MOSTRAR ERROR
-        ================================================== */
-
         function mostrarError(
             mensaje
         ) {
 
-
             if (!error) {
-
                 return;
-
             }
-
 
             error.textContent =
                 mensaje;
 
-
             error.style.display =
                 "block";
-
         }
 
 
-
-        /* =================================================
-           OCULTAR ERROR
-        ================================================== */
-
         function ocultarError() {
 
-
             if (!error) {
-
                 return;
-
             }
-
 
             error.textContent =
                 "";
 
-
             error.style.display =
                 "none";
-
         }
 
-
-
-        /* =================================================
-           SUBMIT
-        ================================================== */
 
         form.addEventListener(
             "submit",
             async event => {
 
-
                 event.preventDefault();
 
-
                 ocultarError();
-
 
 
                 const usuario =
@@ -738,55 +509,39 @@ document.addEventListener(
                         .value
                         .trim();
 
-
                 const password =
                     passwordInput
                         .value;
 
 
-
                 if (!usuario) {
-
 
                     mostrarError(
                         "Escribe tu usuario."
                     );
 
-
                     return;
-
                 }
 
 
                 if (!password) {
 
-
                     mostrarError(
                         "Escribe tu contraseña."
                     );
 
-
                     return;
-
                 }
 
 
-
-                /* =========================================
-                   BOTÓN
-                ========================================== */
-
                 button.disabled =
                     true;
-
 
                 button.textContent =
                     "Ingresando...";
 
 
-
                 try {
-
 
                     const resultado =
                         await autenticarUsuario(
@@ -799,68 +554,48 @@ document.addEventListener(
                         !resultado.success
                     ) {
 
-
                         mostrarError(
                             resultado.message
                         );
 
-
                         button.disabled =
                             false;
-
 
                         button.textContent =
                             "Ingresar";
 
-
                         return;
-
                     }
 
 
-
-                    /*
-                     * LOGIN CORRECTO
-                     */
-
-                    const ruta =
+                    window.location.href =
                         obtenerRutaPorRol(
-                            resultado.session
+                            resultado
+                                .session
                                 .rol_id
                         );
 
 
-                    window.location.href =
-                        ruta;
-
-
                 } catch (errorLogin) {
-
 
                     console.error(
                         "Newsroom Portal: error de autenticación.",
                         errorLogin
                     );
 
-
                     mostrarError(
                         "No fue posible iniciar sesión."
                     );
 
-
                     button.disabled =
                         false;
 
-
                     button.textContent =
                         "Ingresar";
-
                 }
-
 
             }
         );
-
 
     }
 );

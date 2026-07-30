@@ -1,0 +1,406 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Administración | Newsroom Portal</title>
+
+
+    <!-- CSS GENERAL -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
+
+
+    <!-- CSS ADMINISTRACIÓN -->
+
+    <link
+        rel="stylesheet"
+        href="../css/admin.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+    <!-- ==================================================
+         SIDEBAR
+         ==================================================
+
+         Posteriormente sustituiremos este bloque por el
+         componente HTML definitivo del sidebar.
+
+    =================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-brand">
+
+            <img
+                src="../../img/logo1.png"
+                alt="Newsroom Portal"
+            >
+
+            <span>
+                Newsroom Portal
+            </span>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+
+            <a
+                href="../dashboard/index.html"
+                class="sidebar-link"
+            >
+                Dashboard
+            </a>
+
+
+            <a
+                href="index.html"
+                class="sidebar-link active"
+            >
+                Administración
+            </a>
+
+
+            <a
+                href="../dashboard/index.html"
+                class="sidebar-link"
+            >
+                Soporte
+            </a>
+
+
+            <a
+                href="../../index.html"
+                class="sidebar-link"
+            >
+                Inicio
+            </a>
+
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <button
+                type="button"
+                id="logoutButton"
+                class="sidebar-logout"
+            >
+                Cerrar sesión
+            </button>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- ==================================================
+         CONTENIDO PRINCIPAL
+    =================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ==================================================
+             TOPBAR
+        =================================================== -->
+
+        <header class="topbar">
+
+
+            <div class="page-title">
+
+                Administración de Usuarios
+
+            </div>
+
+
+
+            <div class="topbar-user">
+
+
+                <div
+                    class="user-avatar"
+                    id="userAvatar"
+                >
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong id="userName">
+                        Administrador
+                    </strong>
+
+                    <span>
+                        Support Portal
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- ==================================================
+             CONTENIDO ADMINISTRATIVO
+        =================================================== -->
+
+        <section class="admin-content">
+
+
+            <!-- ==================================================
+                 HEADER
+            =================================================== -->
+
+            <div class="admin-header">
+
+
+                <div class="admin-header-left">
+
+
+                    <h1>
+                        Gestión Administrativa
+                    </h1>
+
+
+                    <p>
+                        Administración de usuarios y accesos del sistema
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 KPIs
+            =================================================== -->
+
+            <div class="admin-grid">
+
+
+                <!-- USUARIOS TOTALES -->
+
+                <div class="admin-card admin-red">
+
+
+                    <div class="admin-icon">
+                        👤
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Usuarios Totales
+                        </span>
+
+
+                        <h2 id="totalUsuarios">
+                            0
+                        </h2>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- USUARIOS ACTIVOS -->
+
+                <div class="admin-card admin-green">
+
+
+                    <div class="admin-icon">
+                        ✓
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Usuarios Activos
+                        </span>
+
+
+                        <h2 id="usuariosActivos">
+                            0
+                        </h2>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- SUSPENDIDOS -->
+
+                <div class="admin-card admin-gray">
+
+
+                    <div class="admin-icon">
+                        ⏸
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Suspendidos
+                        </span>
+
+
+                        <h2 id="usuariosSuspendidos">
+                            0
+                        </h2>
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 ACCIONES
+            =================================================== -->
+
+            <div class="admin-actions">
+
+
+                <a
+                    class="btn-primary"
+                    href="nuevo_usuario.html"
+                >
+                    + Nuevo Usuario
+                </a>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 TABLA DE USUARIOS
+            =================================================== -->
+
+            <div class="admin-table-card">
+
+
+                <table class="admin-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Nombre
+                            </th>
+
+                            <th>
+                                Usuario
+                            </th>
+
+                            <th>
+                                Correo
+                            </th>
+
+                            <th>
+                                Rol
+                            </th>
+
+                            <th>
+                                Estado
+                            </th>
+
+                            <th>
+                                Acciones
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+
+                    <tbody id="usuariosTableBody">
+
+                        <!--
+
+                            Los usuarios serán cargados
+                            mediante JavaScript.
+
+                        -->
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- ==================================================
+     JAVASCRIPT
+=================================================== -->
+
+<script src="../js/admin.js"></script>
+
+
+</body>
+
+</html>
+```

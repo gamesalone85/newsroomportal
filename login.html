@@ -10,11 +10,28 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Login Central | Newsroom Portal</title>
+    <title>
+        Login | Newsroom Portal
+    </title>
+
+
+    <!-- ==================================================
+         ESTILOS
+    =================================================== -->
 
     <link
         rel="stylesheet"
         href="support/css/styles.css"
+    >
+
+
+    <!-- ==================================================
+         ICONOS
+    =================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
 </head>
@@ -23,119 +40,128 @@
 <body class="login-body">
 
 
-    <div class="login-container">
+<div class="login-container">
 
 
-        <div class="login-card">
+    <div class="login-card">
 
 
-            <!-- ==========================================
-                 MARCA
-            =========================================== -->
+        <!-- ==================================================
+             BRAND
+        =================================================== -->
 
-            <div class="login-brand">
-
-                <img
-                    src="img/logo1.png"
-                    alt="Newsroom Portal"
-                    class="login-logo"
-                >
-
-                <h1>
-                    Newsroom Portal
-                </h1>
-
-                <p class="subtitle">
-                    Acceso centralizado al sistema
-                </p>
-
-            </div>
+        <div class="login-brand">
 
 
-
-            <!-- ==========================================
-                 MENSAJE DE ERROR
-            =========================================== -->
-
-            <div
-                id="loginError"
-                class="error-message"
-                style="display: none;"
-            >
-            </div>
-
-
-
-            <!-- ==========================================
-                 FORMULARIO DE LOGIN
-            =========================================== -->
-
-            <form
-                id="loginForm"
-                autocomplete="on"
+            <img
+                src="img/logo1.png"
+                alt="Newsroom Portal"
+                class="login-logo"
             >
 
 
-                <input
-                    type="text"
-                    id="usuario"
-                    name="usuario"
-                    placeholder="Usuario"
-                    autocomplete="username"
-                    required
-                >
+            <h1>
+                Newsroom Portal
+            </h1>
 
 
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Contraseña"
-                    autocomplete="current-password"
-                    required
-                >
-
-
-                <button
-                    type="submit"
-                    id="loginButton"
-                >
-                    Ingresar
-                </button>
-
-
-
-                <!-- ==========================================
-                     REGRESAR AL INICIO
-                =========================================== -->
-
-                <a
-                    href="index.html"
-                    class="nav-link-custom home-link"
-                >
-
-                    <i class="bi bi-house-door-fill"></i>
-
-                    Inicio
-
-                </a>
-
-
-            </form>
+            <p class="subtitle">
+                Acceso centralizado al sistema
+            </p>
 
 
         </div>
 
 
+
+        <!-- ==================================================
+             MENSAJE DE ERROR
+        =================================================== -->
+
+        <div
+            id="loginError"
+            class="error-message"
+            style="display:none;"
+        ></div>
+
+
+
+        <!-- ==================================================
+             LOGIN
+        =================================================== -->
+
+        <form
+            id="loginForm"
+            autocomplete="off"
+        >
+
+
+            <!-- USUARIO -->
+
+            <input
+                type="text"
+                id="usuario"
+                name="usuario"
+                placeholder="Usuario"
+                autocomplete="username"
+                required
+            >
+
+
+
+            <!-- CONTRASEÑA -->
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Contraseña"
+                autocomplete="current-password"
+                required
+            >
+
+
+
+            <!-- INGRESAR -->
+
+            <button
+                type="submit"
+                id="loginButton"
+            >
+                Ingresar
+            </button>
+
+
+
+            <!-- INICIO -->
+
+            <a
+                href="index.html"
+                class="nav-link-custom home-link"
+            >
+
+                <i class="fa-solid fa-house"></i>
+
+                Inicio
+
+            </a>
+
+
+        </form>
+
+
     </div>
 
 
+</div>
 
-    <!-- ==========================================
-         JAVASCRIPT DEL LOGIN
-    =========================================== -->
 
-    <script src="support/js/login.js"></script>
+
+<!-- =========================================================
+     AUTENTICACIÓN
+========================================================= -->
+
+<script src="support/js/auth.js"></script>
 
 
 </body>

@@ -1,0 +1,362 @@
+/* =========================================================
+   CORE UI SYSTEM V3 - SIDEBAR / TOPBAR / FOOTER
+   IDENTIFICADORES: CORE-SIDEBAR / CORE-TOPBAR / CORE-FOOTER
+   ========================================================= */
+
+/* =========================
+   VARIABLES (NO MODIFICAR)
+========================= */
+
+:root{
+    --primary-red:#c8102e;
+    --primary-gray:#54565a;
+    --bg-main:#f4f6f9;
+    --white:#fff;
+}
+
+/* =========================
+   LAYOUT BASE
+========================= */
+
+.layout{
+    display:flex;
+    min-height:100vh;
+}
+
+/* =========================================================
+   CORE-SIDEBAR
+========================================================= */
+
+.sidebar{
+
+    width:280px;
+    height:100vh;
+    position:fixed;
+    top:0;
+    left:0;
+
+    display:flex;
+    flex-direction:column;
+
+    padding:18px 14px;
+
+    color:#fff;
+
+    /* 🔷 NUEVO FONDO CONTROLADO */
+    background:
+        linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.75)),
+        url('../img/sidebar-bg.jpg');
+
+    background-size:cover;
+    background-position:center;
+
+    box-shadow:8px 0 25px rgba(0,0,0,.15);
+
+    transition:all .25s ease;
+
+    overflow-y:auto;
+
+    z-index:1000;
+}
+
+/* =========================
+   LOGO AREA
+========================= */
+
+.logo{
+    text-align:center;
+    padding:16px;
+    border-radius:14px;
+
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.06);
+
+    margin-bottom:20px;
+
+    cursor:pointer;
+    transition:.2s ease;
+}
+
+.logo:hover{
+    background:rgba(255,255,255,.08);
+    transform:scale(1.02);
+}
+
+.logo-img{
+    width:150px;
+    transition:.25s ease;
+}
+
+/* =========================
+   NAV CORE
+========================= */
+
+.sidebar-nav{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    flex:1;
+}
+
+/* ITEM DIRECTO */
+.nav-item{
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    padding:14px 16px;
+
+    border-radius:12px;
+
+    color:#fff;
+    text-decoration:none;
+
+    font-weight:600;
+    font-size:14px;
+
+    transition:.2s ease;
+
+    position:relative;
+}
+
+.nav-item i{
+    width:18px;
+    text-align:center;
+}
+
+.nav-item:hover{
+    background:rgba(255,255,255,.08);
+    transform:translateX(4px);
+}
+
+.nav-item.active{
+    background:linear-gradient(90deg,var(--primary-red),#a30d26);
+    box-shadow:0 8px 20px rgba(200,16,46,.25);
+}
+
+/* =========================
+   DROPDOWNS
+========================= */
+
+.nav-group{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:14px;
+    overflow:hidden;
+}
+
+/* botón */
+.nav-dropdown-btn{
+    width:100%;
+    border:none;
+    background:none;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:15px 16px;
+
+    color:#fff;
+    cursor:pointer;
+}
+
+.nav-dropdown-left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    font-weight:600;
+}
+
+.nav-arrow{
+    transition:.25s ease;
+    font-size:12px;
+}
+
+/* submenu */
+.nav-dropdown-menu{
+    display:none;
+    padding:0 10px 12px;
+}
+
+.nav-group.open .nav-dropdown-menu{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.nav-group.open .nav-arrow{
+    transform:rotate(180deg);
+}
+
+.nav-dropdown-menu a{
+    display:flex;
+    gap:12px;
+    align-items:center;
+
+    padding:12px 14px;
+
+    border-radius:10px;
+
+    color:#dbe2ea;
+    text-decoration:none;
+
+    font-size:13px;
+
+    transition:.2s ease;
+}
+
+.nav-dropdown-menu a:hover{
+    background:rgba(255,255,255,.07);
+    color:#fff;
+    transform:translateX(3px);
+}
+
+.nav-dropdown-menu a.active{
+    background:linear-gradient(90deg,rgba(200,16,46,.95),rgba(200,16,46,.7));
+    color:#fff;
+}
+
+/* =========================
+   FOOTER CORE
+========================= */
+
+.sidebar-footer{
+
+    margin-top:auto;
+    padding-top:18px;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+    text-align:center;
+
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+.sidebar-footer strong{
+    font-size:12px;
+    letter-spacing:1px;
+}
+
+.sidebar-footer span{
+    font-size:11px;
+    color:rgba(255,255,255,.6);
+}
+
+/* =========================
+   COLLAPSED MODE
+========================= */
+
+.sidebar.collapsed{
+    width:92px;
+}
+
+/* ocultar textos */
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .nav-dropdown-left span,
+.sidebar.collapsed .sidebar-footer,
+.sidebar.collapsed .nav-arrow{
+    display:none;
+}
+
+/* centrar iconos */
+.sidebar.collapsed .nav-item,
+.sidebar.collapsed .nav-dropdown-btn{
+    justify-content:center;
+    padding:14px 0;
+}
+
+.sidebar.collapsed .logo-img{
+    width:42px;
+}
+
+/* =========================================================
+   CORE-MAIN CONTENT
+========================================================= */
+
+.main-content{
+    margin-left:300px;
+    width:calc(100% - 300px);
+    padding:25px 35px;
+    transition:.25s ease;
+}
+
+/* =========================================================
+   CORE-TOPBAR
+========================================================= */
+
+.topbar{
+
+    background:#fff;
+
+    padding:18px 24px;
+
+    border-radius:15px;
+
+    box-shadow:0 5px 20px rgba(0,0,0,.05);
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:25px;
+}
+
+.page-title{
+    font-size:20px;
+    font-weight:700;
+    color:var(--primary-gray);
+}
+
+/* user */
+.topbar-user{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.user-avatar{
+    width:40px;
+    height:40px;
+
+    background:var(--primary-red);
+    color:#fff;
+
+    border-radius:50%;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.user-info strong{
+    font-size:14px;
+    color:var(--primary-gray);
+}
+
+.user-info span{
+    font-size:12px;
+    color:#64748b;
+}
+
+/* =========================================================
+   RESPONSIVE CORE
+========================================================= */
+
+@media(max-width:900px){
+
+    .sidebar{
+        position:relative;
+        width:100%;
+        height:auto;
+    }
+
+    .main-content{
+        margin-left:0;
+        width:100%;
+    }
+}

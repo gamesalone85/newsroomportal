@@ -3,69 +3,145 @@
    TEMPORARY DATA STORE
    =========================================================
 
-   Este archivo sustituye temporalmente la base de datos.
+   ESTE ARCHIVO ES TEMPORAL.
 
-   Actualmente:
+   Actualmente sustituye la información que antes
+   obteníamos desde MySQL.
 
-       localStorage
-
-   Futuramente:
+   Posteriormente esta información vendrá de:
 
        Firebase
        Supabase
-       Google
        API propia
-       Otra base de datos
+       Base de datos externa
 
-   IMPORTANTE:
-
-   NO se almacenan contraseñas reales aquí.
-
-   La contraseña solamente se utiliza durante el
-   proceso temporal de autenticación.
+   NO almacenar contraseñas reales aquí.
 
    ========================================================= */
 
 
 /* =========================================================
-   ROLES DEL SISTEMA
+   USUARIOS TEMPORALES
 ========================================================= */
 
-const NEWSROOM_ROLES = [
+const NEWSROOM_USERS = [
 
     {
         id: 1,
-        nombre: "Administrador"
+
+        usuario: "admin",
+
+        nombre: "Administrador",
+
+        correo: "admin@newsroomportal.com",
+
+        rol_id: 1,
+
+        rol: "Administrador",
+
+        estado: "Activo"
     },
+
 
     {
         id: 2,
-        nombre: "Support"
+
+        usuario: "support",
+
+        nombre: "Support",
+
+        correo: "support@newsroomportal.com",
+
+        rol_id: 2,
+
+        rol: "Support",
+
+        estado: "Activo"
     },
+
 
     {
         id: 3,
-        nombre: "Rooms"
+
+        usuario: "rooms",
+
+        nombre: "Rooms",
+
+        correo: "rooms@newsroomportal.com",
+
+        rol_id: 3,
+
+        rol: "Rooms",
+
+        estado: "Activo"
     },
+
 
     {
         id: 4,
-        nombre: "Rooms Admin"
+
+        usuario: "roomsadmin",
+
+        nombre: "Administrador Rooms",
+
+        correo: "roomsadmin@newsroomportal.com",
+
+        rol_id: 4,
+
+        rol: "Rooms Admin",
+
+        estado: "Activo"
     },
+
 
     {
         id: 5,
-        nombre: "Vehicular"
+
+        usuario: "vehicular",
+
+        nombre: "Administración Vehicular",
+
+        correo: "vehicular@newsroomportal.com",
+
+        rol_id: 5,
+
+        rol: "Vehicular",
+
+        estado: "Activo"
     },
+
+
+    {
+        id: 6,
+
+        usuario: "credencializacion",
+
+        nombre: "Credencialización",
+
+        correo: "credencializacion@newsroomportal.com",
+
+        rol_id: 7,
+
+        rol: "Credencialización",
+
+        estado: "Activo"
+    },
+
 
     {
         id: 7,
-        nombre: "Credencialización"
-    },
 
-    {
-        id: 8,
-        nombre: "Capital Humano"
+        usuario: "capitalhumano",
+
+        nombre: "Capital Humano",
+
+        correo: "capitalhumano@newsroomportal.com",
+
+        rol_id: 8,
+
+        rol: "Capital Humano",
+
+        estado: "Activo"
     }
 
 ];
@@ -73,249 +149,12 @@ const NEWSROOM_ROLES = [
 
 
 /* =========================================================
-   USUARIOS INICIALES
-========================================================= */
-
-const NEWSROOM_DEFAULT_USERS = [
-
-    {
-        id: 1,
-
-        nombre:
-            "Administrador",
-
-        usuario:
-            "admin",
-
-        correo:
-            "admin@newsroom.local",
-
-        rol_id:
-            1,
-
-        rol:
-            "Administrador",
-
-        estado:
-            "Activo"
-    },
-
-
-    {
-        id: 2,
-
-        nombre:
-            "Usuario Support",
-
-        usuario:
-            "support",
-
-        correo:
-            "support@newsroom.local",
-
-        rol_id:
-            2,
-
-        rol:
-            "Support",
-
-        estado:
-            "Activo"
-    },
-
-
-    {
-        id: 3,
-
-        nombre:
-            "Usuario Rooms",
-
-        usuario:
-            "rooms",
-
-        correo:
-            "rooms@newsroom.local",
-
-        rol_id:
-            3,
-
-        rol:
-            "Rooms",
-
-        estado:
-            "Suspendido"
-    },
-
-
-    {
-        id: 4,
-
-        nombre:
-            "Administrador Rooms",
-
-        usuario:
-            "roomsadmin",
-
-        correo:
-            "roomsadmin@newsroom.local",
-
-        rol_id:
-            4,
-
-        rol:
-            "Rooms Admin",
-
-        estado:
-            "Activo"
-    },
-
-
-    {
-        id: 5,
-
-        nombre:
-            "Administrador Vehicular",
-
-        usuario:
-            "vehicular",
-
-        correo:
-            "vehicular@newsroom.local",
-
-        rol_id:
-            5,
-
-        rol:
-            "Vehicular",
-
-        estado:
-            "Activo"
-    },
-
-
-    {
-        id: 7,
-
-        nombre:
-            "Credencialización",
-
-        usuario:
-            "credencializacion",
-
-        correo:
-            "credencializacion@newsroom.local",
-
-        rol_id:
-            7,
-
-        rol:
-            "Credencialización",
-
-        estado:
-            "Activo"
-    },
-
-
-    {
-        id: 8,
-
-        nombre:
-            "Capital Humano",
-
-        usuario:
-            "capitalhumano",
-
-        correo:
-            "capital@newsroom.local",
-
-        rol_id:
-            8,
-
-        rol:
-            "Capital Humano",
-
-        estado:
-            "Activo"
-    }
-
-];
-
-
-
-/* =========================================================
-   OBTENER USUARIOS
+   OBTENER TODOS LOS USUARIOS
 ========================================================= */
 
 function obtenerUsuarios() {
 
-
-    const data =
-        localStorage.getItem(
-            "newsroomUsuarios"
-        );
-
-
-    if (!data) {
-
-
-        const iniciales =
-            JSON.parse(
-                JSON.stringify(
-                    NEWSROOM_DEFAULT_USERS
-                )
-            );
-
-
-        localStorage.setItem(
-            "newsroomUsuarios",
-            JSON.stringify(iniciales)
-        );
-
-
-        return iniciales;
-
-    }
-
-
-    try {
-
-        return JSON.parse(data);
-
-    } catch (error) {
-
-
-        console.error(
-            "Newsroom Portal: datos de usuarios inválidos.",
-            error
-        );
-
-
-        localStorage.removeItem(
-            "newsroomUsuarios"
-        );
-
-
-        return obtenerUsuarios();
-
-    }
-
-}
-
-
-
-/* =========================================================
-   GUARDAR USUARIOS
-========================================================= */
-
-function guardarUsuarios(
-    usuarios
-) {
-
-
-    localStorage.setItem(
-        "newsroomUsuarios",
-        JSON.stringify(usuarios)
-    );
+    return NEWSROOM_USERS;
 
 }
 
@@ -329,197 +168,112 @@ function obtenerUsuarioPorId(
     id
 ) {
 
-
-    const usuarios =
-        obtenerUsuarios();
-
-
-    return usuarios.find(
+    return NEWSROOM_USERS.find(
         usuario =>
             Number(usuario.id) ===
             Number(id)
-    ) || null;
+    );
 
 }
 
 
 
 /* =========================================================
-   BUSCAR USUARIO
+   OBTENER USUARIO POR NOMBRE
 ========================================================= */
 
-function buscarUsuario(
+function obtenerUsuarioPorNombre(
     usuario
 ) {
 
+    if (!usuario) {
 
-    const usuarios =
-        obtenerUsuarios();
+        return null;
+
+    }
 
 
-    return usuarios.find(
+    return NEWSROOM_USERS.find(
         item =>
             item.usuario
                 .toLowerCase() ===
             String(usuario)
                 .trim()
                 .toLowerCase()
-    ) || null;
+    );
 
 }
 
 
 
 /* =========================================================
-   OBTENER ROL
+   OBTENER USUARIOS ACTIVOS
 ========================================================= */
 
-function obtenerRolPorId(
-    id
-) {
+function obtenerUsuariosActivos() {
 
-
-    return NEWSROOM_ROLES.find(
-        rol =>
-            Number(rol.id) ===
-            Number(id)
-    ) || null;
-
-}
-
-
-
-/* =========================================================
-   GENERAR ID
-========================================================= */
-
-function generarNuevoId() {
-
-
-    const usuarios =
-        obtenerUsuarios();
-
-
-    if (!usuarios.length) {
-
-        return 1;
-
-    }
-
-
-    return Math.max(
-        ...usuarios.map(
-            usuario =>
-                Number(usuario.id) || 0
-        )
-    ) + 1;
-
-}
-
-
-
-/* =========================================================
-   GUARDAR NUEVO USUARIO
-========================================================= */
-
-function crearUsuario(
-    datos
-) {
-
-
-    const usuarios =
-        obtenerUsuarios();
-
-
-    const usuarioExistente =
-        usuarios.find(
-            usuario =>
-                usuario.usuario
-                    .toLowerCase() ===
-                datos.usuario
-                    .trim()
-                    .toLowerCase()
-        );
-
-
-    if (usuarioExistente) {
-
-        return {
-
-            success: false,
-
-            message:
-                "El nombre de usuario ya existe."
-
-        };
-
-    }
-
-
-    const rol =
-        obtenerRolPorId(
-            datos.rol_id
-        );
-
-
-    if (!rol) {
-
-        return {
-
-            success: false,
-
-            message:
-                "El rol seleccionado no es válido."
-
-        };
-
-    }
-
-
-    const nuevoUsuario = {
-
-        id:
-            generarNuevoId(),
-
-        nombre:
-            datos.nombre.trim(),
-
-        usuario:
-            datos.usuario.trim(),
-
-        correo:
-            datos.correo
-                ? datos.correo.trim()
-                : "",
-
-        rol_id:
-            Number(datos.rol_id),
-
-        rol:
-            rol.nombre,
-
-        estado:
+    return NEWSROOM_USERS.filter(
+        usuario =>
+            usuario.estado ===
             "Activo"
-
-    };
-
-
-    usuarios.unshift(
-        nuevoUsuario
     );
 
+}
 
-    guardarUsuarios(
-        usuarios
+
+
+/* =========================================================
+   OBTENER USUARIOS SUSPENDIDOS
+========================================================= */
+
+function obtenerUsuariosSuspendidos() {
+
+    return NEWSROOM_USERS.filter(
+        usuario =>
+            usuario.estado ===
+            "Suspendido"
     );
+
+}
+
+
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+function obtenerEstadisticasUsuarios() {
+
+    const total =
+        NEWSROOM_USERS.length;
+
+
+    const activos =
+        NEWSROOM_USERS.filter(
+            usuario =>
+                usuario.estado ===
+                "Activo"
+        ).length;
+
+
+    const suspendidos =
+        NEWSROOM_USERS.filter(
+            usuario =>
+                usuario.estado ===
+                "Suspendido"
+        ).length;
 
 
     return {
 
-        success: true,
+        total:
+            total,
 
-        usuario:
-            nuevoUsuario
+        activos:
+            activos,
+
+        suspendidos:
+            suspendidos
 
     };
 

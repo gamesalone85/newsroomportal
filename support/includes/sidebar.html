@@ -1,18 +1,13 @@
-```html
 <!-- =========================================================
      NEWSROOM PORTAL
      SIDEBAR PRINCIPAL
-     ========================================================= -->
+     
+     Archivo:
+     support/includes/sidebar.html
 
-<link
-    rel="stylesheet"
-    href="../css/core-layout.css"
->
-
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
->
+     La lógica del sidebar se encuentra en:
+     support/js/sidebar.js
+========================================================= -->
 
 
 <aside
@@ -28,6 +23,7 @@
     <div
         class="logo"
         id="sidebarToggle"
+        title="Contraer menú"
     >
 
         <img
@@ -78,8 +74,8 @@
 
 
             <button
-                class="nav-dropdown-btn"
                 type="button"
+                class="nav-dropdown-btn"
             >
 
                 <div class="nav-dropdown-left">
@@ -156,6 +152,7 @@
 
         <!-- =================================================
              ANALYTICS
+             
              SOLO ROL 1
         ================================================== -->
 
@@ -167,8 +164,8 @@
 
 
             <button
-                class="nav-dropdown-btn"
                 type="button"
+                class="nav-dropdown-btn"
             >
 
                 <div class="nav-dropdown-left">
@@ -215,6 +212,7 @@
 
         <!-- =================================================
              TÉCNICO
+             
              SOLO ROL 2
         ================================================== -->
 
@@ -226,8 +224,8 @@
 
 
             <button
-                class="nav-dropdown-btn"
                 type="button"
+                class="nav-dropdown-btn"
             >
 
                 <div class="nav-dropdown-left">
@@ -283,8 +281,8 @@
 
 
             <button
-                class="nav-dropdown-btn"
                 type="button"
+                class="nav-dropdown-btn"
             >
 
                 <div class="nav-dropdown-left">
@@ -369,8 +367,6 @@
 
 
 
-                <!-- BAJAS -->
-
                 <a
                     href="../inventory/bajas.html"
                     data-page="bajas"
@@ -392,7 +388,7 @@
 
 
         <!-- =================================================
-             REPORTES
+             INFORMES
         ================================================== -->
 
         <div
@@ -402,8 +398,8 @@
 
 
             <button
-                class="nav-dropdown-btn"
                 type="button"
+                class="nav-dropdown-btn"
             >
 
                 <div class="nav-dropdown-left">
@@ -450,6 +446,7 @@
 
         <!-- =================================================
              GESTIÓN
+             
              SOLO ROL 1
         ================================================== -->
 
@@ -461,8 +458,8 @@
 
 
             <button
-                class="nav-dropdown-btn"
                 type="button"
+                class="nav-dropdown-btn"
             >
 
                 <div class="nav-dropdown-left">
@@ -508,7 +505,7 @@
 
 
         <!-- =================================================
-             HOME
+             INICIO
         ================================================== -->
 
         <a
@@ -528,7 +525,7 @@
 
 
         <!-- =================================================
-             LOGOUT
+             CERRAR SESIÓN
         ================================================== -->
 
         <a
@@ -568,326 +565,3 @@
 
 
 </aside>
-
-
-
-<!-- =========================================================
-     JAVASCRIPT DEL SIDEBAR
-========================================================= -->
-
-<script>
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-
-        /* =================================================
-           ELEMENTOS
-        ================================================== */
-
-        const sidebar =
-            document.getElementById("sidebar");
-
-
-        const toggle =
-            document.getElementById("sidebarToggle");
-
-
-        const logoutLink =
-            document.getElementById("logoutLink");
-
-
-
-        /* =================================================
-           SESIÓN
-        ================================================== */
-
-        let session = null;
-
-
-        const sessionData =
-            localStorage.getItem(
-                "newsroomSession"
-            );
-
-
-        if (sessionData) {
-
-            try {
-
-                session =
-                    JSON.parse(sessionData);
-
-            } catch (error) {
-
-                console.error(
-                    "Sesión inválida:",
-                    error
-                );
-
-            }
-
-        }
-
-
-
-        /* =================================================
-           ROL
-        ================================================== */
-
-        const rol =
-            session
-                ? Number(session.rol_id)
-                : null;
-
-
-
-        /* =================================================
-           OCULTAR ELEMENTOS SEGÚN ROL
-        ================================================== */
-
-        document
-            .querySelectorAll(
-                "[data-role]"
-            )
-            .forEach(group => {
-
-
-                const requiredRole =
-                    Number(
-                        group.dataset.role
-                    );
-
-
-                if (rol !== requiredRole) {
-
-                    group.style.display =
-                        "none";
-
-                }
-
-            });
-
-
-
-        /* =================================================
-           SIDEBAR COLLAPSE
-        ================================================== */
-
-        if (toggle) {
-
-
-            toggle.addEventListener(
-                "click",
-                () => {
-
-
-                    if (!sidebar) {
-
-                        return;
-
-                    }
-
-
-                    sidebar.classList.toggle(
-                        "collapsed"
-                    );
-
-                }
-            );
-
-        }
-
-
-
-        /* =================================================
-           DROPDOWNS
-        ================================================== */
-
-        document
-            .querySelectorAll(
-                ".nav-group"
-            )
-            .forEach(group => {
-
-
-                const button =
-                    group.querySelector(
-                        ".nav-dropdown-btn"
-                    );
-
-
-                if (!button) {
-
-                    return;
-
-                }
-
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-
-                        if (
-                            sidebar &&
-                            sidebar.classList.contains(
-                                "collapsed"
-                            )
-                        ) {
-
-                            return;
-
-                        }
-
-
-                        group.classList.toggle(
-                            "open"
-                        );
-
-                    }
-                );
-
-            });
-
-
-
-        /* =================================================
-           PÁGINA ACTUAL
-        ==================================================
-
-           Sustituye la lógica PHP:
-
-           basename($_SERVER['PHP_SELF'])
-
-        ================================================== */
-
-        const currentPath =
-            window.location.pathname;
-
-
-        const currentFile =
-            currentPath
-                .split("/")
-                .pop()
-                .replace(
-                    ".html",
-                    ""
-                );
-
-
-
-        document
-            .querySelectorAll(
-                "[data-page]"
-            )
-            .forEach(link => {
-
-
-                const page =
-                    link.dataset.page;
-
-
-                if (
-                    page === currentFile
-                ) {
-
-                    link.classList.add(
-                        "active"
-                    );
-
-                }
-
-            });
-
-
-
-        /* =================================================
-           ABRIR GRUPO DE LA PÁGINA ACTUAL
-        ================================================== */
-
-        document
-            .querySelectorAll(
-                ".nav-group"
-            )
-            .forEach(group => {
-
-
-                const active =
-                    group.querySelector(
-                        ".active"
-                    );
-
-
-                if (active) {
-
-                    group.classList.add(
-                        "open"
-                    );
-
-                }
-
-            });
-
-
-
-        /* =================================================
-           CERRAR SESIÓN
-        ================================================== */
-
-        if (logoutLink) {
-
-
-            logoutLink.addEventListener(
-                "click",
-                event => {
-
-
-                    event.preventDefault();
-
-
-                    const confirmar =
-                        confirm(
-                            "¿Deseas cerrar la sesión?"
-                        );
-
-
-                    if (!confirmar) {
-
-                        return;
-
-                    }
-
-
-                    /*
-                     * FUTURA AUTENTICACIÓN
-                     *
-                     * Aquí podremos llamar a:
-                     *
-                     * Firebase Auth
-                     * Supabase Auth
-                     * API
-                     *
-                     */
-
-
-                    localStorage.removeItem(
-                        "newsroomSession"
-                    );
-
-
-                    window.location.href =
-                        "../../login.html";
-
-                }
-            );
-
-        }
-
-
-    }
-);
-
-</script>
-```

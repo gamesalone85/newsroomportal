@@ -1,0 +1,86 @@
+
+/* ======================================================
+   FOOTER
+====================================================== */
+
+.custom-footer{
+    background: #54565a;
+    color: #ffffff;
+    padding: 60px 0 20px;
+}
+
+/* TITULOS */
+.custom-footer h5{
+    color: #ffffff;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+/* BRAND */
+.footer-brand h2{
+    color: #ffffff;
+    font-weight: 800;
+}
+
+.footer-brand p{
+    color: #d2d0cd;
+}
+
+/* LINKS */
+.footer-links{
+    list-style: none;
+    padding: 0;
+}
+
+.footer-links li{
+    margin-bottom: 10px;
+}
+
+.footer-links a{
+    color: #d2d0cd;
+    text-decoration: none;
+    transition: .3s;
+}
+
+.footer-links a:hover{
+    color: #00ae42;
+}
+
+/* CONTACTO */
+.footer-contact p{
+    color: #d2d0cd;
+    margin-bottom: 10px;
+}
+
+.footer-contact i{
+    color: #00ae42;
+    margin-right: 8px;
+}
+
+/* SOCIAL */
+.social-icons a{
+    display: inline-block;
+    margin-right: 10px;
+    width: 35px;
+    height: 35px;
+    background: #968c83;
+    color: #ffffff;
+    text-align: center;
+    line-height: 35px;
+    border-radius: 50%;
+    transition: .3s;
+}
+
+.social-icons a:hover{
+    background: #00ae42;
+}
+
+/* COPYRIGHT */
+.footer-bottom{
+    border-top: 1px solid #968c83;
+    margin-top: 40px;
+    padding-top: 15px;
+    text-align: center;
+    color: #d2d0cd;
+    font-size: 13px;
+}

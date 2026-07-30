@@ -1,20 +1,38 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Login Central | Newsroom Portal</title>
 
-    <link rel="stylesheet" href="support/css/styles.css">
+    <link
+        rel="stylesheet"
+        href="support/css/styles.css"
+    >
+
 </head>
+
 
 <body class="login-body">
 
+
     <div class="login-container">
 
+
         <div class="login-card">
+
+
+            <!-- ==========================================
+                 MARCA
+            =========================================== -->
 
             <div class="login-brand">
 
@@ -24,7 +42,9 @@
                     class="login-logo"
                 >
 
-                <h1>Newsroom Portal</h1>
+                <h1>
+                    Newsroom Portal
+                </h1>
 
                 <p class="subtitle">
                     Acceso centralizado al sistema
@@ -32,17 +52,30 @@
 
             </div>
 
-            <!--
-                Mensaje de error.
-                JavaScript lo mostrará cuando sea necesario.
-            -->
+
+
+            <!-- ==========================================
+                 MENSAJE DE ERROR
+            =========================================== -->
+
             <div
-                id="error-message"
+                id="loginError"
                 class="error-message"
                 style="display: none;"
-            ></div>
+            >
+            </div>
 
-            <form id="loginForm">
+
+
+            <!-- ==========================================
+                 FORMULARIO DE LOGIN
+            =========================================== -->
+
+            <form
+                id="loginForm"
+                autocomplete="on"
+            >
+
 
                 <input
                     type="text"
@@ -53,6 +86,7 @@
                     required
                 >
 
+
                 <input
                     type="password"
                     id="password"
@@ -62,26 +96,50 @@
                     required
                 >
 
-                <button type="submit" id="loginButton">
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                >
                     Ingresar
                 </button>
+
+
+
+                <!-- ==========================================
+                     REGRESAR AL INICIO
+                =========================================== -->
 
                 <a
                     href="index.html"
                     class="nav-link-custom home-link"
                 >
+
                     <i class="bi bi-house-door-fill"></i>
+
                     Inicio
+
                 </a>
+
 
             </form>
 
+
         </div>
+
 
     </div>
 
-    <!-- JavaScript del login -->
+
+
+    <!-- ==========================================
+         JAVASCRIPT DEL LOGIN
+    =========================================== -->
+
     <script src="support/js/login.js"></script>
 
+
 </body>
+
 </html>
+```

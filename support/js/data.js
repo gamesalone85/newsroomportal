@@ -406,6 +406,10 @@ function obtenerCategorias() {
 
 function obtenerTickets() {
 
-    return NEWSROOM_TICKETS;
+    return JSON.parse(
+        localStorage.getItem(
+            "newsroomTickets"
+        )
+    ) || [];
 
 }

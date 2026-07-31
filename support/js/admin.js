@@ -1262,7 +1262,13 @@ function abrirModalUsuario(
 
     modal.style.opacity =
         "1";
-
+modal.style.position = "fixed";
+modal.style.top = "0";
+modal.style.left = "0";
+modal.style.width = "100vw";
+modal.style.height = "100vh";
+modal.style.zIndex = "99999";
+modal.style.backgroundColor = "rgba(0,0,0,0.75)";
 
     console.log(
         "Modal usuario visible."

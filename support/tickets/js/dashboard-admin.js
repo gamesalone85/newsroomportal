@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "Newsroom Portal: dashboard-admin.js cargado correctamente."
     );
 
+
     /* =====================================================
        VERIFICAR SESIÓN
     ===================================================== */
@@ -22,18 +23,22 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
+
     if (!verificarSesion("../../login.html")) {
         return;
     }
+
 
     const session =
         typeof obtenerSesion === "function"
             ? obtenerSesion()
             : null;
 
+
     if (!session) {
         return;
     }
+
 
     /* =====================================================
        VERIFICAR ADMINISTRADOR
@@ -51,17 +56,20 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
+
     /* =====================================================
-       ACTUALIZAR USUARIO
+       USUARIO
     ===================================================== */
 
     actualizarUsuario(session);
+
 
     /* =====================================================
        CARGAR DASHBOARD
     ===================================================== */
 
     cargarDashboard();
+
 
     /* =====================================================
        EVENTOS
@@ -70,6 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
     configurarEventos();
 
 });
+
 
 
 /* =========================================================
@@ -83,24 +92,34 @@ function actualizarUsuario(session) {
         session.usuario ||
         "Administrador";
 
+
     const userName =
         document.getElementById("userName");
+
 
     const userAvatar =
         document.getElementById("userAvatar");
 
+
     if (userName) {
-        userName.textContent = nombre;
+
+        userName.textContent =
+            nombre;
+
     }
+
 
     if (userAvatar) {
 
         userAvatar.textContent =
-            nombre.charAt(0).toUpperCase();
+            nombre
+                .charAt(0)
+                .toUpperCase();
 
     }
 
 }
+
 
 
 /* =========================================================
@@ -111,33 +130,40 @@ function obtenerTicketsAdmin() {
 
     let tickets = [];
 
-    /* -----------------------------------------------------
+
+    /* =====================================================
        ESTRUCTURA GLOBAL
-    ----------------------------------------------------- */
+    ===================================================== */
 
     if (
         typeof NEWSROOM_TICKETS !== "undefined" &&
         Array.isArray(NEWSROOM_TICKETS)
     ) {
 
-        tickets = NEWSROOM_TICKETS;
+        tickets =
+            NEWSROOM_TICKETS;
 
     }
 
-    /* -----------------------------------------------------
+
+    /* =====================================================
        LOCAL STORAGE
-    ----------------------------------------------------- */
+    ===================================================== */
 
     try {
 
         const almacenados =
             JSON.parse(
-                localStorage.getItem("newsroomTickets")
+                localStorage.getItem(
+                    "newsroomTickets"
+                )
             );
+
 
         if (Array.isArray(almacenados)) {
 
-            tickets = almacenados;
+            tickets =
+                almacenados;
 
         }
 
@@ -150,11 +176,13 @@ function obtenerTicketsAdmin() {
 
     }
 
+
     return Array.isArray(tickets)
         ? tickets
         : [];
 
 }
+
 
 
 /* =========================================================
@@ -166,11 +194,34 @@ function cargarDashboard() {
     const tickets =
         obtenerTicketsAdmin();
 
-    actualizarKPIs(tickets);
 
-    renderizarTickets(tickets);
+    console.log(
+        "Tickets encontrados:",
+        tickets.length
+    );
+
+
+    actualizarKPIs(
+        tickets
+    );
+
+
+    cargarOpcionesFiltros(
+        tickets
+    );
+
+
+    actualizarResumenes(
+        tickets
+    );
+
+
+    renderizarTickets(
+        tickets
+    );
 
 }
+
 
 
 /* =========================================================
@@ -179,57 +230,69 @@ function cargarDashboard() {
 
 function actualizarKPIs(tickets) {
 
-    const total = tickets.length;
+    const total =
+        tickets.length;
 
 
-    const registrados = tickets.filter(
-        ticket =>
-            normalizarEstatus(ticket.estatus) === "Registrado"
-    ).length;
+    const registrados =
+        tickets.filter(
+            ticket =>
+                normalizarEstatus(
+                    ticket.estatus
+                ) === "Registrado"
+        ).length;
 
 
-    const pendientes = tickets.filter(
-        ticket =>
-            normalizarEstatus(ticket.estatus) === "Pendiente"
-    ).length;
+    const pendientes =
+        tickets.filter(
+            ticket =>
+                normalizarEstatus(
+                    ticket.estatus
+                ) === "Pendiente"
+        ).length;
 
 
-    const proceso = tickets.filter(
-        ticket =>
-            normalizarEstatus(ticket.estatus) === "En Proceso"
-    ).length;
+    const proceso =
+        tickets.filter(
+            ticket =>
+                normalizarEstatus(
+                    ticket.estatus
+                ) === "En Proceso"
+        ).length;
 
 
-    const resueltos = tickets.filter(
-        ticket =>
-            normalizarEstatus(ticket.estatus) === "Resuelto"
-    ).length;
+    const resueltos =
+        tickets.filter(
+            ticket =>
+                normalizarEstatus(
+                    ticket.estatus
+                ) === "Resuelto"
+        ).length;
 
 
-    const cancelados = tickets.filter(
-        ticket =>
-            normalizarEstatus(ticket.estatus) === "Cancelado"
-    ).length;
+    const cancelados =
+        tickets.filter(
+            ticket =>
+                normalizarEstatus(
+                    ticket.estatus
+                ) === "Cancelado"
+        ).length;
 
 
-    const cerrados = tickets.filter(
-        ticket =>
-            normalizarEstatus(ticket.estatus) === "Cerrado"
-    ).length;
+    const cerrados =
+        tickets.filter(
+            ticket =>
+                normalizarEstatus(
+                    ticket.estatus
+                ) === "Cerrado"
+        ).length;
 
 
-    const sinAsignar = tickets.filter(
-        ticket => {
-
-            const tecnico =
-                ticket.tecnico ||
-                ticket.tecnico_nombre ||
-                ticket.tecnico_id;
-
-            return !tecnico;
-
-        }
-    ).length;
+    const sinAsignar =
+        tickets.filter(
+            ticket =>
+                !tieneTecnico(ticket)
+        ).length;
 
 
 
@@ -302,14 +365,21 @@ function actualizarKPIs(tickets) {
 }
 
 
+
 /* =========================================================
    ACTUALIZAR TEXTO
 ========================================================= */
 
-function actualizarTexto(id, valor) {
+function actualizarTexto(
+    id,
+    valor
+) {
 
     const elemento =
-        document.getElementById(id);
+        document.getElementById(
+            id
+        );
+
 
     if (elemento) {
 
@@ -320,249 +390,6 @@ function actualizarTexto(id, valor) {
 
 }
 
-
-/* =========================================================
-   RENDERIZAR TABLA
-========================================================= */
-
-function renderizarTickets(tickets) {
-
-    const tbody =
-        document.getElementById(
-            "ticketsTableBody"
-        );
-
-    if (!tbody) {
-
-        console.warn(
-            "No existe #ticketsTableBody en el HTML."
-        );
-
-        return;
-    }
-
-    tbody.innerHTML = "";
-
-    if (!tickets.length) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td
-                    colspan="10"
-                    style="
-                        text-align:center;
-                        padding:40px;
-                        color:#6b7280;
-                    "
-                >
-                    <i
-                        class="fa-solid fa-ticket"
-                        style="
-                            font-size:28px;
-                            display:block;
-                            margin-bottom:10px;
-                        "
-                    ></i>
-
-                    No existen tickets registrados.
-                </td>
-            </tr>
-        `;
-
-        actualizarResultado(0);
-
-        return;
-    }
-
-    /* -----------------------------------------------------
-       ORDENAR MÁS RECIENTE PRIMERO
-    ----------------------------------------------------- */
-
-    const ordenados =
-        [...tickets].sort(function (a, b) {
-
-            const fechaA =
-                obtenerFecha(a.fecha_creacion);
-
-            const fechaB =
-                obtenerFecha(b.fecha_creacion);
-
-            return fechaB - fechaA;
-
-        });
-
-
-    /* -----------------------------------------------------
-       CREAR FILAS
-    ----------------------------------------------------- */
-
-    ordenados.forEach(function (ticket) {
-
-        const tr =
-            document.createElement("tr");
-
-        const estatus =
-            ticket.estatus ||
-            "Registrado";
-
-        const prioridad =
-            ticket.prioridad ||
-            "Media";
-
-        const tecnico =
-            ticket.tecnico ||
-            ticket.tecnico_nombre ||
-            "Sin asignar";
-
-
-        tr.innerHTML = `
-
-            <td>
-
-                <strong>
-                    ${escapeHTML(
-                        ticket.folio ||
-                        "#" + (ticket.id || "")
-                    )}
-                </strong>
-
-            </td>
-
-
-            <td>
-
-                <div class="ticket-title-cell">
-
-                    ${escapeHTML(
-                        ticket.titulo ||
-                        "Sin título"
-                    )}
-
-                </div>
-
-            </td>
-
-
-            <td>
-
-                ${escapeHTML(
-                    ticket.empleado ||
-                    ticket.nombre_usuario ||
-                    "-"
-                )}
-
-            </td>
-
-
-            <td>
-
-                ${escapeHTML(
-                    ticket.division ||
-                    "-"
-                )}
-
-            </td>
-
-
-            <td>
-
-                ${escapeHTML(
-                    ticket.area ||
-                    "-"
-                )}
-
-            </td>
-
-
-            <td>
-
-                <span
-                    class="
-                        priority-badge
-                        priority-${normalizarClase(
-                            prioridad
-                        )}
-                    "
-                >
-
-                    ${escapeHTML(
-                        prioridad
-                    )}
-
-                </span>
-
-            </td>
-
-
-            <td>
-
-                <span
-                    class="
-                        status-badge
-                        status-${normalizarClase(
-                            estatus
-                        )}
-                    "
-                >
-
-                    ${escapeHTML(
-                        estatus
-                    )}
-
-                </span>
-
-            </td>
-
-
-            <td>
-
-                ${formatearFecha(
-                    ticket.fecha_creacion
-                )}
-
-            </td>
-
-
-            <td>
-
-                ${escapeHTML(
-                    tecnico
-                )}
-
-            </td>
-
-
-            <td>
-
-                <a
-                    href="detalle-ticket.html?id=${encodeURIComponent(
-                        ticket.id || ""
-                    )}"
-                    class="btn-view"
-                >
-
-                    <i
-                        class="fa-solid fa-eye"
-                    ></i>
-
-                    Gestionar
-
-                </a>
-
-            </td>
-
-        `;
-
-        tbody.appendChild(tr);
-
-    });
-
-
-    actualizarResultado(
-        ordenados.length
-    );
-
-}
 
 
 /* =========================================================
@@ -576,25 +403,41 @@ function configurarEventos() {
             "filtroEstatus"
         );
 
+
     const filtroPrioridad =
         document.getElementById(
             "filtroPrioridad"
         );
+
+
+    const filtroDivision =
+        document.getElementById(
+            "filtroDivision"
+        );
+
+
+    const filtroTecnico =
+        document.getElementById(
+            "filtroTecnico"
+        );
+
 
     const filtroBusqueda =
         document.getElementById(
             "filtroBusqueda"
         );
 
-    const limpiarFiltros =
+
+    const btnActualizar =
         document.getElementById(
-            "limpiarFiltros"
+            "btnActualizar"
         );
 
 
-    /* -----------------------------------------------------
+
+    /* =====================================================
        ESTATUS
-    ----------------------------------------------------- */
+    ===================================================== */
 
     if (filtroEstatus) {
 
@@ -606,9 +449,10 @@ function configurarEventos() {
     }
 
 
-    /* -----------------------------------------------------
+
+    /* =====================================================
        PRIORIDAD
-    ----------------------------------------------------- */
+    ===================================================== */
 
     if (filtroPrioridad) {
 
@@ -620,9 +464,40 @@ function configurarEventos() {
     }
 
 
-    /* -----------------------------------------------------
+
+    /* =====================================================
+       DIVISIÓN
+    ===================================================== */
+
+    if (filtroDivision) {
+
+        filtroDivision.addEventListener(
+            "change",
+            aplicarFiltros
+        );
+
+    }
+
+
+
+    /* =====================================================
+       TÉCNICO
+    ===================================================== */
+
+    if (filtroTecnico) {
+
+        filtroTecnico.addEventListener(
+            "change",
+            aplicarFiltros
+        );
+
+    }
+
+
+
+    /* =====================================================
        BÚSQUEDA
-    ----------------------------------------------------- */
+    ===================================================== */
 
     if (filtroBusqueda) {
 
@@ -634,29 +509,33 @@ function configurarEventos() {
     }
 
 
-    /* -----------------------------------------------------
-       LIMPIAR
-    ----------------------------------------------------- */
 
-    if (limpiarFiltros) {
+    /* =====================================================
+       ACTUALIZAR
+    ===================================================== */
 
-        limpiarFiltros.addEventListener(
+    if (btnActualizar) {
+
+        btnActualizar.addEventListener(
             "click",
             function () {
 
-                if (filtroEstatus) {
-                    filtroEstatus.value = "";
-                }
+                btnActualizar.disabled =
+                    true;
 
-                if (filtroPrioridad) {
-                    filtroPrioridad.value = "";
-                }
 
-                if (filtroBusqueda) {
-                    filtroBusqueda.value = "";
-                }
+                cargarDashboard();
 
-                aplicarFiltros();
+
+                setTimeout(
+                    function () {
+
+                        btnActualizar.disabled =
+                            false;
+
+                    },
+                    300
+                );
 
             }
         );
@@ -664,6 +543,226 @@ function configurarEventos() {
     }
 
 }
+
+
+
+/* =========================================================
+   CARGAR OPCIONES DE FILTROS
+========================================================= */
+
+function cargarOpcionesFiltros(
+    tickets
+) {
+
+    cargarFiltroDivision(
+        tickets
+    );
+
+
+    cargarFiltroTecnico(
+        tickets
+    );
+
+}
+
+
+
+/* =========================================================
+   FILTRO DIVISIÓN
+========================================================= */
+
+function cargarFiltroDivision(
+    tickets
+) {
+
+    const select =
+        document.getElementById(
+            "filtroDivision"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const valorActual =
+        select.value;
+
+
+    const divisiones =
+        [...new Set(
+            tickets
+                .map(
+                    ticket =>
+                        ticket.division
+                )
+                .filter(
+                    valor =>
+                        valor
+                )
+        )]
+        .sort(
+            function (a, b) {
+
+                return String(a)
+                    .localeCompare(
+                        String(b),
+                        "es"
+                    );
+
+            }
+        );
+
+
+    select.innerHTML = `
+
+        <option value="">
+            Todas
+        </option>
+
+    `;
+
+
+    divisiones.forEach(
+        function (division) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                division;
+
+
+            option.textContent =
+                division;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (
+        divisiones.includes(
+            valorActual
+        )
+    ) {
+
+        select.value =
+            valorActual;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   FILTRO TÉCNICO
+========================================================= */
+
+function cargarFiltroTecnico(
+    tickets
+) {
+
+    const select =
+        document.getElementById(
+            "filtroTecnico"
+        );
+
+
+    if (!select) {
+        return;
+    }
+
+
+    const valorActual =
+        select.value;
+
+
+    const tecnicos =
+        [...new Set(
+            tickets
+                .map(
+                    ticket =>
+                        obtenerNombreTecnico(
+                            ticket
+                        )
+                )
+                .filter(
+                    tecnico =>
+                        tecnico &&
+                        tecnico !==
+                        "Sin asignar"
+                )
+        )]
+        .sort(
+            function (a, b) {
+
+                return String(a)
+                    .localeCompare(
+                        String(b),
+                        "es"
+                    );
+
+            }
+        );
+
+
+    select.innerHTML = `
+
+        <option value="">
+            Todos
+        </option>
+
+    `;
+
+
+    tecnicos.forEach(
+        function (tecnico) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                tecnico;
+
+
+            option.textContent =
+                tecnico;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (
+        tecnicos.includes(
+            valorActual
+        )
+    ) {
+
+        select.value =
+            valorActual;
+
+    }
+
+}
+
 
 
 /* =========================================================
@@ -675,15 +774,30 @@ function aplicarFiltros() {
     const tickets =
         obtenerTicketsAdmin();
 
+
     const estatus =
         document.getElementById(
             "filtroEstatus"
         )?.value || "";
 
+
     const prioridad =
         document.getElementById(
             "filtroPrioridad"
         )?.value || "";
+
+
+    const division =
+        document.getElementById(
+            "filtroDivision"
+        )?.value || "";
+
+
+    const tecnico =
+        document.getElementById(
+            "filtroTecnico"
+        )?.value || "";
+
 
     const busqueda =
         (
@@ -695,83 +809,145 @@ function aplicarFiltros() {
         .toLowerCase();
 
 
+
     const filtrados =
-        tickets.filter(function (ticket) {
-
-            /* ---------------------------------------------
-               ESTATUS
-            --------------------------------------------- */
-
-            if (
-                estatus &&
-                normalizarEstatus(
-                    ticket.estatus
-                ) !== estatus
-            ) {
-
-                return false;
-
-            }
+        tickets.filter(
+            function (ticket) {
 
 
-            /* ---------------------------------------------
-               PRIORIDAD
-            --------------------------------------------- */
-
-            if (
-                prioridad &&
-                String(
-                    ticket.prioridad || ""
-                ) !== prioridad
-            ) {
-
-                return false;
-
-            }
-
-
-            /* ---------------------------------------------
-               BÚSQUEDA
-            --------------------------------------------- */
-
-            if (busqueda) {
-
-                const contenido = [
-
-                    ticket.id,
-                    ticket.folio,
-                    ticket.titulo,
-                    ticket.descripcion,
-                    ticket.empleado,
-                    ticket.contacto,
-                    ticket.usuario,
-                    ticket.nombre_usuario,
-                    ticket.division,
-                    ticket.area,
-                    ticket.categoria,
-                    ticket.tecnico
-
-                ]
-                .join(" ")
-                .toLowerCase();
-
+                /* =====================================
+                   ESTATUS
+                ===================================== */
 
                 if (
-                    !contenido.includes(
-                        busqueda
-                    )
+                    estatus &&
+                    normalizarEstatus(
+                        ticket.estatus
+                    ) !==
+                    estatus
                 ) {
 
                     return false;
 
                 }
 
+
+
+                /* =====================================
+                   PRIORIDAD
+                ===================================== */
+
+                if (
+                    prioridad &&
+                    String(
+                        ticket.prioridad ||
+                        ""
+                    ) !==
+                    prioridad
+                ) {
+
+                    return false;
+
+                }
+
+
+
+                /* =====================================
+                   DIVISIÓN
+                ===================================== */
+
+                if (
+                    division &&
+                    String(
+                        ticket.division ||
+                        ""
+                    ) !==
+                    division
+                ) {
+
+                    return false;
+
+                }
+
+
+
+                /* =====================================
+                   TÉCNICO
+                ===================================== */
+
+                if (
+                    tecnico &&
+                    obtenerNombreTecnico(
+                        ticket
+                    ) !==
+                    tecnico
+                ) {
+
+                    return false;
+
+                }
+
+
+
+                /* =====================================
+                   BÚSQUEDA
+                ===================================== */
+
+                if (busqueda) {
+
+                    const contenido = [
+
+                        ticket.id,
+
+                        ticket.folio,
+
+                        ticket.titulo,
+
+                        ticket.descripcion,
+
+                        ticket.empleado,
+
+                        ticket.contacto,
+
+                        ticket.usuario,
+
+                        ticket.nombre_usuario,
+
+                        ticket.division,
+
+                        ticket.area,
+
+                        ticket.categoria,
+
+                        ticket.tecnico
+
+                    ]
+                    .join(" ")
+                    .toLowerCase();
+
+
+                    if (
+                        !contenido.includes(
+                            busqueda
+                        )
+                    ) {
+
+                        return false;
+
+                    }
+
+                }
+
+
+                return true;
+
             }
+        );
 
 
-            return true;
-
-        });
+    actualizarResumenes(
+        filtrados
+    );
 
 
     renderizarTickets(
@@ -781,20 +957,740 @@ function aplicarFiltros() {
 }
 
 
+
 /* =========================================================
-   RESULTADO
+   RENDERIZAR TABLA
 ========================================================= */
 
-function actualizarResultado(cantidad) {
+function renderizarTickets(
+    tickets
+) {
+
+    const tbody =
+        document.getElementById(
+            "ticketsTableBody"
+        );
+
+
+    if (!tbody) {
+
+        console.warn(
+            "No existe #ticketsTableBody en el HTML."
+        );
+
+        return;
+
+    }
+
+
+    tbody.innerHTML =
+        "";
+
+
+
+    if (!tickets.length) {
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="11"
+                    style="
+                        text-align:center;
+                        padding:40px;
+                        color:#6b7280;
+                    "
+                >
+
+                    <i
+                        class="fa-solid fa-ticket"
+                        style="
+                            font-size:28px;
+                            display:block;
+                            margin-bottom:10px;
+                        "
+                    ></i>
+
+                    No existen tickets registrados.
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        actualizarResultado(
+            0
+        );
+
+
+        return;
+
+    }
+
+
+
+    /* =====================================================
+       ORDENAR
+    ===================================================== */
+
+    const ordenados =
+        [...tickets]
+        .sort(
+            function (a, b) {
+
+                const fechaA =
+                    obtenerFecha(
+                        a.fecha_creacion
+                    );
+
+
+                const fechaB =
+                    obtenerFecha(
+                        b.fecha_creacion
+                    );
+
+
+                return (
+                    fechaB -
+                    fechaA
+                );
+
+            }
+        );
+
+
+
+    /* =====================================================
+       FILAS
+    ===================================================== */
+
+    ordenados.forEach(
+        function (ticket) {
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const estatus =
+                normalizarEstatus(
+                    ticket.estatus
+                );
+
+
+            const prioridad =
+                ticket.prioridad ||
+                "Media";
+
+
+            const tecnico =
+                obtenerNombreTecnico(
+                    ticket
+                );
+
+
+
+            tr.innerHTML = `
+
+                <td>
+
+                    <strong>
+
+                        ${escapeHTML(
+                            ticket.folio ||
+                            "#" +
+                            (
+                                ticket.id ||
+                                ""
+                            )
+                        )}
+
+                    </strong>
+
+                </td>
+
+
+                <td>
+
+                    <div
+                        class="ticket-title-cell"
+                    >
+
+                        ${escapeHTML(
+                            ticket.titulo ||
+                            "Sin título"
+                        )}
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        ticket.empleado ||
+                        ticket.nombre_usuario ||
+                        "-"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        ticket.division ||
+                        "-"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        ticket.area ||
+                        "-"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        ticket.categoria ||
+                        "-"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="
+                            priority-badge
+                            priority-${normalizarClase(
+                                prioridad
+                            )}
+                        "
+                    >
+
+                        ${escapeHTML(
+                            prioridad
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="
+                            status-badge
+                            status-${normalizarClase(
+                                estatus
+                            )}
+                        "
+                    >
+
+                        ${escapeHTML(
+                            estatus
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        tecnico
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${formatearFecha(
+                        ticket.fecha_creacion
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <a
+                        href="detalle-ticket.html?id=${encodeURIComponent(
+                            ticket.id ||
+                            ""
+                        )}"
+                        class="btn-view"
+                    >
+
+                        <i
+                            class="fa-solid fa-eye"
+                        ></i>
+
+                        Gestionar
+
+                    </a>
+
+                </td>
+
+            `;
+
+
+            tbody.appendChild(
+                tr
+            );
+
+        }
+    );
+
+
+
+    actualizarResultado(
+        ordenados.length
+    );
+
+}
+
+
+
+/* =========================================================
+   RESÚMENES
+========================================================= */
+
+function actualizarResumenes(
+    tickets
+) {
+
+    actualizarResumenPrioridades(
+        tickets
+    );
+
+
+    actualizarResumenDivisiones(
+        tickets
+    );
+
+
+    actualizarResumenTecnicos(
+        tickets
+    );
+
+}
+
+
+
+/* =========================================================
+   RESUMEN PRIORIDADES
+========================================================= */
+
+function actualizarResumenPrioridades(
+    tickets
+) {
+
+    const container =
+        document.getElementById(
+            "prioridadesContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const prioridades = {
+
+        "Crítica": 0,
+
+        "Alta": 0,
+
+        "Media": 0,
+
+        "Baja": 0
+
+    };
+
+
+    tickets.forEach(
+        function (ticket) {
+
+            const prioridad =
+                ticket.prioridad ||
+                "Media";
+
+
+            if (
+                prioridades[
+                    prioridad
+                ] !== undefined
+            ) {
+
+                prioridades[
+                    prioridad
+                ]++;
+
+            }
+
+        }
+    );
+
+
+    container.innerHTML =
+        "";
+
+
+    Object.keys(
+        prioridades
+    ).forEach(
+        function (prioridad) {
+
+            const cantidad =
+                prioridades[
+                    prioridad
+                ];
+
+
+            const porcentaje =
+                tickets.length
+                    ? Math.round(
+                        (
+                            cantidad /
+                            tickets.length
+                        ) * 100
+                    )
+                    : 0;
+
+
+            container.innerHTML += `
+
+                <div
+                    class="summary-item"
+                >
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(
+                                prioridad
+                            )}
+                        </strong>
+
+                        <span>
+                            ${cantidad} tickets
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="summary-value"
+                    >
+
+                        ${porcentaje}%
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   RESUMEN DIVISIONES
+========================================================= */
+
+function actualizarResumenDivisiones(
+    tickets
+) {
+
+    const container =
+        document.getElementById(
+            "divisionesContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const contador = {};
+
+
+    tickets.forEach(
+        function (ticket) {
+
+            const division =
+                ticket.division ||
+                "Sin división";
+
+
+            contador[
+                division
+            ] =
+                (
+                    contador[
+                        division
+                    ] ||
+                    0
+                ) + 1;
+
+        }
+    );
+
+
+    const lista =
+        Object.entries(
+            contador
+        )
+        .sort(
+            function (a, b) {
+
+                return b[1] - a[1];
+
+            }
+        );
+
+
+    container.innerHTML =
+        "";
+
+
+    if (!lista.length) {
+
+        container.innerHTML = `
+
+            <div class="summary-empty">
+
+                No hay información disponible.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    lista.forEach(
+        function (item) {
+
+            const nombre =
+                item[0];
+
+
+            const cantidad =
+                item[1];
+
+
+            container.innerHTML += `
+
+                <div
+                    class="summary-item"
+                >
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(
+                                nombre
+                            )}
+                        </strong>
+
+                        <span>
+                            ${cantidad} tickets
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="summary-value"
+                    >
+
+                        ${cantidad}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   RESUMEN TÉCNICOS
+========================================================= */
+
+function actualizarResumenTecnicos(
+    tickets
+) {
+
+    const container =
+        document.getElementById(
+            "tecnicosContainer"
+        );
+
+
+    if (!container) {
+        return;
+    }
+
+
+    const contador = {};
+
+
+    tickets.forEach(
+        function (ticket) {
+
+            const tecnico =
+                obtenerNombreTecnico(
+                    ticket
+                );
+
+
+            contador[
+                tecnico
+            ] =
+                (
+                    contador[
+                        tecnico
+                    ] ||
+                    0
+                ) + 1;
+
+        }
+    );
+
+
+    const lista =
+        Object.entries(
+            contador
+        )
+        .sort(
+            function (a, b) {
+
+                return b[1] - a[1];
+
+            }
+        );
+
+
+    container.innerHTML =
+        "";
+
+
+    if (!lista.length) {
+
+        container.innerHTML = `
+
+            <div class="summary-empty">
+
+                No hay información disponible.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    lista.forEach(
+        function (item) {
+
+            const nombre =
+                item[0];
+
+
+            const cantidad =
+                item[1];
+
+
+            container.innerHTML += `
+
+                <div
+                    class="summary-item"
+                >
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(
+                                nombre
+                            )}
+                        </strong>
+
+                        <span>
+                            ${cantidad} tickets
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="summary-value"
+                    >
+
+                        ${cantidad}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   ACTUALIZAR RESULTADO
+========================================================= */
+
+function actualizarResultado(
+    cantidad
+) {
 
     const elemento =
         document.getElementById(
-            "resultadoTickets"
+            "totalResultados"
         );
+
 
     if (!elemento) {
         return;
     }
+
 
     elemento.textContent =
         cantidad === 1
@@ -804,18 +1700,94 @@ function actualizarResultado(cantidad) {
 }
 
 
+
+/* =========================================================
+   OBTENER NOMBRE DEL TÉCNICO
+========================================================= */
+
+function obtenerNombreTecnico(
+    ticket
+) {
+
+    if (
+        ticket.tecnico &&
+        typeof ticket.tecnico === "string"
+    ) {
+
+        return ticket.tecnico;
+
+    }
+
+
+    if (
+        ticket.tecnico_nombre
+    ) {
+
+        return ticket.tecnico_nombre;
+
+    }
+
+
+    if (
+        ticket.tecnico?.nombre
+    ) {
+
+        return ticket.tecnico.nombre;
+
+    }
+
+
+    if (
+        ticket.tecnico_id
+    ) {
+
+        return "Técnico #" +
+            ticket.tecnico_id;
+
+    }
+
+
+    return "Sin asignar";
+
+}
+
+
+
+/* =========================================================
+   VERIFICAR SI TIENE TÉCNICO
+========================================================= */
+
+function tieneTecnico(
+    ticket
+) {
+
+    return (
+        obtenerNombreTecnico(
+            ticket
+        ) !==
+        "Sin asignar"
+    );
+
+}
+
+
+
 /* =========================================================
    NORMALIZAR ESTATUS
 ========================================================= */
 
-function normalizarEstatus(estatus) {
+function normalizarEstatus(
+    estatus
+) {
 
     const valor =
         String(
-            estatus || ""
+            estatus ||
+            ""
         )
         .trim()
         .toLowerCase();
+
 
     const mapa = {
 
@@ -842,8 +1814,11 @@ function normalizarEstatus(estatus) {
 
     };
 
+
     return (
-        mapa[valor] ||
+        mapa[
+            valor
+        ] ||
         estatus ||
         "Registrado"
     );
@@ -851,16 +1826,22 @@ function normalizarEstatus(estatus) {
 }
 
 
+
 /* =========================================================
    NORMALIZAR CLASE CSS
 ========================================================= */
 
-function normalizarClase(valor) {
+function normalizarClase(
+    valor
+) {
 
     return String(
-        valor || ""
+        valor ||
+        ""
     )
-    .normalize("NFD")
+    .normalize(
+        "NFD"
+    )
     .replace(
         /[\u0300-\u036f]/g,
         ""
@@ -878,18 +1859,25 @@ function normalizarClase(valor) {
 }
 
 
+
 /* =========================================================
    FORMATEAR FECHA
 ========================================================= */
 
-function formatearFecha(fecha) {
+function formatearFecha(
+    fecha
+) {
 
     if (!fecha) {
         return "-";
     }
 
+
     const fechaObj =
-        obtenerFecha(fecha);
+        obtenerFecha(
+            fecha
+        );
+
 
     if (
         isNaN(
@@ -898,37 +1886,60 @@ function formatearFecha(fecha) {
     ) {
 
         return escapeHTML(
-            String(fecha)
+            String(
+                fecha
+            )
         );
 
     }
 
+
     return fechaObj.toLocaleString(
         "es-MX",
         {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
+            day:
+                "2-digit",
+
+            month:
+                "2-digit",
+
+            year:
+                "numeric",
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit"
         }
     );
 
 }
 
 
+
 /* =========================================================
    OBTENER FECHA
 ========================================================= */
 
-function obtenerFecha(fecha) {
+function obtenerFecha(
+    fecha
+) {
 
-    if (fecha instanceof Date) {
+    if (
+        fecha instanceof Date
+    ) {
+
         return fecha;
+
     }
 
+
     const resultado =
-        new Date(fecha);
+        new Date(
+            fecha
+        );
+
 
     if (
         !isNaN(
@@ -940,19 +1951,26 @@ function obtenerFecha(fecha) {
 
     }
 
-    return new Date(0);
+
+    return new Date(
+        0
+    );
 
 }
+
 
 
 /* =========================================================
    ESCAPE HTML
 ========================================================= */
 
-function escapeHTML(valor) {
+function escapeHTML(
+    valor
+) {
 
     return String(
-        valor ?? ""
+        valor ??
+        ""
     )
     .replace(
         /&/g,

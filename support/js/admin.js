@@ -1,374 +1,296 @@
 /* =========================================================
-   NEWSROOM PORTAL
-   ADMINISTRACIÓN DE USUARIOS
-   VERSIÓN GITHUB PAGES / HTML
-   ========================================================= */
+NEWSROOM PORTAL
+ADMINISTRACIÓN DE USUARIOS
+FIREBASE / FIRESTORE
+====================
 
+ESTA VERSIÓN:
 
-/* =========================================================
-   CONFIGURACIÓN
+* Ya no utiliza data.js
+* Ya no utiliza localStorage para usuarios
+* Lee usuarios desde Firestore
+* Actualiza perfiles en Firestore
+* Suspende / activa usuarios
+* Elimina perfiles de Firestore
+* Los cambios de Authentication se realizarán
+  posteriormente mediante Cloud Functions
+
 ========================================================= */
 
-const STORAGE_KEY_USERS = "newsroomUsers";
-
-
 /* =========================================================
-   INICIALIZACIÓN
+CONFIGURACIÓN
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
+const NEWSROOM_USERS_COLLECTION =
+"usuarios";
 
-    console.log("Newsroom Portal: admin.js cargado correctamente.");
+/* =========================================================
+ESTADO LOCAL DE LA PÁGINA
+========================================================= */
 
-    /* -----------------------------------------------------
+let newsroomUsuarios = [];
+
+/* =========================================================
+INICIALIZACIÓN
+========================================================= */
+
+document.addEventListener(
+"DOMContentLoaded",
+async function () {
+
+```
+    console.log(
+        "Newsroom Portal: admin.js Firebase cargado correctamente."
+    );
+
+
+    /* -------------------------------------------------
+       VERIFICAR FIREBASE
+    ------------------------------------------------- */
+
+    if (
+        typeof newsroomDB === "undefined"
+    ) {
+
+        console.error(
+            "Newsroom Portal: Firestore no está disponible."
+        );
+
+        mostrarErrorGeneral(
+            "No fue posible conectar con Firebase."
+        );
+
+        return;
+
+    }
+
+
+    /* -------------------------------------------------
        VERIFICAR SESIÓN
-    ----------------------------------------------------- */
+    ------------------------------------------------- */
 
-    if (typeof verificarSesion === "function") {
+    if (
+        typeof verificarSesion ===
+        "function"
+    ) {
 
-        const sesionValida = verificarSesion("../../login.html");
+        const sesionValida =
+            verificarSesion(
+                "../../login.html"
+            );
+
 
         if (!sesionValida) {
+
             return;
+
         }
 
     } else {
 
-        console.warn(
+        console.error(
             "Newsroom Portal: auth.js no está disponible."
         );
 
+        return;
+
     }
 
 
-    /* -----------------------------------------------------
+    /* -------------------------------------------------
        OBTENER SESIÓN
-    ----------------------------------------------------- */
+    ------------------------------------------------- */
 
-    let session = null;
-
-    if (typeof obtenerSesion === "function") {
-
-        session = obtenerSesion();
-
-    }
+    const session =
+        typeof obtenerSesion ===
+        "function"
+            ? obtenerSesion()
+            : null;
 
 
-    /* -----------------------------------------------------
-       VERIFICAR ADMIN
-    ----------------------------------------------------- */
+    if (!session) {
 
-    if (session) {
+        console.error(
+            "Newsroom Portal: no existe sesión."
+        );
 
-        if (Number(session.rol_id) !== 1) {
-
-            alert(
-                "No tienes permisos para acceder a esta sección."
-            );
-
-            window.location.href =
-                "../dashboard/index.html";
-
-            return;
-
-        }
+        return;
 
     }
 
 
-    /* -----------------------------------------------------
-       CARGAR USUARIOS
-    ----------------------------------------------------- */
+    /* -------------------------------------------------
+       VERIFICAR ADMINISTRADOR
+    ------------------------------------------------- */
 
-    inicializarUsuarios();
+    if (
+        Number(
+            session.rol_id
+        ) !== 1
+    ) {
+
+        alert(
+            "No tienes permisos para acceder a esta sección."
+        );
 
 
-    /* -----------------------------------------------------
-       ACTUALIZAR INFORMACIÓN
-    ----------------------------------------------------- */
+        window.location.href =
+            "../dashboard/index.html";
+
+
+        return;
+
+    }
+
+
+    /* -------------------------------------------------
+       ACTUALIZAR INFORMACIÓN DEL USUARIO
+    ------------------------------------------------- */
 
     actualizarUsuario();
+
+
+    /* -------------------------------------------------
+       CONFIGURAR EVENTOS
+    ------------------------------------------------- */
+
+    configurarEventos();
+
+
+    /* -------------------------------------------------
+       CARGAR USUARIOS
+    ------------------------------------------------- */
+
+    await cargarUsuarios();
+
+
+    console.log(
+        "Newsroom Portal: administración inicializada correctamente."
+    );
+
+}
+```
+
+);
+
+/* =========================================================
+CARGAR USUARIOS DESDE FIRESTORE
+========================================================= */
+
+async function cargarUsuarios() {
+
+```
+console.log(
+    "Newsroom Portal: cargando usuarios desde Firestore..."
+);
+
+
+const tbody =
+    document.getElementById(
+        "usuariosTableBody"
+    );
+
+
+if (tbody) {
+
+    tbody.innerHTML = `
+
+        <tr>
+
+            <td
+                colspan="7"
+                style="text-align:center;"
+            >
+
+                Cargando usuarios...
+
+            </td>
+
+        </tr>
+
+    `;
+
+}
+
+
+try {
+
+    const snapshot =
+        await newsroomDB
+            .collection(
+                NEWSROOM_USERS_COLLECTION
+            )
+            .orderBy(
+                "id",
+                "asc"
+            )
+            .get();
+
+
+    newsroomUsuarios = [];
+
+
+    snapshot.forEach(
+        function (doc) {
+
+            const data =
+                doc.data();
+
+
+            newsroomUsuarios.push({
+
+                firestoreId:
+                    doc.id,
+
+                id:
+                    data.id,
+
+                usuario:
+                    data.usuario || "",
+
+                nombre:
+                    data.nombre || "",
+
+                correo:
+                    data.correo || "",
+
+                rol_id:
+                    Number(
+                        data.rol_id || 0
+                    ),
+
+                rol:
+                    data.rol || "",
+
+                estado:
+                    data.estado || "Activo"
+
+            });
+
+        }
+    );
+
+
+    console.log(
+        "Usuarios obtenidos:",
+        newsroomUsuarios
+    );
+
 
     renderizarUsuarios();
 
     actualizarKPIs();
 
 
-    /* -----------------------------------------------------
-       CONFIGURAR EVENTOS
-    ----------------------------------------------------- */
+} catch (error) {
 
-    configurarEventos();
-
-
-    console.log(
-        "Newsroom Portal: administración inicializada."
+    console.error(
+        "Newsroom Portal: error cargando usuarios:",
+        error
     );
 
-});
 
-
-
-/* =========================================================
-   INICIALIZAR USUARIOS
-========================================================= */
-
-function inicializarUsuarios() {
-
-    const guardados =
-        localStorage.getItem(
-            STORAGE_KEY_USERS
-        );
-
-
-    /*
-     * Si ya existen usuarios guardados,
-     * utilizamos esos.
-     */
-
-    if (guardados) {
-
-        try {
-
-            const usuarios =
-                JSON.parse(
-                    guardados
-                );
-
-
-            if (
-                Array.isArray(
-                    usuarios
-                )
-            ) {
-
-                /*
-                 * Actualizar la variable global
-                 * si data.js está disponible.
-                 */
-
-                if (
-                    typeof NEWSROOM_USERS !==
-                    "undefined"
-                ) {
-
-                    NEWSROOM_USERS.length = 0;
-
-                    usuarios.forEach(
-                        usuario => {
-
-                            NEWSROOM_USERS.push(
-                                usuario
-                            );
-
-                        }
-                    );
-
-                }
-
-                return;
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Error leyendo usuarios guardados:",
-                error
-            );
-
-        }
-
-    }
-
-
-    /*
-     * Primera ejecución:
-     * guardar los usuarios de data.js.
-     */
-
-    if (
-        typeof NEWSROOM_USERS !==
-        "undefined"
-    ) {
-
-        guardarUsuarios();
-
-    }
-
-}
-
-
-
-/* =========================================================
-   GUARDAR USUARIOS
-========================================================= */
-
-function guardarUsuarios() {
-
-    if (
-        typeof NEWSROOM_USERS ===
-        "undefined"
-    ) {
-
-        return;
-
-    }
-
-
-    localStorage.setItem(
-        STORAGE_KEY_USERS,
-        JSON.stringify(
-            NEWSROOM_USERS
-        )
-    );
-
-}
-
-
-
-/* =========================================================
-   OBTENER USUARIOS
-========================================================= */
-
-function obtenerUsuariosAdmin() {
-
-    /*
-     * Preferimos NEWSROOM_USERS porque es la
-     * estructura utilizada actualmente.
-     */
-
-    if (
-        typeof NEWSROOM_USERS !==
-        "undefined"
-    ) {
-
-        return NEWSROOM_USERS;
-
-    }
-
-
-    /*
-     * Respaldo desde localStorage.
-     */
-
-    try {
-
-        return JSON.parse(
-            localStorage.getItem(
-                STORAGE_KEY_USERS
-            )
-        ) || [];
-
-    } catch (error) {
-
-        return [];
-
-    }
-
-}
-
-
-
-/* =========================================================
-   ACTUALIZAR USUARIO TOPBAR
-========================================================= */
-
-function actualizarUsuario() {
-
-    let session = null;
-
-
-    if (
-        typeof obtenerSesion ===
-        "function"
-    ) {
-
-        session =
-            obtenerSesion();
-
-    }
-
-
-    if (!session) {
-        return;
-    }
-
-
-    const nombre =
-        session.nombre ||
-        session.usuario ||
-        "Administrador";
-
-
-    const userName =
-        document.getElementById(
-            "userName"
-        );
-
-
-    const userAvatar =
-        document.getElementById(
-            "userAvatar"
-        );
-
-
-    if (userName) {
-
-        userName.textContent =
-            nombre;
-
-    }
-
-
-    if (userAvatar) {
-
-        userAvatar.textContent =
-            nombre
-                .charAt(0)
-                .toUpperCase();
-
-    }
-
-}
-
-
-
-/* =========================================================
-   RENDERIZAR USUARIOS
-========================================================= */
-
-function renderizarUsuarios() {
-
-    const tbody =
-        document.getElementById(
-            "usuariosTableBody"
-        );
-
-
-    if (!tbody) {
-
-        console.warn(
-            "No se encontró usuariosTableBody."
-        );
-
-        return;
-
-    }
-
-
-    const usuarios =
-        obtenerUsuariosAdmin();
-
-
-    tbody.innerHTML =
-        "";
-
-
-    if (
-        usuarios.length ===
-        0
-    ) {
+    if (tbody) {
 
         tbody.innerHTML = `
 
@@ -379,7 +301,7 @@ function renderizarUsuarios() {
                     style="text-align:center;"
                 >
 
-                    No existen usuarios registrados.
+                    No fue posible cargar los usuarios.
 
                 </td>
 
@@ -387,1764 +309,1818 @@ function renderizarUsuarios() {
 
         `;
 
-        return;
-
     }
 
 
-    usuarios.forEach(
-        function (usuario) {
+    manejarErrorFirebase(
+        error,
+        "No fue posible cargar los usuarios."
+    );
 
-            const tr =
-                document.createElement(
-                    "tr"
-                );
+}
+```
 
+}
 
-            const rolClase =
-                String(
-                    usuario.rol || ""
-                )
-                .toLowerCase()
-                .replace(
-                    /\s+/g,
-                    "-"
-                );
+/* =========================================================
+ACTUALIZAR USUARIO TOPBAR
+========================================================= */
 
+function actualizarUsuario() {
 
-            const estadoClase =
-                String(
-                    usuario.estado || ""
-                )
-                .toLowerCase();
+```
+let session = null;
 
 
-            let botonesEstado = "";
+if (
+    typeof obtenerSesion ===
+    "function"
+) {
 
+    session =
+        obtenerSesion();
+
+}
+
+
+if (!session) {
+
+    return;
+
+}
+
+
+const nombre =
+    session.nombre ||
+    session.usuario ||
+    "Administrador";
+
+
+const userName =
+    document.getElementById(
+        "userName"
+    );
+
+
+const userAvatar =
+    document.getElementById(
+        "userAvatar"
+    );
+
+
+if (userName) {
+
+    userName.textContent =
+        nombre;
+
+}
+
+
+if (userAvatar) {
+
+    userAvatar.textContent =
+        nombre
+            .charAt(0)
+            .toUpperCase();
+
+}
+```
+
+}
+
+/* =========================================================
+RENDERIZAR USUARIOS
+========================================================= */
+
+function renderizarUsuarios() {
+
+```
+const tbody =
+    document.getElementById(
+        "usuariosTableBody"
+    );
+
+
+if (!tbody) {
+
+    console.warn(
+        "Newsroom Portal: no se encontró usuariosTableBody."
+    );
+
+    return;
+
+}
+
+
+tbody.innerHTML =
+    "";
+
+
+if (
+    newsroomUsuarios.length ===
+    0
+) {
+
+    tbody.innerHTML = `
+
+        <tr>
+
+            <td
+                colspan="7"
+                style="text-align:center;"
+            >
+
+                No existen usuarios registrados.
+
+            </td>
+
+        </tr>
+
+    `;
+
+    return;
+
+}
+
+
+newsroomUsuarios.forEach(
+    function (usuario) {
+
+        const tr =
+            document.createElement(
+                "tr"
+            );
+
+
+        const rolClase =
+            String(
+                usuario.rol || ""
+            )
+            .toLowerCase()
+            .replace(
+                /\s+/g,
+                "-"
+            );
+
+
+        const estadoClase =
+            String(
+                usuario.estado || ""
+            )
+            .toLowerCase();
+
+
+        let botonesEstado =
+            "";
+
+
+        if (
+            Number(
+                usuario.rol_id
+            ) !== 1
+        ) {
 
             if (
-                Number(
-                    usuario.rol_id
-                ) !== 1
+                usuario.estado ===
+                "Activo"
             ) {
 
-                if (
-                    usuario.estado ===
-                    "Activo"
-                ) {
-
-                    botonesEstado = `
-
-                        <button
-                            type="button"
-                            class="btn-admin btn-suspend"
-                            data-action="suspend"
-                            data-id="${usuario.id}"
-                        >
-                            Suspender
-                        </button>
-
-                    `;
-
-                } else {
-
-                    botonesEstado = `
-
-                        <button
-                            type="button"
-                            class="btn-admin btn-activate"
-                            data-action="activate"
-                            data-id="${usuario.id}"
-                        >
-                            Activar
-                        </button>
-
-                    `;
-
-                }
-
-            }
-
-
-            let botonEliminar = "";
-
-
-            if (
-                Number(
-                    usuario.rol_id
-                ) !== 1
-            ) {
-
-                botonEliminar = `
+                botonesEstado = `
 
                     <button
                         type="button"
-                        class="btn-admin btn-delete"
-                        data-action="delete"
-                        data-id="${usuario.id}"
+                        class="btn-admin btn-suspend"
+                        data-action="suspend"
+                        data-id="${escapeHTML(usuario.firestoreId)}"
                     >
-                        Eliminar
+                        Suspender
+                    </button>
+
+                `;
+
+            } else {
+
+                botonesEstado = `
+
+                    <button
+                        type="button"
+                        class="btn-admin btn-activate"
+                        data-action="activate"
+                        data-id="${escapeHTML(usuario.firestoreId)}"
+                    >
+                        Activar
                     </button>
 
                 `;
 
             }
 
-
-            tr.innerHTML = `
-
-                <td>
-                    #${escapeHTML(usuario.id)}
-                </td>
-
-                <td>
-                    ${escapeHTML(usuario.nombre)}
-                </td>
-
-                <td>
-                    ${escapeHTML(usuario.usuario)}
-                </td>
-
-                <td>
-                    ${escapeHTML(usuario.correo || "")}
-                </td>
-
-                <td>
-
-                    <span
-                        class="role-badge role-${rolClase}"
-                    >
-                        ${escapeHTML(usuario.rol || "")}
-                    </span>
-
-                </td>
-
-                <td>
-
-                    <span
-                        class="status-badge status-${estadoClase}"
-                    >
-                        ${escapeHTML(usuario.estado || "")}
-                    </span>
-
-                </td>
-
-                <td>
-
-                    <div class="action-group">
-
-                        <button
-                            type="button"
-                            class="btn-admin btn-edit"
-                            data-action="edit"
-                            data-id="${usuario.id}"
-                        >
-                            Editar
-                        </button>
+        }
 
 
-                        <button
-                            type="button"
-                            class="btn-admin btn-reset"
-                            data-action="reset"
-                            data-id="${usuario.id}"
-                        >
-                            Reset Password
-                        </button>
+        let botonEliminar =
+            "";
 
 
-                        ${botonesEstado}
+        if (
+            Number(
+                usuario.rol_id
+            ) !== 1
+        ) {
 
+            botonEliminar = `
 
-                        ${botonEliminar}
-
-                    </div>
-
-                </td>
+                <button
+                    type="button"
+                    class="btn-admin btn-delete"
+                    data-action="delete"
+                    data-id="${escapeHTML(usuario.firestoreId)}"
+                >
+                    Eliminar
+                </button>
 
             `;
 
-
-            tbody.appendChild(
-                tr
-            );
-
         }
-    );
+
+
+        tr.innerHTML = `
+
+            <td>
+                #${escapeHTML(usuario.id)}
+            </td>
+
+            <td>
+                ${escapeHTML(usuario.nombre)}
+            </td>
+
+            <td>
+                ${escapeHTML(usuario.usuario)}
+            </td>
+
+            <td>
+                ${escapeHTML(usuario.correo)}
+            </td>
+
+            <td>
+
+                <span
+                    class="role-badge role-${escapeHTML(rolClase)}"
+                >
+
+                    ${escapeHTML(usuario.rol)}
+
+                </span>
+
+            </td>
+
+            <td>
+
+                <span
+                    class="status-badge status-${escapeHTML(estadoClase)}"
+                >
+
+                    ${escapeHTML(usuario.estado)}
+
+                </span>
+
+            </td>
+
+            <td>
+
+                <div class="action-group">
+
+                    <button
+                        type="button"
+                        class="btn-admin btn-edit"
+                        data-action="edit"
+                        data-id="${escapeHTML(usuario.firestoreId)}"
+                    >
+                        Editar
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="btn-admin btn-reset"
+                        data-action="reset"
+                        data-id="${escapeHTML(usuario.firestoreId)}"
+                    >
+                        Reset Password
+                    </button>
+
+
+                    ${botonesEstado}
+
+
+                    ${botonEliminar}
+
+                </div>
+
+            </td>
+
+        `;
+
+
+        tbody.appendChild(
+            tr
+        );
+
+    }
+);
+```
 
 }
 
-
-
 /* =========================================================
-   KPIs
+ACTUALIZAR KPIs
 ========================================================= */
 
 function actualizarKPIs() {
 
-    const usuarios =
-        obtenerUsuariosAdmin();
+```
+const total =
+    newsroomUsuarios.length;
 
 
-    const total =
-        usuarios.length;
+const activos =
+    newsroomUsuarios.filter(
+        usuario =>
+            usuario.estado ===
+            "Activo"
+    ).length;
 
 
-    const activos =
-        usuarios.filter(
-            usuario =>
-                usuario.estado ===
-                "Activo"
-        ).length;
+const suspendidos =
+    newsroomUsuarios.filter(
+        usuario =>
+            usuario.estado ===
+            "Suspendido"
+    ).length;
 
 
-    const suspendidos =
-        usuarios.filter(
-            usuario =>
-                usuario.estado ===
-                "Suspendido"
-        ).length;
+actualizarTexto(
+    "totalUsuarios",
+    total
+);
 
 
-    actualizarTexto(
-        "totalUsuarios",
-        total
-    );
+actualizarTexto(
+    "usuariosActivos",
+    activos
+);
 
 
-    actualizarTexto(
-        "usuariosActivos",
-        activos
-    );
-
-
-    actualizarTexto(
-        "usuariosSuspendidos",
-        suspendidos
-    );
+actualizarTexto(
+    "usuariosSuspendidos",
+    suspendidos
+);
+```
 
 }
 
-
-
 /* =========================================================
-   ACTUALIZAR TEXTO
+ACTUALIZAR TEXTO
 ========================================================= */
 
 function actualizarTexto(
-    id,
-    valor
+id,
+valor
 ) {
 
-    const elemento =
-        document.getElementById(
-            id
-        );
+```
+const elemento =
+    document.getElementById(
+        id
+    );
 
 
-    if (elemento) {
+if (elemento) {
 
-        elemento.textContent =
-            valor;
+    elemento.textContent =
+        valor;
 
-    }
+}
+```
 
 }
 
-
-
 /* =========================================================
-   CONFIGURAR EVENTOS
+CONFIGURAR EVENTOS
 ========================================================= */
 
 function configurarEventos() {
 
-    console.log(
-        "Configurando eventos de administración..."
+```
+console.log(
+    "Newsroom Portal: configurando eventos..."
+);
+
+
+/* -----------------------------------------------------
+   NUEVO USUARIO
+----------------------------------------------------- */
+
+const nuevoUsuarioBtn =
+    document.getElementById(
+        "nuevoUsuarioBtn"
     );
 
 
-    /* -----------------------------------------------------
-       NUEVO USUARIO
-    ----------------------------------------------------- */
+if (nuevoUsuarioBtn) {
 
-    const nuevoUsuarioBtn =
-        document.getElementById(
-            "nuevoUsuarioBtn"
-        );
+    nuevoUsuarioBtn.addEventListener(
+        "click",
+        function (event) {
 
+            event.preventDefault();
 
-    if (nuevoUsuarioBtn) {
+            abrirModalUsuario();
 
-        nuevoUsuarioBtn.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                console.log(
-                    "Click: Nuevo Usuario"
-                );
-
-                abrirModalUsuario();
-
-            }
-        );
-
-    } else {
-
-        console.error(
-            "No se encontró nuevoUsuarioBtn."
-        );
-
-    }
-
-
-    /* -----------------------------------------------------
-       TABLA
-    ----------------------------------------------------- */
-
-    const tbody =
-        document.getElementById(
-            "usuariosTableBody"
-        );
-
-
-    if (tbody) {
-
-        tbody.addEventListener(
-            "click",
-            function (event) {
-
-                const button =
-                    event.target.closest(
-                        "button[data-action]"
-                    );
-
-
-                if (!button) {
-                    return;
-                }
-
-
-                event.preventDefault();
-
-
-                const action =
-                    button.getAttribute(
-                        "data-action"
-                    );
-
-
-                const id =
-                    Number(
-                        button.getAttribute(
-                            "data-id"
-                        )
-                    );
-
-
-                console.log(
-                    "Acción:",
-                    action,
-                    "ID:",
-                    id
-                );
-
-
-                manejarAccionUsuario(
-                    action,
-                    id
-                );
-
-            }
-        );
-
-    }
-
-
-    /* -----------------------------------------------------
-       MODAL USUARIO - CERRAR
-    ----------------------------------------------------- */
-
-    const cerrarModal =
-        document.getElementById(
-            "cerrarModal"
-        );
-
-
-    if (cerrarModal) {
-
-        cerrarModal.addEventListener(
-            "click",
-            function () {
-
-                cerrarModalUsuario();
-
-            }
-        );
-
-    }
-
-
-    const cancelarUsuario =
-        document.getElementById(
-            "cancelarUsuario"
-        );
-
-
-    if (cancelarUsuario) {
-
-        cancelarUsuario.addEventListener(
-            "click",
-            function () {
-
-                cerrarModalUsuario();
-
-            }
-        );
-
-    }
-
-
-    /* -----------------------------------------------------
-       FORMULARIO USUARIO
-    ----------------------------------------------------- */
-
-    const usuarioForm =
-        document.getElementById(
-            "usuarioForm"
-        );
-
-
-    if (usuarioForm) {
-
-        usuarioForm.addEventListener(
-            "submit",
-            function (event) {
-
-                guardarUsuario(
-                    event
-                );
-
-            }
-        );
-
-    }
-
-
-    /* -----------------------------------------------------
-       MODAL PASSWORD
-    ----------------------------------------------------- */
-
-    const cerrarPasswordModal =
-        document.getElementById(
-            "cerrarPasswordModal"
-        );
-
-
-    if (cerrarPasswordModal) {
-
-        cerrarPasswordModal.addEventListener(
-            "click",
-            function () {
-
-                cerrarModalPassword();
-
-            }
-        );
-
-    }
-
-
-    const cancelarPassword =
-        document.getElementById(
-            "cancelarPassword"
-        );
-
-
-    if (cancelarPassword) {
-
-        cancelarPassword.addEventListener(
-            "click",
-            function () {
-
-                cerrarModalPassword();
-
-            }
-        );
-
-    }
-
-
-    /* -----------------------------------------------------
-       FORM PASSWORD
-    ----------------------------------------------------- */
-
-    const passwordForm =
-        document.getElementById(
-            "passwordForm"
-        );
-
-
-    if (passwordForm) {
-
-        passwordForm.addEventListener(
-            "submit",
-            function (event) {
-
-                guardarPassword(
-                    event
-                );
-
-            }
-        );
-
-    }
-
-
-    /* -----------------------------------------------------
-       CERRAR MODALES AL HACER CLICK FUERA
-    ----------------------------------------------------- */
-
-    const usuarioModal =
-        document.getElementById(
-            "usuarioModal"
-        );
-
-
-    if (usuarioModal) {
-
-        usuarioModal.addEventListener(
-            "click",
-            function (event) {
-
-                if (
-                    event.target ===
-                    usuarioModal
-                ) {
-
-                    cerrarModalUsuario();
-
-                }
-
-            }
-        );
-
-    }
-
-
-    const passwordModal =
-        document.getElementById(
-            "passwordModal"
-        );
-
-
-    if (passwordModal) {
-
-        passwordModal.addEventListener(
-            "click",
-            function (event) {
-
-                if (
-                    event.target ===
-                    passwordModal
-                ) {
-
-                    cerrarModalPassword();
-
-                }
-
-            }
-        );
-
-    }
+        }
+    );
 
 }
 
 
+/* -----------------------------------------------------
+   TABLA
+----------------------------------------------------- */
+
+const tbody =
+    document.getElementById(
+        "usuariosTableBody"
+    );
+
+
+if (tbody) {
+
+    tbody.addEventListener(
+        "click",
+        function (event) {
+
+            const button =
+                event.target.closest(
+                    "button[data-action]"
+                );
+
+
+            if (!button) {
+
+                return;
+
+            }
+
+
+            event.preventDefault();
+
+
+            const action =
+                button.getAttribute(
+                    "data-action"
+                );
+
+
+            const firestoreId =
+                button.getAttribute(
+                    "data-id"
+                );
+
+
+            manejarAccionUsuario(
+                action,
+                firestoreId
+            );
+
+        }
+    );
+
+}
+
+
+/* -----------------------------------------------------
+   CERRAR MODAL USUARIO
+----------------------------------------------------- */
+
+const cerrarModal =
+    document.getElementById(
+        "cerrarModal"
+    );
+
+
+if (cerrarModal) {
+
+    cerrarModal.addEventListener(
+        "click",
+        cerrarModalUsuario
+    );
+
+}
+
+
+const cancelarUsuario =
+    document.getElementById(
+        "cancelarUsuario"
+    );
+
+
+if (cancelarUsuario) {
+
+    cancelarUsuario.addEventListener(
+        "click",
+        cerrarModalUsuario
+    );
+
+}
+
+
+/* -----------------------------------------------------
+   FORMULARIO USUARIO
+----------------------------------------------------- */
+
+const usuarioForm =
+    document.getElementById(
+        "usuarioForm"
+    );
+
+
+if (usuarioForm) {
+
+    usuarioForm.addEventListener(
+        "submit",
+        guardarUsuario
+    );
+
+}
+
+
+/* -----------------------------------------------------
+   PASSWORD MODAL
+----------------------------------------------------- */
+
+const cerrarPasswordModal =
+    document.getElementById(
+        "cerrarPasswordModal"
+    );
+
+
+if (cerrarPasswordModal) {
+
+    cerrarPasswordModal.addEventListener(
+        "click",
+        cerrarModalPassword
+    );
+
+}
+
+
+const cancelarPassword =
+    document.getElementById(
+        "cancelarPassword"
+    );
+
+
+if (cancelarPassword) {
+
+    cancelarPassword.addEventListener(
+        "click",
+        cerrarModalPassword
+    );
+
+}
+
+
+const passwordForm =
+    document.getElementById(
+        "passwordForm"
+    );
+
+
+if (passwordForm) {
+
+    passwordForm.addEventListener(
+        "submit",
+        guardarPassword
+    );
+
+}
+
+
+/* -----------------------------------------------------
+   CERRAR MODALES AL HACER CLICK FUERA
+----------------------------------------------------- */
+
+const usuarioModal =
+    document.getElementById(
+        "usuarioModal"
+    );
+
+
+if (usuarioModal) {
+
+    usuarioModal.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target ===
+                usuarioModal
+            ) {
+
+                cerrarModalUsuario();
+
+            }
+
+        }
+    );
+
+}
+
+
+const passwordModal =
+    document.getElementById(
+        "passwordModal"
+    );
+
+
+if (passwordModal) {
+
+    passwordModal.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target ===
+                passwordModal
+            ) {
+
+                cerrarModalPassword();
+
+            }
+
+        }
+    );
+
+}
+```
+
+}
 
 /* =========================================================
-   MANEJAR ACCIONES
+MANEJAR ACCIONES
 ========================================================= */
 
 function manejarAccionUsuario(
-    action,
-    id
+action,
+firestoreId
 ) {
 
-    const usuario =
-        buscarUsuario(
-            id
-        );
+```
+const usuario =
+    buscarUsuario(
+        firestoreId
+    );
 
 
-    if (!usuario) {
+if (!usuario) {
 
-        alert(
-            "Usuario no encontrado."
-        );
+    alert(
+        "Usuario no encontrado."
+    );
 
-        return;
-
-    }
-
-
-    switch (action) {
-
-        case "edit":
-
-            abrirModalUsuario(
-                usuario
-            );
-
-            break;
-
-
-        case "reset":
-
-            abrirModalPassword(
-                usuario
-            );
-
-            break;
-
-
-        case "suspend":
-
-            cambiarEstado(
-                usuario,
-                "Suspendido"
-            );
-
-            break;
-
-
-        case "activate":
-
-            cambiarEstado(
-                usuario,
-                "Activo"
-            );
-
-            break;
-
-
-        case "delete":
-
-            eliminarUsuario(
-                usuario
-            );
-
-            break;
-
-
-        default:
-
-            console.warn(
-                "Acción desconocida:",
-                action
-            );
-
-    }
+    return;
 
 }
 
 
+switch (action) {
+
+    case "edit":
+
+        abrirModalUsuario(
+            usuario
+        );
+
+        break;
+
+
+    case "reset":
+
+        abrirModalPassword(
+            usuario
+        );
+
+        break;
+
+
+    case "suspend":
+
+        cambiarEstado(
+            usuario,
+            "Suspendido"
+        );
+
+        break;
+
+
+    case "activate":
+
+        cambiarEstado(
+            usuario,
+            "Activo"
+        );
+
+        break;
+
+
+    case "delete":
+
+        eliminarUsuario(
+            usuario
+        );
+
+        break;
+
+
+    default:
+
+        console.warn(
+            "Acción desconocida:",
+            action
+        );
+
+}
+```
+
+}
 
 /* =========================================================
-   BUSCAR USUARIO
+BUSCAR USUARIO
 ========================================================= */
 
 function buscarUsuario(
-    id
+firestoreId
 ) {
 
-    const usuarios =
-        obtenerUsuariosAdmin();
-
-
-    return usuarios.find(
-        usuario =>
-            Number(
-                usuario.id
-            ) ===
-            Number(id)
-    );
+```
+return newsroomUsuarios.find(
+    usuario =>
+        String(
+            usuario.firestoreId
+        ) ===
+        String(
+            firestoreId
+        )
+);
+```
 
 }
 
-
-
 /* =========================================================
-   ABRIR MODAL USUARIO
+ABRIR MODAL USUARIO
 ========================================================= */
 
 function abrirModalUsuario(
-    usuario = null
+usuario = null
 ) {
 
-    console.log(
-        "Abriendo modal usuario:",
-        usuario
+```
+const modal =
+    document.getElementById(
+        "usuarioModal"
     );
 
 
-    const modal =
-        document.getElementById(
-            "usuarioModal"
-        );
+if (!modal) {
 
-
-    if (!modal) {
-
-        console.error(
-            "No existe #usuarioModal en el HTML."
-        );
-
-        return;
-
-    }
-
-
-    const title =
-        document.getElementById(
-            "modalTitle"
-        );
-
-
-    const id =
-        document.getElementById(
-            "usuarioId"
-        );
-
-
-    const nombre =
-        document.getElementById(
-            "nombre"
-        );
-
-
-    const usuarioInput =
-        document.getElementById(
-            "usuario"
-        );
-
-
-    const correo =
-        document.getElementById(
-            "correo"
-        );
-
-
-    const password =
-        document.getElementById(
-            "password"
-        );
-
-
-    const passwordGroup =
-        document.getElementById(
-            "passwordGroup"
-        );
-
-
-    const rol =
-        document.getElementById(
-            "rolId"
-        );
-
-
-    ocultarError(
-        "formError"
+    console.error(
+        "No existe #usuarioModal."
     );
 
-
-    if (usuario) {
-
-        title.textContent =
-            "Editar Usuario";
-
-
-        id.value =
-            usuario.id;
-
-
-        nombre.value =
-            usuario.nombre || "";
-
-
-        usuarioInput.value =
-            usuario.usuario || "";
-
-
-        correo.value =
-            usuario.correo || "";
-
-
-        rol.value =
-            usuario.rol_id || "2";
-
-
-        password.value =
-            "";
-
-
-        password.removeAttribute(
-            "required"
-        );
-
-
-        if (passwordGroup) {
-
-            passwordGroup.style.display =
-                "none";
-
-        }
-
-    } else {
-
-        title.textContent =
-            "Nuevo Usuario";
-
-
-        id.value =
-            "";
-
-
-        nombre.value =
-            "";
-
-
-        usuarioInput.value =
-            "";
-
-
-        correo.value =
-            "";
-
-
-        rol.value =
-            "2";
-
-
-        password.value =
-            "";
-
-
-        password.setAttribute(
-            "required",
-            "required"
-        );
-
-
-        if (passwordGroup) {
-
-            passwordGroup.style.display =
-                "";
-
-        }
-
-    }
-
-
-    /*
-     * Mostrar modal
-     */
-
-    modal.style.display =
-        "flex";
-
-
-    modal.style.visibility =
-        "visible";
-
-
-    modal.style.opacity =
-        "1";
-modal.style.position = "fixed";
-modal.style.top = "0";
-modal.style.left = "0";
-modal.style.width = "100vw";
-modal.style.height = "100vh";
-modal.style.zIndex = "99999";
-modal.style.backgroundColor = "rgba(0,0,0,0.75)";
-
-    console.log(
-        "Modal usuario visible."
-    );
+    return;
 
 }
 
 
-
-/* =========================================================
-   CERRAR MODAL USUARIO
-========================================================= */
-
-function cerrarModalUsuario() {
-
-    const modal =
-        document.getElementById(
-            "usuarioModal"
-        );
+const title =
+    document.getElementById(
+        "modalTitle"
+    );
 
 
-    if (modal) {
+const id =
+    document.getElementById(
+        "usuarioId"
+    );
 
-        modal.style.display =
+
+const nombre =
+    document.getElementById(
+        "nombre"
+    );
+
+
+const usuarioInput =
+    document.getElementById(
+        "usuario"
+    );
+
+
+const correo =
+    document.getElementById(
+        "correo"
+    );
+
+
+const password =
+    document.getElementById(
+        "password"
+    );
+
+
+const passwordGroup =
+    document.getElementById(
+        "passwordGroup"
+    );
+
+
+const rol =
+    document.getElementById(
+        "rolId"
+    );
+
+
+ocultarError(
+    "formError"
+);
+
+
+if (usuario) {
+
+    title.textContent =
+        "Editar Usuario";
+
+
+    /*
+     * Guardamos el ID de Firestore
+     * en el campo oculto.
+     */
+
+    id.value =
+        usuario.firestoreId;
+
+
+    nombre.value =
+        usuario.nombre || "";
+
+
+    usuarioInput.value =
+        usuario.usuario || "";
+
+
+    correo.value =
+        usuario.correo || "";
+
+
+    rol.value =
+        usuario.rol_id || "2";
+
+
+    password.value =
+        "";
+
+
+    password.removeAttribute(
+        "required"
+    );
+
+
+    if (passwordGroup) {
+
+        passwordGroup.style.display =
             "none";
 
     }
 
-}
+} else {
+
+    title.textContent =
+        "Nuevo Usuario";
 
 
-
-/* =========================================================
-   GUARDAR USUARIO
-========================================================= */
-
-function guardarUsuario(
-    event
-) {
-
-    event.preventDefault();
+    id.value =
+        "";
 
 
-    console.log(
-        "Guardando usuario..."
+    nombre.value =
+        "";
+
+
+    usuarioInput.value =
+        "";
+
+
+    correo.value =
+        "";
+
+
+    rol.value =
+        "2";
+
+
+    password.value =
+        "";
+
+
+    password.setAttribute(
+        "required",
+        "required"
     );
 
 
-    const id =
-        document.getElementById(
-            "usuarioId"
-        ).value.trim();
+    if (passwordGroup) {
 
-
-    const nombre =
-        document.getElementById(
-            "nombre"
-        ).value.trim();
-
-
-    const usuario =
-        document.getElementById(
-            "usuario"
-        ).value.trim();
-
-
-    const correo =
-        document.getElementById(
-            "correo"
-        ).value.trim();
-
-
-    const password =
-        document.getElementById(
-            "password"
-        ).value;
-
-
-    const rolId =
-        Number(
-            document.getElementById(
-                "rolId"
-            ).value
-        );
-
-
-    /* -----------------------------------------------------
-       VALIDACIÓN
-    ----------------------------------------------------- */
-
-    if (
-        !nombre ||
-        !usuario
-    ) {
-
-        mostrarError(
-            "formError",
-            "Nombre y usuario son obligatorios."
-        );
-
-        return;
+        passwordGroup.style.display =
+            "";
 
     }
 
-
-    if (
-        !id &&
-        !password
-    ) {
-
-        mostrarError(
-            "formError",
-            "La contraseña es obligatoria para un nuevo usuario."
-        );
-
-        return;
-
-    }
+}
 
 
-    const usuarios =
-        obtenerUsuariosAdmin();
+modal.style.display =
+    "flex";
 
 
-    const duplicado =
-        usuarios.find(
-            item =>
+modal.style.visibility =
+    "visible";
 
-                String(
-                    item.usuario || ""
+
+modal.style.opacity =
+    "1";
+
+
+modal.style.position =
+    "fixed";
+
+
+modal.style.top =
+    "0";
+
+
+modal.style.left =
+    "0";
+
+
+modal.style.width =
+    "100vw";
+
+
+modal.style.height =
+    "100vh";
+
+
+modal.style.zIndex =
+    "99999";
+
+
+modal.style.backgroundColor =
+    "rgba(0,0,0,0.75)";
+```
+
+}
+
+/* =========================================================
+CERRAR MODAL USUARIO
+========================================================= */
+
+function cerrarModalUsuario() {
+
+```
+const modal =
+    document.getElementById(
+        "usuarioModal"
+    );
+
+
+if (modal) {
+
+    modal.style.display =
+        "none";
+
+}
+```
+
+}
+
+/* =========================================================
+GUARDAR USUARIO
+========================================================= */
+
+async function guardarUsuario(
+event
+) {
+
+```
+event.preventDefault();
+
+
+const id =
+    document.getElementById(
+        "usuarioId"
+    ).value.trim();
+
+
+const nombre =
+    document.getElementById(
+        "nombre"
+    ).value.trim();
+
+
+const usuario =
+    document.getElementById(
+        "usuario"
+    ).value.trim();
+
+
+const correo =
+    document.getElementById(
+        "correo"
+    ).value.trim();
+
+
+const password =
+    document.getElementById(
+        "password"
+    ).value;
+
+
+const rolId =
+    Number(
+        document.getElementById(
+            "rolId"
+        ).value
+    );
+
+
+/* -----------------------------------------------------
+   VALIDACIÓN
+----------------------------------------------------- */
+
+if (
+    !nombre ||
+    !usuario ||
+    !correo
+) {
+
+    mostrarError(
+        "formError",
+        "Nombre, usuario y correo son obligatorios."
+    );
+
+    return;
+
+}
+
+
+/*
+ * -----------------------------------------------------
+ * CREAR
+ * -----------------------------------------------------
+ *
+ * TODAVÍA NO CREAMOS LA CUENTA DE AUTHENTICATION.
+ *
+ * Esto se implementará mediante Cloud Functions.
+ */
+
+if (!id) {
+
+    mostrarError(
+        "formError",
+        "La creación de cuentas de acceso mediante Firebase Authentication se habilitará en la siguiente etapa."
+    );
+
+    return;
+
+}
+
+
+/* -----------------------------------------------------
+   EDITAR PERFIL EXISTENTE
+----------------------------------------------------- */
+
+const usuarioExistente =
+    buscarUsuario(
+        id
+    );
+
+
+if (!usuarioExistente) {
+
+    mostrarError(
+        "formError",
+        "No se encontró el usuario."
+    );
+
+    return;
+
+}
+
+
+/* -----------------------------------------------------
+   VALIDAR USUARIO DUPLICADO
+----------------------------------------------------- */
+
+const duplicado =
+    newsroomUsuarios.find(
+        item =>
+
+            String(
+                item.usuario || ""
+            )
+            .trim()
+            .toLowerCase() ===
+            usuario.toLowerCase()
+
+            &&
+
+            String(
+                item.firestoreId
+            ) !==
+            String(
+                id
+            )
+    );
+
+
+if (duplicado) {
+
+    mostrarError(
+        "formError",
+        "El nombre de usuario ya existe."
+    );
+
+    return;
+
+}
+
+
+/* -----------------------------------------------------
+   ACTUALIZAR FIRESTORE
+----------------------------------------------------- */
+
+try {
+
+    await newsroomDB
+        .collection(
+            NEWSROOM_USERS_COLLECTION
+        )
+        .doc(
+            id
+        )
+        .update({
+
+            nombre:
+                nombre,
+
+            usuario:
+                usuario,
+
+            correo:
+                correo,
+
+            rol_id:
+                rolId,
+
+            rol:
+                obtenerNombreRol(
+                    rolId
                 )
-                .toLowerCase() ===
-                usuario.toLowerCase()
 
-                &&
-
-                Number(
-                    item.id
-                ) !==
-                Number(
-                    id || 0
-                )
-        );
-
-
-    if (duplicado) {
-
-        mostrarError(
-            "formError",
-            "El nombre de usuario ya existe."
-        );
-
-        return;
-
-    }
-
-
-    /* -----------------------------------------------------
-       EDITAR
-    ----------------------------------------------------- */
-
-    if (id) {
-
-        const usuarioExistente =
-            buscarUsuario(
-                Number(id)
-            );
-
-
-        if (!usuarioExistente) {
-
-            mostrarError(
-                "formError",
-                "No se encontró el usuario."
-            );
-
-            return;
-
-        }
-
-
-        usuarioExistente.nombre =
-            nombre;
-
-
-        usuarioExistente.usuario =
-            usuario;
-
-
-        usuarioExistente.correo =
-            correo;
-
-
-        usuarioExistente.rol_id =
-            rolId;
-
-
-        usuarioExistente.rol =
-            obtenerNombreRol(
-                rolId
-            );
-
-
-        /*
-         * NO modificamos contraseña
-         * al editar.
-         */
-
-
-        guardarUsuarios();
-
-
-        cerrarModalUsuario();
-
-
-        renderizarUsuarios();
-
-
-        actualizarKPIs();
-
-
-        alert(
-            "Usuario actualizado correctamente."
-        );
-
-
-        return;
-
-    }
-
-
-    /* -----------------------------------------------------
-       CREAR
-    ----------------------------------------------------- */
-
-    const usuariosActuales =
-        obtenerUsuariosAdmin();
-
-
-    let nuevoId = 1;
-
-
-    if (
-        usuariosActuales.length >
-        0
-    ) {
-
-        nuevoId =
-            Math.max(
-                ...usuariosActuales.map(
-                    item =>
-                        Number(
-                            item.id
-                        ) || 0
-                )
-            ) + 1;
-
-    }
-
-
-    const nuevoUsuario = {
-
-        id:
-            nuevoId,
-
-        usuario:
-            usuario,
-
-        nombre:
-            nombre,
-
-        correo:
-            correo,
-
-        rol_id:
-            rolId,
-
-        rol:
-            obtenerNombreRol(
-                rolId
-            ),
-
-        estado:
-            "Activo",
-
-        password:
-            password
-
-    };
-
-
-    if (
-        typeof NEWSROOM_USERS !==
-        "undefined"
-    ) {
-
-        NEWSROOM_USERS.push(
-            nuevoUsuario
-        );
-
-    }
-
-
-    guardarUsuarios();
+        });
 
 
     cerrarModalUsuario();
 
 
-    renderizarUsuarios();
-
-
-    actualizarKPIs();
+    await cargarUsuarios();
 
 
     alert(
-        "Usuario creado correctamente."
+        "Usuario actualizado correctamente."
+    );
+
+
+} catch (error) {
+
+    console.error(
+        "Error actualizando usuario:",
+        error
+    );
+
+
+    manejarErrorFirebase(
+        error,
+        "No fue posible actualizar el usuario."
     );
 
 }
+```
 
-
+}
 
 /* =========================================================
-   NOMBRE DEL ROL
+NOMBRE DEL ROL
 ========================================================= */
 
 function obtenerNombreRol(
-    rolId
+rolId
 ) {
 
-    const roles = {
+```
+const roles = {
 
-        1:
-            "Administrador",
+    1:
+        "Administrador",
 
-        2:
-            "Support",
+    2:
+        "Support",
 
-        3:
-            "Rooms",
+    3:
+        "Rooms",
 
-        4:
-            "Rooms Admin",
+    4:
+        "Rooms Admin",
 
-        5:
-            "Vehicular",
+    5:
+        "Vehicular",
 
-        7:
-            "Credencialización",
+    7:
+        "Credencialización",
 
-        8:
-            "Capital Humano"
+    8:
+        "Capital Humano"
 
-    };
+};
 
 
-    return (
-        roles[rolId] ||
-        "Usuario"
+return (
+    roles[rolId] ||
+    "Usuario"
+);
+```
+
+}
+
+/* =========================================================
+CAMBIAR ESTADO
+========================================================= */
+
+async function cambiarEstado(
+usuario,
+nuevoEstado
+) {
+
+```
+if (
+    Number(
+        usuario.rol_id
+    ) === 1
+) {
+
+    alert(
+        "El administrador principal no puede ser suspendido."
     );
+
+    return;
 
 }
 
 
-
-/* =========================================================
-   CAMBIAR ESTADO
-========================================================= */
-
-function cambiarEstado(
-    usuario,
-    nuevoEstado
-) {
-
-    if (
-        Number(
-            usuario.rol_id
-        ) === 1
-    ) {
-
-        alert(
-            "El administrador principal no puede ser suspendido."
-        );
-
-        return;
-
-    }
+const accion =
+    nuevoEstado ===
+    "Activo"
+        ? "activar"
+        : "suspender";
 
 
-    const accion =
-        nuevoEstado === "Activo"
-            ? "activar"
-            : "suspender";
+const confirmar =
+    confirm(
+        `¿Deseas ${accion} al usuario "${usuario.nombre}"?`
+    );
 
 
-    const confirmar =
-        confirm(
-            `¿Deseas ${accion} al usuario "${usuario.nombre}"?`
-        );
+if (!confirmar) {
+
+    return;
+
+}
 
 
-    if (!confirmar) {
-        return;
-    }
+try {
+
+    await newsroomDB
+        .collection(
+            NEWSROOM_USERS_COLLECTION
+        )
+        .doc(
+            usuario.firestoreId
+        )
+        .update({
+
+            estado:
+                nuevoEstado
+
+        });
 
 
-    usuario.estado =
-        nuevoEstado;
-
-
-    guardarUsuarios();
-
-
-    renderizarUsuarios();
-
-
-    actualizarKPIs();
+    await cargarUsuarios();
 
 
     alert(
-        nuevoEstado === "Activo"
+        nuevoEstado ===
+        "Activo"
             ? "Usuario activado correctamente."
             : "Usuario suspendido correctamente."
     );
 
-}
 
+} catch (error) {
 
-
-/* =========================================================
-   ELIMINAR USUARIO
-========================================================= */
-
-function eliminarUsuario(
-    usuario
-) {
-
-    if (
-        Number(
-            usuario.rol_id
-        ) === 1
-    ) {
-
-        alert(
-            "El administrador principal no puede eliminarse."
-        );
-
-        return;
-
-    }
-
-
-    const confirmar =
-        confirm(
-            `¿Eliminar definitivamente al usuario "${usuario.nombre}"?`
-        );
-
-
-    if (!confirmar) {
-        return;
-    }
-
-
-    if (
-        typeof NEWSROOM_USERS ===
-        "undefined"
-    ) {
-
-        return;
-
-    }
-
-
-    const index =
-        NEWSROOM_USERS.findIndex(
-            item =>
-                Number(
-                    item.id
-                ) ===
-                Number(
-                    usuario.id
-                )
-        );
-
-
-    if (
-        index === -1
-    ) {
-
-        alert(
-            "No se pudo encontrar el usuario."
-        );
-
-        return;
-
-    }
-
-
-    NEWSROOM_USERS.splice(
-        index,
-        1
+    console.error(
+        "Error cambiando estado:",
+        error
     );
 
 
-    guardarUsuarios();
+    manejarErrorFirebase(
+        error,
+        "No fue posible cambiar el estado del usuario."
+    );
+
+}
+```
+
+}
+
+/* =========================================================
+ELIMINAR USUARIO
+========================================================= */
+
+async function eliminarUsuario(
+usuario
+) {
+
+```
+if (
+    Number(
+        usuario.rol_id
+    ) === 1
+) {
+
+    alert(
+        "El administrador principal no puede eliminarse."
+    );
+
+    return;
+
+}
 
 
-    renderizarUsuarios();
+const confirmar =
+    confirm(
+        `¿Eliminar definitivamente el perfil de "${usuario.nombre}"?`
+    );
 
 
-    actualizarKPIs();
+if (!confirmar) {
+
+    return;
+
+}
+
+
+try {
+
+    await newsroomDB
+        .collection(
+            NEWSROOM_USERS_COLLECTION
+        )
+        .doc(
+            usuario.firestoreId
+        )
+        .delete();
+
+
+    await cargarUsuarios();
 
 
     alert(
-        "Usuario eliminado correctamente."
+        "Perfil eliminado correctamente de Firestore."
+    );
+
+
+} catch (error) {
+
+    console.error(
+        "Error eliminando usuario:",
+        error
+    );
+
+
+    manejarErrorFirebase(
+        error,
+        "No fue posible eliminar el perfil."
     );
 
 }
+```
 
-
+}
 
 /* =========================================================
-   ABRIR MODAL PASSWORD
+ABRIR MODAL PASSWORD
 ========================================================= */
 
 function abrirModalPassword(
-    usuario
+usuario
 ) {
 
-    console.log(
-        "Abriendo modal password:",
-        usuario
+```
+const modal =
+    document.getElementById(
+        "passwordModal"
     );
 
 
-    const modal =
-        document.getElementById(
-            "passwordModal"
-        );
+if (!modal) {
 
-
-    if (!modal) {
-
-        console.error(
-            "No existe #passwordModal."
-        );
-
-        return;
-
-    }
-
-
-    const id =
-        document.getElementById(
-            "passwordUserId"
-        );
-
-
-    const nombre =
-        document.getElementById(
-            "passwordUserName"
-        );
-
-
-    const password =
-        document.getElementById(
-            "newPassword"
-        );
-
-
-    const confirmar =
-        document.getElementById(
-            "confirmPassword"
-        );
-
-
-    if (id) {
-
-        id.value =
-            usuario.id;
-
-    }
-
-
-    if (nombre) {
-
-        nombre.textContent =
-            usuario.nombre;
-
-    }
-
-
-    if (password) {
-
-        password.value =
-            "";
-
-    }
-
-
-    if (confirmar) {
-
-        confirmar.value =
-            "";
-
-    }
-
-
-    ocultarError(
-        "passwordError"
+    console.error(
+        "No existe #passwordModal."
     );
 
-
-    modal.style.display =
-        "flex";
-
-
-    modal.style.visibility =
-        "visible";
-
-
-    modal.style.opacity =
-        "1";
-
-
-    console.log(
-        "Modal password visible."
-    );
+    return;
 
 }
 
 
+const id =
+    document.getElementById(
+        "passwordUserId"
+    );
+
+
+const nombre =
+    document.getElementById(
+        "passwordUserName"
+    );
+
+
+const password =
+    document.getElementById(
+        "newPassword"
+    );
+
+
+const confirmar =
+    document.getElementById(
+        "confirmPassword"
+    );
+
+
+if (id) {
+
+    id.value =
+        usuario.firestoreId;
+
+}
+
+
+if (nombre) {
+
+    nombre.textContent =
+        usuario.nombre;
+
+}
+
+
+if (password) {
+
+    password.value =
+        "";
+
+}
+
+
+if (confirmar) {
+
+    confirmar.value =
+        "";
+
+}
+
+
+ocultarError(
+    "passwordError"
+);
+
+
+modal.style.display =
+    "flex";
+
+
+modal.style.visibility =
+    "visible";
+
+
+modal.style.opacity =
+    "1";
+
+
+modal.style.position =
+    "fixed";
+
+
+modal.style.top =
+    "0";
+
+
+modal.style.left =
+    "0";
+
+
+modal.style.width =
+    "100vw";
+
+
+modal.style.height =
+    "100vh";
+
+
+modal.style.zIndex =
+    "99999";
+
+
+modal.style.backgroundColor =
+    "rgba(0,0,0,0.75)";
+```
+
+}
 
 /* =========================================================
-   CERRAR MODAL PASSWORD
+CERRAR MODAL PASSWORD
 ========================================================= */
 
 function cerrarModalPassword() {
 
-    const modal =
-        document.getElementById(
-            "passwordModal"
-        );
+```
+const modal =
+    document.getElementById(
+        "passwordModal"
+    );
 
 
-    if (modal) {
+if (modal) {
 
-        modal.style.display =
-            "none";
+    modal.style.display =
+        "none";
 
-    }
+}
+```
 
 }
 
-
-
 /* =========================================================
-   GUARDAR PASSWORD
+GUARDAR PASSWORD
 ========================================================= */
 
-function guardarPassword(
-    event
+async function guardarPassword(
+event
 ) {
 
-    event.preventDefault();
+```
+event.preventDefault();
 
 
-    console.log(
-        "Actualizando contraseña..."
-    );
+/*
+ * IMPORTANTE:
+ *
+ * No guardamos contraseñas en Firestore.
+ *
+ * Firebase Authentication será responsable
+ * de las contraseñas.
+ *
+ * La función administrativa de reset se
+ * implementará posteriormente mediante
+ * Cloud Functions.
+ */
 
-
-    const id =
-        Number(
-            document.getElementById(
-                "passwordUserId"
-            ).value
-        );
-
-
-    const password =
-        document.getElementById(
-            "newPassword"
-        ).value;
-
-
-    const confirmar =
-        document.getElementById(
-            "confirmPassword"
-        ).value;
-
-
-    if (
-        !password ||
-        !confirmar
-    ) {
-
-        mostrarError(
-            "passwordError",
-            "Todos los campos son obligatorios."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        password.length <
-        6
-    ) {
-
-        mostrarError(
-            "passwordError",
-            "La contraseña debe tener al menos 6 caracteres."
-        );
-
-        return;
-
-    }
-
-
-    if (
-        password !==
-        confirmar
-    ) {
-
-        mostrarError(
-            "passwordError",
-            "Las contraseñas no coinciden."
-        );
-
-        return;
-
-    }
-
-
-    const usuario =
-        buscarUsuario(
-            id
-        );
-
-
-    if (!usuario) {
-
-        mostrarError(
-            "passwordError",
-            "Usuario no encontrado."
-        );
-
-        return;
-
-    }
-
-
-    usuario.password =
-        password;
-
-
-    guardarUsuarios();
-
-
-    cerrarModalPassword();
-
-
-    alert(
-        "Contraseña actualizada correctamente."
-    );
+mostrarError(
+    "passwordError",
+    "El restablecimiento administrativo de contraseñas se habilitará mediante Firebase Authentication en la siguiente etapa."
+);
+```
 
 }
 
-
-
 /* =========================================================
-   ESCAPE HTML
+ESCAPE HTML
 ========================================================= */
 
 function escapeHTML(
-    valor
+valor
 ) {
 
-    return String(
-        valor ?? ""
-    )
+```
+return String(
+    valor ?? ""
+)
 
-    .replace(
-        /&/g,
-        "&amp;"
-    )
+.replace(
+    /&/g,
+    "&amp;"
+)
 
-    .replace(
-        /</g,
-        "&lt;"
-    )
+.replace(
+    /</g,
+    "&lt;"
+)
 
-    .replace(
-        />/g,
-        "&gt;"
-    )
+.replace(
+    />/g,
+    "&gt;"
+)
 
-    .replace(
-        /"/g,
-        "&quot;"
-    )
+.replace(
+    /"/g,
+    "&quot;"
+)
 
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+.replace(
+    /'/g,
+    "&#039;"
+);
+```
 
 }
 
-
-
 /* =========================================================
-   MOSTRAR ERROR
+MOSTRAR ERROR
 ========================================================= */
 
 function mostrarError(
-    id,
-    mensaje
+id,
+mensaje
 ) {
 
-    const elemento =
-        document.getElementById(
-            id
-        );
+```
+const elemento =
+    document.getElementById(
+        id
+    );
 
 
-    if (!elemento) {
+if (!elemento) {
 
-        alert(
-            mensaje
-        );
+    alert(
+        mensaje
+    );
 
-        return;
-
-    }
-
-
-    elemento.textContent =
-        mensaje;
-
-
-    elemento.style.display =
-        "block";
+    return;
 
 }
 
 
+elemento.textContent =
+    mensaje;
+
+
+elemento.style.display =
+    "block";
+```
+
+}
 
 /* =========================================================
-   OCULTAR ERROR
+OCULTAR ERROR
 ========================================================= */
 
 function ocultarError(
-    id
+id
 ) {
 
-    const elemento =
-        document.getElementById(
-            id
-        );
+```
+const elemento =
+    document.getElementById(
+        id
+    );
 
 
-    if (!elemento) {
-        return;
-    }
+if (!elemento) {
+
+    return;
+
+}
 
 
-    elemento.textContent =
-        "";
+elemento.textContent =
+    "";
 
 
-    elemento.style.display =
-        "none";
+elemento.style.display =
+    "none";
+```
+
+}
+
+/* =========================================================
+ERROR GENERAL
+========================================================= */
+
+function mostrarErrorGeneral(
+mensaje
+) {
+
+```
+const tbody =
+    document.getElementById(
+        "usuariosTableBody"
+    );
+
+
+if (tbody) {
+
+    tbody.innerHTML = `
+
+        <tr>
+
+            <td
+                colspan="7"
+                style="text-align:center;"
+            >
+
+                ${escapeHTML(mensaje)}
+
+            </td>
+
+        </tr>
+
+    `;
+
+}
+```
+
+}
+
+/* =========================================================
+MANEJO DE ERRORES FIREBASE
+========================================================= */
+
+function manejarErrorFirebase(
+error,
+mensajeGenerico
+) {
+
+```
+console.error(
+    "Firebase:",
+    error
+);
+
+
+if (
+    error &&
+    error.code ===
+    "permission-denied"
+) {
+
+    alert(
+        "Firebase rechazó la operación por permisos insuficientes."
+    );
+
+    return;
+
+}
+
+
+if (
+    error &&
+    error.code ===
+    "failed-precondition"
+) {
+
+    alert(
+        "Firestore necesita un índice para realizar esta consulta."
+    );
+
+    return;
+
+}
+
+
+alert(
+    mensajeGenerico
+);
+```
 
 }

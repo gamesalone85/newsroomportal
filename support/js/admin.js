@@ -1,7 +1,16 @@
 /* =========================================================
    NEWSROOM PORTAL
    ADMINISTRACIÓN DE USUARIOS
+   VERSIÓN GITHUB PAGES
    ========================================================= */
+
+
+/* =========================================================
+   CONFIGURACIÓN
+========================================================= */
+
+const NEWSROOM_USERS_STORAGE =
+    "newsroomUsers";
 
 
 /* =========================================================
@@ -12,8 +21,13 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+        console.log(
+            "Newsroom Portal: admin.js cargado correctamente."
+        );
+
+
         /* =================================================
-           VERIFICAR AUTH.JS
+           VERIFICAR AUTH
         ================================================= */
 
         if (
@@ -25,12 +39,9 @@ document.addEventListener(
             );
 
             return;
+
         }
 
-
-        /* =================================================
-           VERIFICAR SESIÓN
-        ================================================= */
 
         if (
             !verificarSesion(
@@ -39,6 +50,7 @@ document.addEventListener(
         ) {
 
             return;
+
         }
 
 
@@ -51,15 +63,16 @@ document.addEventListener(
         if (!session) {
 
             console.error(
-                "Newsroom Portal: No existe sesión."
+                "No existe una sesión activa."
             );
 
             return;
+
         }
 
 
         /* =================================================
-           VERIFICAR ROL ADMINISTRADOR
+           VERIFICAR ADMIN
         ================================================= */
 
         if (
@@ -76,39 +89,42 @@ document.addEventListener(
 
 
             return;
+
         }
 
 
         /* =================================================
-           INFORMACIÓN DEL USUARIO
+           INFORMACIÓN USUARIO
         ================================================= */
 
         actualizarUsuario();
 
 
         /* =================================================
-           CARGAR TABLA
+           INICIALIZAR DATOS
         ================================================= */
 
-        renderizarUsuarios();
+        inicializarUsuarios();
 
 
         /* =================================================
-           ACTUALIZAR KPIs
+           RENDER
         ================================================= */
+
+        renderizarUsuarios();
 
         actualizarKPIs();
 
 
         /* =================================================
-           CONFIGURAR EVENTOS
+           EVENTOS
         ================================================= */
 
         configurarEventos();
 
 
         console.log(
-            "Newsroom Portal: Administración inicializada correctamente."
+            "Newsroom Portal: administración inicializada."
         );
 
     }
@@ -117,26 +133,171 @@ document.addEventListener(
 
 
 /* =========================================================
-   ACTUALIZAR USUARIO EN TOPBAR
+   INICIALIZAR USUARIOS
+========================================================= */
+
+function inicializarUsuarios() {
+
+    const almacenados =
+        localStorage.getItem(
+            NEWSROOM_USERS_STORAGE
+        );
+
+
+    /*
+     * Si ya existen usuarios guardados
+     * no hacemos nada.
+     */
+
+    if (almacenados) {
+
+        return;
+
+    }
+
+
+    /*
+     * Tomamos los usuarios de data.js
+     */
+
+    if (
+        typeof NEWSROOM_USERS !== "undefined"
+    ) {
+
+        const copia =
+            JSON.parse(
+                JSON.stringify(
+                    NEWSROOM_USERS
+                )
+            );
+
+
+        localStorage.setItem(
+            NEWSROOM_USERS_STORAGE,
+            JSON.stringify(copia)
+        );
+
+
+        console.log(
+            "Usuarios iniciales guardados en localStorage."
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   OBTENER USUARIOS
+========================================================= */
+
+function obtenerUsuariosAdmin() {
+
+    try {
+
+        const almacenados =
+            localStorage.getItem(
+                NEWSROOM_USERS_STORAGE
+            );
+
+
+        if (almacenados) {
+
+            return JSON.parse(
+                almacenados
+            );
+
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "Error leyendo usuarios:",
+            error
+        );
+
+    }
+
+
+    /*
+     * Fallback a data.js
+     */
+
+    if (
+        typeof NEWSROOM_USERS !== "undefined"
+    ) {
+
+        return NEWSROOM_USERS;
+
+    }
+
+
+    return [];
+
+}
+
+
+
+/* =========================================================
+   GUARDAR USUARIOS
+========================================================= */
+
+function guardarUsuariosLocal(
+    usuarios
+) {
+
+    try {
+
+        localStorage.setItem(
+            NEWSROOM_USERS_STORAGE,
+            JSON.stringify(
+                usuarios
+            )
+        );
+
+
+        return true;
+
+    }
+    catch (error) {
+
+        console.error(
+            "No se pudieron guardar los usuarios:",
+            error
+        );
+
+
+        alert(
+            "No fue posible guardar los cambios en el navegador."
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   ACTUALIZAR USUARIO TOPBAR
 ========================================================= */
 
 function actualizarUsuario() {
 
-    if (
-        typeof obtenerSesion !== "function"
-    ) {
-
-        return;
-    }
-
-
     const session =
-        obtenerSesion();
+        typeof obtenerSesion === "function"
+            ? obtenerSesion()
+            : null;
 
 
     if (!session) {
 
         return;
+
     }
 
 
@@ -180,55 +341,7 @@ function actualizarUsuario() {
 
 
 /* =========================================================
-   OBTENER USUARIOS
-========================================================= */
-
-function obtenerUsuariosAdmin() {
-
-    if (
-        typeof obtenerUsuarios ===
-        "function"
-    ) {
-
-        const usuarios =
-            obtenerUsuarios();
-
-
-        if (
-            Array.isArray(usuarios)
-        ) {
-
-            return usuarios;
-
-        }
-
-    }
-
-
-    if (
-        typeof NEWSROOM_USERS !==
-        "undefined" &&
-        Array.isArray(NEWSROOM_USERS)
-    ) {
-
-        return NEWSROOM_USERS;
-
-    }
-
-
-    console.error(
-        "Newsroom Portal: No existe NEWSROOM_USERS."
-    );
-
-
-    return [];
-
-}
-
-
-
-/* =========================================================
-   RENDERIZAR TABLA
+   RENDERIZAR USUARIOS
 ========================================================= */
 
 function renderizarUsuarios() {
@@ -241,11 +354,12 @@ function renderizarUsuarios() {
 
     if (!tbody) {
 
-        console.warn(
-            "No existe usuariosTableBody."
+        console.error(
+            "No existe #usuariosTableBody."
         );
 
         return;
+
     }
 
 
@@ -256,10 +370,6 @@ function renderizarUsuarios() {
     tbody.innerHTML =
         "";
 
-
-    /* =====================================================
-       SIN USUARIOS
-    ===================================================== */
 
     if (
         usuarios.length === 0
@@ -284,15 +394,12 @@ function renderizarUsuarios() {
 
 
         return;
+
     }
 
 
-    /* =====================================================
-       GENERAR FILAS
-    ===================================================== */
-
     usuarios.forEach(
-        usuario => {
+        function (usuario) {
 
             const tr =
                 document.createElement(
@@ -302,8 +409,7 @@ function renderizarUsuarios() {
 
             const rolClase =
                 String(
-                    usuario.rol ||
-                    ""
+                    usuario.rol || ""
                 )
                 .toLowerCase()
                 .replace(
@@ -314,33 +420,48 @@ function renderizarUsuarios() {
 
             const estadoClase =
                 String(
-                    usuario.estado ||
-                    ""
+                    usuario.estado || ""
                 )
-                .toLowerCase()
-                .replace(
-                    /\s+/g,
-                    "-"
-                );
+                .toLowerCase();
 
 
-            /* =================================================
-               BOTÓN ESTADO
-            ================================================= */
+            const esAdmin =
+                Number(
+                    usuario.rol_id
+                ) === 1;
 
-            let botonEstado = "";
+
+            let acciones = `
+
+                <button
+                    type="button"
+                    class="btn-admin btn-edit"
+                    data-action="edit"
+                    data-id="${usuario.id}"
+                >
+                    Editar
+                </button>
 
 
-            if (
-                Number(usuario.rol_id) !== 1
-            ) {
+                <button
+                    type="button"
+                    class="btn-admin btn-reset"
+                    data-action="reset"
+                    data-id="${usuario.id}"
+                >
+                    Reset Password
+                </button>
+
+            `;
+
+
+            if (!esAdmin) {
 
                 if (
-                    usuario.estado ===
-                    "Activo"
+                    usuario.estado === "Activo"
                 ) {
 
-                    botonEstado = `
+                    acciones += `
 
                         <button
                             type="button"
@@ -353,9 +474,10 @@ function renderizarUsuarios() {
 
                     `;
 
-                } else {
+                }
+                else {
 
-                    botonEstado = `
+                    acciones += `
 
                         <button
                             type="button"
@@ -370,21 +492,8 @@ function renderizarUsuarios() {
 
                 }
 
-            }
 
-
-            /* =================================================
-               BOTÓN ELIMINAR
-            ================================================= */
-
-            let botonEliminar = "";
-
-
-            if (
-                Number(usuario.rol_id) !== 1
-            ) {
-
-                botonEliminar = `
+                acciones += `
 
                     <button
                         type="button"
@@ -400,10 +509,6 @@ function renderizarUsuarios() {
             }
 
 
-            /* =================================================
-               HTML FILA
-            ================================================= */
-
             tr.innerHTML = `
 
                 <td>
@@ -412,40 +517,26 @@ function renderizarUsuarios() {
 
 
                 <td>
-                    ${escapeHTML(
-                        usuario.nombre
-                    )}
+                    ${escapeHTML(usuario.nombre)}
                 </td>
 
 
                 <td>
-                    ${escapeHTML(
-                        usuario.usuario
-                    )}
+                    ${escapeHTML(usuario.usuario)}
                 </td>
 
 
                 <td>
-                    ${escapeHTML(
-                        usuario.correo ||
-                        ""
-                    )}
+                    ${escapeHTML(usuario.correo || "")}
                 </td>
 
 
                 <td>
 
                     <span
-                        class="role-badge role-${escapeHTML(
-                            rolClase
-                        )}"
+                        class="role-badge role-${rolClase}"
                     >
-
-                        ${escapeHTML(
-                            usuario.rol ||
-                            "Usuario"
-                        )}
-
+                        ${escapeHTML(usuario.rol || "")}
                     </span>
 
                 </td>
@@ -454,16 +545,9 @@ function renderizarUsuarios() {
                 <td>
 
                     <span
-                        class="status-badge status-${escapeHTML(
-                            estadoClase
-                        )}"
+                        class="status-badge status-${estadoClase}"
                     >
-
-                        ${escapeHTML(
-                            usuario.estado ||
-                            "Activo"
-                        )}
-
+                        ${escapeHTML(usuario.estado || "")}
                     </span>
 
                 </td>
@@ -473,32 +557,7 @@ function renderizarUsuarios() {
 
                     <div class="action-group">
 
-
-                        <button
-                            type="button"
-                            class="btn-admin btn-edit"
-                            data-action="edit"
-                            data-id="${usuario.id}"
-                        >
-                            Editar
-                        </button>
-
-
-                        <button
-                            type="button"
-                            class="btn-admin btn-reset"
-                            data-action="reset"
-                            data-id="${usuario.id}"
-                        >
-                            Reset Password
-                        </button>
-
-
-                        ${botonEstado}
-
-
-                        ${botonEliminar}
-
+                        ${acciones}
 
                     </div>
 
@@ -519,7 +578,7 @@ function renderizarUsuarios() {
 
 
 /* =========================================================
-   ACTUALIZAR KPIs
+   KPIs
 ========================================================= */
 
 function actualizarKPIs() {
@@ -534,17 +593,27 @@ function actualizarKPIs() {
 
     const activos =
         usuarios.filter(
-            usuario =>
-                usuario.estado ===
-                "Activo"
+            function (usuario) {
+
+                return (
+                    usuario.estado ===
+                    "Activo"
+                );
+
+            }
         ).length;
 
 
     const suspendidos =
         usuarios.filter(
-            usuario =>
-                usuario.estado ===
-                "Suspendido"
+            function (usuario) {
+
+                return (
+                    usuario.estado ===
+                    "Suspendido"
+                );
+
+            }
         ).length;
 
 
@@ -601,10 +670,14 @@ function actualizarTexto(
 
 function configurarEventos() {
 
+    console.log(
+        "Configurando eventos de administración..."
+    );
 
-    /* =====================================================
+
+    /* =================================================
        NUEVO USUARIO
-    ===================================================== */
+    ================================================= */
 
     const nuevoUsuarioBtn =
         document.getElementById(
@@ -616,7 +689,9 @@ function configurarEventos() {
 
         nuevoUsuarioBtn.addEventListener(
             "click",
-            function () {
+            function (event) {
+
+                event.preventDefault();
 
                 abrirModalUsuario();
 
@@ -624,11 +699,18 @@ function configurarEventos() {
         );
 
     }
+    else {
+
+        console.error(
+            "No se encontró #nuevoUsuarioBtn."
+        );
+
+    }
 
 
-    /* =====================================================
-       CERRAR MODAL USUARIO
-    ===================================================== */
+    /* =================================================
+       MODAL USUARIO
+    ================================================= */
 
     const cerrarModal =
         document.getElementById(
@@ -662,9 +744,9 @@ function configurarEventos() {
     }
 
 
-    /* =====================================================
-       FORMULARIO USUARIO
-    ===================================================== */
+    /* =================================================
+       FORM USUARIO
+    ================================================= */
 
     const usuarioForm =
         document.getElementById(
@@ -680,11 +762,18 @@ function configurarEventos() {
         );
 
     }
+    else {
+
+        console.error(
+            "No se encontró #usuarioForm."
+        );
+
+    }
 
 
-    /* =====================================================
-       CERRAR PASSWORD
-    ===================================================== */
+    /* =================================================
+       MODAL PASSWORD
+    ================================================= */
 
     const cerrarPasswordModal =
         document.getElementById(
@@ -718,9 +807,9 @@ function configurarEventos() {
     }
 
 
-    /* =====================================================
+    /* =================================================
        FORM PASSWORD
-    ===================================================== */
+    ================================================= */
 
     const passwordForm =
         document.getElementById(
@@ -738,9 +827,9 @@ function configurarEventos() {
     }
 
 
-    /* =====================================================
-       ACCIONES DE TABLA
-    ===================================================== */
+    /* =================================================
+       TABLA
+    ================================================= */
 
     const tbody =
         document.getElementById(
@@ -758,13 +847,19 @@ function configurarEventos() {
     }
 
 
-    /* =====================================================
-       CERRAR MODAL USUARIO AL HACER CLICK FUERA
-    ===================================================== */
+    /* =================================================
+       CLICK FUERA DEL MODAL
+    ================================================= */
 
     const usuarioModal =
         document.getElementById(
             "usuarioModal"
+        );
+
+
+    const passwordModal =
+        document.getElementById(
+            "passwordModal"
         );
 
 
@@ -787,16 +882,6 @@ function configurarEventos() {
         );
 
     }
-
-
-    /* =====================================================
-       CERRAR MODAL PASSWORD AL HACER CLICK FUERA
-    ===================================================== */
-
-    const passwordModal =
-        document.getElementById(
-            "passwordModal"
-        );
 
 
     if (passwordModal) {
@@ -824,7 +909,7 @@ function configurarEventos() {
 
 
 /* =========================================================
-   MANEJAR ACCIONES DE USUARIO
+   MANEJAR ACCIONES DE TABLA
 ========================================================= */
 
 function manejarAccionUsuario(
@@ -833,34 +918,36 @@ function manejarAccionUsuario(
 
     const button =
         event.target.closest(
-            "button[data-action]"
+            "[data-action]"
         );
 
 
     if (!button) {
 
         return;
+
     }
 
 
     event.preventDefault();
 
 
-    event.stopPropagation();
-
-
     const action =
-        button.dataset.action;
+        button.getAttribute(
+            "data-action"
+        );
 
 
     const id =
         Number(
-            button.dataset.id
+            button.getAttribute(
+                "data-id"
+            )
         );
 
 
     console.log(
-        "Newsroom Portal - Acción:",
+        "Acción:",
         action,
         "ID:",
         id
@@ -875,112 +962,74 @@ function manejarAccionUsuario(
 
     if (!usuario) {
 
-        console.error(
-            "Usuario no encontrado:",
-            id
-        );
-
-
         alert(
-            "No se encontró el usuario seleccionado."
-        );
-
-
-        return;
-    }
-
-
-    /* =====================================================
-       EDITAR
-    ===================================================== */
-
-    if (
-        action ===
-        "edit"
-    ) {
-
-        abrirModalUsuario(
-            usuario
+            "Usuario no encontrado."
         );
 
         return;
+
     }
 
 
-    /* =====================================================
-       RESET PASSWORD
-    ===================================================== */
-
-    if (
-        action ===
-        "reset"
-    ) {
-
-        abrirModalPassword(
-            usuario
-        );
-
-        return;
-    }
-
-
-    /* =====================================================
-       SUSPENDER
-    ===================================================== */
-
-    if (
-        action ===
-        "suspend"
-    ) {
-
-        cambiarEstado(
-            usuario,
-            "Suspendido"
-        );
-
-        return;
-    }
-
-
-    /* =====================================================
-       ACTIVAR
-    ===================================================== */
-
-    if (
-        action ===
-        "activate"
-    ) {
-
-        cambiarEstado(
-            usuario,
-            "Activo"
-        );
-
-        return;
-    }
-
-
-    /* =====================================================
-       ELIMINAR
-    ===================================================== */
-
-    if (
-        action ===
-        "delete"
-    ) {
-
-        eliminarUsuario(
-            usuario
-        );
-
-        return;
-    }
-
-
-    console.warn(
-        "Acción desconocida:",
+    switch (
         action
-    );
+    ) {
+
+        case "edit":
+
+            abrirModalUsuario(
+                usuario
+            );
+
+            break;
+
+
+        case "reset":
+
+            abrirModalPassword(
+                usuario
+            );
+
+            break;
+
+
+        case "suspend":
+
+            cambiarEstado(
+                usuario,
+                "Suspendido"
+            );
+
+            break;
+
+
+        case "activate":
+
+            cambiarEstado(
+                usuario,
+                "Activo"
+            );
+
+            break;
+
+
+        case "delete":
+
+            eliminarUsuario(
+                usuario
+            );
+
+            break;
+
+
+        default:
+
+            console.warn(
+                "Acción desconocida:",
+                action
+            );
+
+    }
 
 }
 
@@ -999,11 +1048,14 @@ function buscarUsuario(
 
 
     return usuarios.find(
-        usuario =>
-            Number(
-                usuario.id
-            ) ===
-            Number(id)
+        function (usuario) {
+
+            return (
+                Number(usuario.id) ===
+                Number(id)
+            );
+
+        }
     );
 
 }
@@ -1022,6 +1074,17 @@ function abrirModalUsuario(
         document.getElementById(
             "usuarioModal"
         );
+
+
+    if (!modal) {
+
+        console.error(
+            "No existe #usuarioModal."
+        );
+
+        return;
+
+    }
 
 
     const title =
@@ -1072,89 +1135,44 @@ function abrirModalUsuario(
         );
 
 
-    if (!modal) {
-
-        console.error(
-            "No existe usuarioModal."
-        );
-
-        return;
-    }
-
-
     ocultarError(
         "formError"
     );
 
 
-    /* =====================================================
-       EDITAR
-    ===================================================== */
-
     if (usuario) {
 
-        if (title) {
-
-            title.textContent =
-                "Editar Usuario";
-
-        }
+        title.textContent =
+            "Editar Usuario";
 
 
-        if (id) {
-
-            id.value =
-                usuario.id;
-
-        }
+        id.value =
+            usuario.id;
 
 
-        if (nombre) {
-
-            nombre.value =
-                usuario.nombre ||
-                "";
-
-        }
+        nombre.value =
+            usuario.nombre || "";
 
 
-        if (usuarioInput) {
-
-            usuarioInput.value =
-                usuario.usuario ||
-                "";
-
-        }
+        usuarioInput.value =
+            usuario.usuario || "";
 
 
-        if (correo) {
-
-            correo.value =
-                usuario.correo ||
-                "";
-
-        }
+        correo.value =
+            usuario.correo || "";
 
 
-        if (rol) {
-
-            rol.value =
-                usuario.rol_id ||
-                "";
-
-        }
+        rol.value =
+            usuario.rol_id || "2";
 
 
-        if (password) {
+        password.value =
+            "";
 
-            password.value =
-                "";
 
-            password.removeAttribute(
-                "required"
-            );
-
-        }
+        password.removeAttribute(
+            "required"
+        );
 
 
         if (passwordGroup) {
@@ -1165,73 +1183,40 @@ function abrirModalUsuario(
         }
 
     }
-
-
-    /* =====================================================
-       NUEVO
-    ===================================================== */
-
     else {
 
-        if (title) {
-
-            title.textContent =
-                "Nuevo Usuario";
-
-        }
+        title.textContent =
+            "Nuevo Usuario";
 
 
-        if (id) {
-
-            id.value =
-                "";
-
-        }
+        id.value =
+            "";
 
 
-        if (nombre) {
-
-            nombre.value =
-                "";
-
-        }
+        nombre.value =
+            "";
 
 
-        if (usuarioInput) {
-
-            usuarioInput.value =
-                "";
-
-        }
+        usuarioInput.value =
+            "";
 
 
-        if (correo) {
-
-            correo.value =
-                "";
-
-        }
+        correo.value =
+            "";
 
 
-        if (rol) {
-
-            rol.value =
-                "2";
-
-        }
+        rol.value =
+            "2";
 
 
-        if (password) {
+        password.value =
+            "";
 
-            password.value =
-                "";
 
-            password.setAttribute(
-                "required",
-                "required"
-            );
-
-        }
+        password.setAttribute(
+            "required",
+            "required"
+        );
 
 
         if (passwordGroup) {
@@ -1246,6 +1231,19 @@ function abrirModalUsuario(
 
     modal.style.display =
         "flex";
+
+
+
+    /*
+     * Asegurar que el modal quede visible
+     */
+
+    modal.style.visibility =
+        "visible";
+
+
+    modal.style.opacity =
+        "1";
 
 }
 
@@ -1285,6 +1283,11 @@ function guardarUsuario(
     event.preventDefault();
 
 
+    console.log(
+        "Guardando usuario..."
+    );
+
+
     const id =
         document.getElementById(
             "usuarioId"
@@ -1297,7 +1300,7 @@ function guardarUsuario(
         ).value.trim();
 
 
-    const usuario =
+    const usuarioNombre =
         document.getElementById(
             "usuario"
         ).value.trim();
@@ -1323,13 +1326,13 @@ function guardarUsuario(
         );
 
 
-    /* =====================================================
+    /* =================================================
        VALIDACIÓN
-    ===================================================== */
+    ================================================= */
 
     if (
         !nombre ||
-        !usuario
+        !usuarioNombre
     ) {
 
         mostrarError(
@@ -1338,6 +1341,7 @@ function guardarUsuario(
         );
 
         return;
+
     }
 
 
@@ -1352,6 +1356,7 @@ function guardarUsuario(
         );
 
         return;
+
     }
 
 
@@ -1359,36 +1364,24 @@ function guardarUsuario(
         obtenerUsuariosAdmin();
 
 
-    /* =====================================================
-       VALIDAR DUPLICADO
-    ===================================================== */
-
     const duplicado =
         usuarios.find(
-            item => {
-
-                const usuarioExistente =
-                    String(
-                        item.usuario ||
-                        ""
-                    )
-                    .trim()
-                    .toLowerCase();
-
-
-                const usuarioNuevo =
-                    usuario
-                        .trim()
-                        .toLowerCase();
-
+            function (item) {
 
                 return (
-                    usuarioExistente ===
-                    usuarioNuevo
-                )
-                &&
-                Number(item.id) !==
-                Number(id || 0);
+
+                    String(
+                        item.usuario || ""
+                    )
+                    .toLowerCase() ===
+                    usuarioNombre.toLowerCase()
+
+                    &&
+
+                    Number(item.id) !==
+                    Number(id || 0)
+
+                );
 
             }
         );
@@ -1402,44 +1395,157 @@ function guardarUsuario(
         );
 
         return;
+
     }
 
 
-    /* =====================================================
-       ACTUALIZAR
-    ===================================================== */
+    /* =================================================
+       EDITAR
+    ================================================= */
 
     if (id) {
 
-        const actualizado =
-            actualizarUsuarioTemporal(
-                Number(id),
-                {
-                    nombre:
-                        nombre,
+        const index =
+            usuarios.findIndex(
+                function (item) {
 
-                    usuario:
-                        usuario,
+                    return (
+                        Number(item.id) ===
+                        Number(id)
+                    );
 
-                    correo:
-                        correo,
-
-                    rol_id:
-                        rolId
                 }
             );
 
 
-        if (!actualizado) {
+        if (index === -1) {
 
             mostrarError(
                 "formError",
-                "No fue posible actualizar el usuario."
+                "No se encontró el usuario."
             );
 
             return;
+
         }
 
+
+        usuarios[index].nombre =
+            nombre;
+
+
+        usuarios[index].usuario =
+            usuarioNombre;
+
+
+        usuarios[index].correo =
+            correo;
+
+
+        usuarios[index].rol_id =
+            rolId;
+
+
+        usuarios[index].rol =
+            obtenerNombreRol(
+                rolId
+            );
+
+
+        if (
+            guardarUsuariosLocal(
+                usuarios
+            )
+        ) {
+
+            cerrarModalUsuario();
+
+
+            renderizarUsuarios();
+
+
+            actualizarKPIs();
+
+
+            alert(
+                "Usuario actualizado correctamente."
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /* =================================================
+       CREAR
+    ================================================= */
+
+    const nuevoId =
+        usuarios.length > 0
+
+            ?
+
+            Math.max(
+                ...usuarios.map(
+                    function (item) {
+
+                        return Number(
+                            item.id
+                        ) || 0;
+
+                    }
+                )
+            ) + 1
+
+            :
+
+            1;
+
+
+    const nuevoUsuario = {
+
+        id:
+            nuevoId,
+
+        usuario:
+            usuarioNombre,
+
+        nombre:
+            nombre,
+
+        correo:
+            correo,
+
+        rol_id:
+            rolId,
+
+        rol:
+            obtenerNombreRol(
+                rolId
+            ),
+
+        estado:
+            "Activo",
+
+        password:
+            password
+
+    };
+
+
+    usuarios.push(
+        nuevoUsuario
+    );
+
+
+    if (
+        guardarUsuariosLocal(
+            usuarios
+        )
+    ) {
 
         cerrarModalUsuario();
 
@@ -1451,271 +1557,46 @@ function guardarUsuario(
 
 
         alert(
-            "Usuario actualizado correctamente."
+            "Usuario creado correctamente."
         );
 
-
-        return;
     }
-
-
-    /* =====================================================
-       CREAR
-    ===================================================== */
-
-    const creado =
-        crearUsuarioTemporal(
-            {
-                nombre:
-                    nombre,
-
-                usuario:
-                    usuario,
-
-                correo:
-                    correo,
-
-                password:
-                    password,
-
-                rol_id:
-                    rolId
-            }
-        );
-
-
-    if (!creado) {
-
-        mostrarError(
-            "formError",
-            "No fue posible crear el usuario."
-        );
-
-        return;
-    }
-
-
-    cerrarModalUsuario();
-
-
-    renderizarUsuarios();
-
-
-    actualizarKPIs();
-
-
-    alert(
-        "Usuario creado correctamente."
-    );
 
 }
 
 
 
 /* =========================================================
-   CREAR USUARIO TEMPORAL
+   NOMBRE DEL ROL
 ========================================================= */
 
-function crearUsuarioTemporal(
-    datos
+function obtenerNombreRol(
+    rolId
 ) {
-
-    if (
-        typeof NEWSROOM_USERS ===
-        "undefined"
-    ) {
-
-        console.error(
-            "NEWSROOM_USERS no está disponible."
-        );
-
-        return false;
-    }
-
-
-    const nuevoId =
-        NEWSROOM_USERS.length
-            ? Math.max(
-                ...NEWSROOM_USERS.map(
-                    usuario =>
-                        Number(
-                            usuario.id
-                        )
-                )
-            ) + 1
-            : 1;
-
 
     const roles = {
 
-        1:
-            "Administrador",
+        1: "Administrador",
 
-        2:
-            "Support",
+        2: "Support",
 
-        3:
-            "Rooms",
+        3: "Rooms",
 
-        4:
-            "Rooms Admin",
+        4: "Rooms Admin",
 
-        5:
-            "Vehicular",
+        5: "Vehicular",
 
-        7:
-            "Credencialización",
+        7: "Credencialización",
 
-        8:
-            "Capital Humano"
+        8: "Capital Humano"
 
     };
 
 
-    NEWSROOM_USERS.push({
-
-        id:
-            nuevoId,
-
-        usuario:
-            datos.usuario,
-
-        nombre:
-            datos.nombre,
-
-        correo:
-            datos.correo,
-
-        rol_id:
-            datos.rol_id,
-
-        rol:
-            roles[
-                datos.rol_id
-            ] ||
-            "Usuario",
-
-        estado:
-            "Activo",
-
-        password:
-            datos.password ||
-            ""
-
-    });
-
-
-    console.log(
-        "Usuario creado:",
-        nuevoId
+    return (
+        roles[rolId] ||
+        "Usuario"
     );
-
-
-    return true;
-
-}
-
-
-
-/* =========================================================
-   ACTUALIZAR USUARIO TEMPORAL
-========================================================= */
-
-function actualizarUsuarioTemporal(
-    id,
-    datos
-) {
-
-    if (
-        typeof NEWSROOM_USERS ===
-        "undefined"
-    ) {
-
-        console.error(
-            "NEWSROOM_USERS no está disponible."
-        );
-
-        return false;
-    }
-
-
-    const usuario =
-        NEWSROOM_USERS.find(
-            item =>
-                Number(item.id) ===
-                Number(id)
-        );
-
-
-    if (!usuario) {
-
-        console.error(
-            "No se encontró usuario:",
-            id
-        );
-
-        return false;
-    }
-
-
-    const roles = {
-
-        1:
-            "Administrador",
-
-        2:
-            "Support",
-
-        3:
-            "Rooms",
-
-        4:
-            "Rooms Admin",
-
-        5:
-            "Vehicular",
-
-        7:
-            "Credencialización",
-
-        8:
-            "Capital Humano"
-
-    };
-
-
-    usuario.nombre =
-        datos.nombre;
-
-
-    usuario.usuario =
-        datos.usuario;
-
-
-    usuario.correo =
-        datos.correo;
-
-
-    usuario.rol_id =
-        Number(
-            datos.rol_id
-        );
-
-
-    usuario.rol =
-        roles[
-            datos.rol_id
-        ] ||
-        "Usuario";
-
-
-    console.log(
-        "Usuario actualizado:",
-        usuario
-    );
-
-
-    return true;
 
 }
 
@@ -1730,24 +1611,8 @@ function cambiarEstado(
     nuevoEstado
 ) {
 
-    if (!usuario) {
-
-        alert(
-            "Usuario no encontrado."
-        );
-
-        return;
-    }
-
-
-    /* =====================================================
-       PROTEGER ADMINISTRADOR
-    ===================================================== */
-
     if (
-        Number(
-            usuario.rol_id
-        ) === 1
+        Number(usuario.rol_id) === 1
     ) {
 
         alert(
@@ -1755,15 +1620,13 @@ function cambiarEstado(
         );
 
         return;
+
     }
 
 
     const accion =
-        nuevoEstado ===
-        "Activo"
-
+        nuevoEstado === "Activo"
             ? "activar"
-
             : "suspender";
 
 
@@ -1776,35 +1639,59 @@ function cambiarEstado(
     if (!confirmar) {
 
         return;
+
     }
 
 
-    /* =====================================================
-       ACTUALIZAR ESTADO
-    ===================================================== */
+    const usuarios =
+        obtenerUsuariosAdmin();
 
-    usuario.estado =
+
+    const index =
+        usuarios.findIndex(
+            function (item) {
+
+                return (
+                    Number(item.id) ===
+                    Number(usuario.id)
+                );
+
+            }
+        );
+
+
+    if (index === -1) {
+
+        alert(
+            "Usuario no encontrado."
+        );
+
+        return;
+
+    }
+
+
+    usuarios[index].estado =
         nuevoEstado;
 
 
-    renderizarUsuarios();
+    if (
+        guardarUsuariosLocal(
+            usuarios
+        )
+    ) {
+
+        renderizarUsuarios();
 
 
-    actualizarKPIs();
+        actualizarKPIs();
 
 
-    alert(
-        nuevoEstado === "Activo"
-            ? "Usuario activado correctamente."
-            : "Usuario suspendido correctamente."
-    );
+        alert(
+            `Usuario ${accion === "activar" ? "activado" : "suspendido"} correctamente.`
+        );
 
-
-    console.log(
-        "Estado actualizado:",
-        usuario.id,
-        nuevoEstado
-    );
+    }
 
 }
 
@@ -1818,24 +1705,8 @@ function eliminarUsuario(
     usuario
 ) {
 
-    if (!usuario) {
-
-        alert(
-            "Usuario no encontrado."
-        );
-
-        return;
-    }
-
-
-    /* =====================================================
-       PROTEGER ADMINISTRADOR PRINCIPAL
-    ===================================================== */
-
     if (
-        Number(
-            usuario.rol_id
-        ) === 1
+        Number(usuario.rol_id) === 1
     ) {
 
         alert(
@@ -1843,6 +1714,7 @@ function eliminarUsuario(
         );
 
         return;
+
     }
 
 
@@ -1855,106 +1727,72 @@ function eliminarUsuario(
     if (!confirmar) {
 
         return;
+
     }
 
 
-    if (
-        typeof NEWSROOM_USERS ===
-        "undefined"
-    ) {
-
-        alert(
-            "No está disponible la base de datos temporal."
-        );
-
-        return;
-    }
+    const usuarios =
+        obtenerUsuariosAdmin();
 
 
-    /* =====================================================
-       BUSCAR USUARIO
-    ===================================================== */
+    const nuevosUsuarios =
+        usuarios.filter(
+            function (item) {
 
-    const index =
-        NEWSROOM_USERS.findIndex(
-            item =>
-                Number(
-                    item.id
-                ) ===
-                Number(
-                    usuario.id
-                )
+                return (
+                    Number(item.id) !==
+                    Number(usuario.id)
+                );
+
+            }
         );
 
 
     if (
-        index === -1
+        guardarUsuariosLocal(
+            nuevosUsuarios
+        )
     ) {
 
+        renderizarUsuarios();
+
+
+        actualizarKPIs();
+
+
         alert(
-            "No se encontró el usuario."
+            "Usuario eliminado correctamente."
         );
 
-        return;
     }
-
-
-    /* =====================================================
-       ELIMINAR
-    ===================================================== */
-
-    NEWSROOM_USERS.splice(
-        index,
-        1
-    );
-
-
-    /* =====================================================
-       ACTUALIZAR INTERFAZ
-    ===================================================== */
-
-    renderizarUsuarios();
-
-
-    actualizarKPIs();
-
-
-    alert(
-        "Usuario eliminado correctamente."
-    );
-
-
-    console.log(
-        "Usuario eliminado:",
-        usuario.id
-    );
 
 }
 
 
 
 /* =========================================================
-   ABRIR MODAL PASSWORD
+   ABRIR RESET PASSWORD
 ========================================================= */
 
 function abrirModalPassword(
     usuario
 ) {
 
-    if (!usuario) {
-
-        alert(
-            "Usuario no encontrado."
-        );
-
-        return;
-    }
-
-
     const modal =
         document.getElementById(
             "passwordModal"
         );
+
+
+    if (!modal) {
+
+        console.error(
+            "No existe #passwordModal."
+        );
+
+        return;
+
+    }
 
 
     const userId =
@@ -1979,16 +1817,6 @@ function abrirModalPassword(
         document.getElementById(
             "confirmPassword"
         );
-
-
-    if (!modal) {
-
-        console.error(
-            "No existe passwordModal."
-        );
-
-        return;
-    }
 
 
     if (userId) {
@@ -2031,12 +1859,20 @@ function abrirModalPassword(
     modal.style.display =
         "flex";
 
+
+    modal.style.visibility =
+        "visible";
+
+
+    modal.style.opacity =
+        "1";
+
 }
 
 
 
 /* =========================================================
-   CERRAR MODAL PASSWORD
+   CERRAR PASSWORD
 ========================================================= */
 
 function cerrarModalPassword() {
@@ -2089,10 +1925,6 @@ function guardarPassword(
         ).value;
 
 
-    /* =====================================================
-       VALIDACIONES
-    ===================================================== */
-
     if (
         !password ||
         !confirmar
@@ -2104,6 +1936,21 @@ function guardarPassword(
         );
 
         return;
+
+    }
+
+
+    if (
+        password !== confirmar
+    ) {
+
+        mostrarError(
+            "passwordError",
+            "Las contraseñas no coinciden."
+        );
+
+        return;
+
     }
 
 
@@ -2117,30 +1964,28 @@ function guardarPassword(
         );
 
         return;
+
     }
 
 
-    if (
-        password !==
-        confirmar
-    ) {
-
-        mostrarError(
-            "passwordError",
-            "Las contraseñas no coinciden."
-        );
-
-        return;
-    }
+    const usuarios =
+        obtenerUsuariosAdmin();
 
 
-    const usuario =
-        buscarUsuario(
-            id
+    const index =
+        usuarios.findIndex(
+            function (item) {
+
+                return (
+                    Number(item.id) ===
+                    Number(id)
+                );
+
+            }
         );
 
 
-    if (!usuario) {
+    if (index === -1) {
 
         mostrarError(
             "passwordError",
@@ -2148,29 +1993,28 @@ function guardarPassword(
         );
 
         return;
+
     }
 
 
-    /* =====================================================
-       ACTUALIZAR PASSWORD
-    ===================================================== */
-
-    usuario.password =
+    usuarios[index].password =
         password;
 
 
-    cerrarModalPassword();
+    if (
+        guardarUsuariosLocal(
+            usuarios
+        )
+    ) {
+
+        cerrarModalPassword();
 
 
-    alert(
-        "Contraseña actualizada correctamente."
-    );
+        alert(
+            "Contraseña actualizada correctamente."
+        );
 
-
-    console.log(
-        "Password actualizado para usuario:",
-        usuario.id
-    );
+    }
 
 }
 
@@ -2185,8 +2029,7 @@ function escapeHTML(
 ) {
 
     return String(
-        valor ??
-        ""
+        valor ?? ""
     )
     .replace(
         /&/g,
@@ -2214,7 +2057,7 @@ function escapeHTML(
 
 
 /* =========================================================
-   MOSTRAR ERROR
+   ERRORES
 ========================================================= */
 
 function mostrarError(
@@ -2230,12 +2073,8 @@ function mostrarError(
 
     if (!elemento) {
 
-        console.error(
-            "Elemento de error no encontrado:",
-            id
-        );
-
         return;
+
     }
 
 
@@ -2250,10 +2089,6 @@ function mostrarError(
 
 
 
-/* =========================================================
-   OCULTAR ERROR
-========================================================= */
-
 function ocultarError(
     id
 ) {
@@ -2267,6 +2102,7 @@ function ocultarError(
     if (!elemento) {
 
         return;
+
     }
 
 
@@ -2278,3 +2114,4 @@ function ocultarError(
         "none";
 
 }
+

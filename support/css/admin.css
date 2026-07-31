@@ -572,3 +572,448 @@
     }
 
 }
+/* =========================================
+   MODALES ADMINISTRACIÓN
+========================================= */
+
+.admin-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    width:100%;
+    height:100%;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+    rgba(15,23,42,.68);
+
+    backdrop-filter:
+    blur(4px);
+
+    -webkit-backdrop-filter:
+    blur(4px);
+
+    z-index:99999;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =========================================
+   CONTENIDO DEL MODAL
+========================================= */
+
+.admin-modal-content{
+
+    position:relative;
+
+    width:100%;
+
+    max-width:520px;
+
+    max-height:
+    calc(100vh - 40px);
+
+    overflow-y:auto;
+
+    background:#ffffff;
+
+    border-radius:20px;
+
+    border:
+    1px solid #e5e7eb;
+
+    box-shadow:
+    0 25px 70px rgba(0,0,0,.25);
+
+    padding:0;
+
+    animation:
+    adminModalOpen .20s ease-out;
+
+    box-sizing:border-box;
+
+}
+
+
+/* =========================================
+   ANIMACIÓN
+========================================= */
+
+@keyframes adminModalOpen{
+
+    from{
+
+        opacity:0;
+
+        transform:
+        translateY(15px)
+        scale(.97);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+        translateY(0)
+        scale(1);
+
+    }
+
+}
+
+
+/* =========================================
+   HEADER MODAL
+========================================= */
+
+.admin-modal-header{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    padding:24px 26px;
+
+    border-bottom:
+    1px solid #edf0f4;
+
+    background:#ffffff;
+
+}
+
+
+.admin-modal-header h2{
+
+    margin:0 0 6px 0;
+
+    color:#54565a;
+
+    font-size:22px;
+
+    font-weight:800;
+
+}
+
+
+.admin-modal-header p{
+
+    margin:0;
+
+    color:#968C83;
+
+    font-size:13px;
+
+}
+
+
+/* =========================================
+   CERRAR MODAL
+========================================= */
+
+.modal-close{
+
+    width:36px;
+    height:36px;
+
+    flex-shrink:0;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#f3f4f6;
+
+    color:#54565a;
+
+    font-size:24px;
+
+    line-height:1;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    transition:.2s ease;
+
+}
+
+
+.modal-close:hover{
+
+    background:#fee2e2;
+
+    color:#c8102e;
+
+}
+
+
+/* =========================================
+   FORMULARIO MODAL
+========================================= */
+
+.admin-modal form{
+
+    padding:26px;
+
+}
+
+
+/* =========================================
+   FORM GROUP
+========================================= */
+
+.admin-modal .form-group{
+
+    margin-bottom:18px;
+
+}
+
+
+.admin-modal .form-group label{
+
+    display:block;
+
+    margin-bottom:7px;
+
+    color:#374151;
+
+    font-size:13px;
+
+    font-weight:700;
+
+}
+
+
+.admin-modal .form-group input,
+.admin-modal .form-group select{
+
+    width:100%;
+
+    min-height:44px;
+
+    padding:
+    10px 13px;
+
+    border:
+    1px solid #d2d0cd;
+
+    border-radius:10px;
+
+    background:#ffffff;
+
+    color:#374151;
+
+    font-family:inherit;
+
+    font-size:14px;
+
+    outline:none;
+
+    box-sizing:border-box;
+
+    transition:
+    border-color .2s ease,
+    box-shadow .2s ease;
+
+}
+
+
+.admin-modal .form-group input:focus,
+.admin-modal .form-group select:focus{
+
+    border-color:#c8102e;
+
+    box-shadow:
+    0 0 0 3px
+    rgba(200,16,46,.10);
+
+}
+
+
+/* =========================================
+   PASSWORD
+========================================= */
+
+.admin-modal input[type="password"]{
+
+    letter-spacing:.5px;
+
+}
+
+
+/* =========================================
+   MENSAJE DE ERROR
+========================================= */
+
+.admin-modal .error-message{
+
+    margin-bottom:18px;
+
+    padding:11px 13px;
+
+    border-radius:10px;
+
+    background:#fee2e2;
+
+    border:
+    1px solid #fecaca;
+
+    color:#991b1b;
+
+    font-size:13px;
+
+    line-height:1.4;
+
+}
+
+
+/* =========================================
+   ACCIONES MODAL
+========================================= */
+
+.modal-actions{
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding-top:8px;
+
+}
+
+
+/* =========================================
+   BOTÓN CANCELAR
+========================================= */
+
+.btn-back{
+
+    border:none;
+
+    background:#f3f4f6;
+
+    color:#54565a;
+
+    padding:12px 18px;
+
+    border-radius:10px;
+
+    font-family:inherit;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.2s ease;
+
+}
+
+
+.btn-back:hover{
+
+    background:#e5e7eb;
+
+}
+
+
+/* =========================================
+   MODAL RESPONSIVE
+========================================= */
+
+@media(max-width:600px){
+
+    .admin-modal{
+
+        padding:12px;
+
+        align-items:
+        center;
+
+    }
+
+
+    .admin-modal-content{
+
+        max-width:none;
+
+        max-height:
+        calc(100vh - 24px);
+
+        border-radius:16px;
+
+    }
+
+
+    .admin-modal-header{
+
+        padding:20px;
+
+    }
+
+
+    .admin-modal form{
+
+        padding:20px;
+
+    }
+
+
+    .admin-modal-header h2{
+
+        font-size:19px;
+
+    }
+
+
+    .modal-actions{
+
+        flex-direction:column-reverse;
+
+        width:100%;
+
+    }
+
+
+    .modal-actions button{
+
+        width:100%;
+
+    }
+
+}
+
+
+/* =========================================
+   EVITAR SCROLL DEL BODY CON MODAL
+========================================= */
+
+body:has(.admin-modal[style*="display: flex"]){
+
+    overflow:hidden;
+
+}

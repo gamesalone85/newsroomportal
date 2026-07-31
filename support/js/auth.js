@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    NEWSROOM PORTAL
    AUTHENTICATION CONTROLLER
@@ -880,4 +879,4 @@ document.addEventListener(
 
     }
 );
-```
+

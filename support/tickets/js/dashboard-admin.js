@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    NEWSROOM PORTAL
    DASHBOARD ADMINISTRATIVO DE TICKETS
@@ -940,4 +939,3 @@ function escapeHTML(valor) {
     );
 
 }
-```

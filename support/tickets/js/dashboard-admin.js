@@ -179,87 +179,124 @@ function cargarDashboard() {
 
 function actualizarKPIs(tickets) {
 
-    const total =
-        tickets.length;
+    const total = tickets.length;
 
-    const registrados =
-        tickets.filter(function (ticket) {
 
-            return (
-                normalizarEstatus(ticket.estatus) ===
-                "Registrado"
-            );
+    const registrados = tickets.filter(
+        ticket =>
+            normalizarEstatus(ticket.estatus) === "Registrado"
+    ).length;
 
-        }).length;
 
-    const pendientes =
-        tickets.filter(function (ticket) {
+    const pendientes = tickets.filter(
+        ticket =>
+            normalizarEstatus(ticket.estatus) === "Pendiente"
+    ).length;
 
-            return (
-                normalizarEstatus(ticket.estatus) ===
-                "Pendiente"
-            );
 
-        }).length;
+    const proceso = tickets.filter(
+        ticket =>
+            normalizarEstatus(ticket.estatus) === "En Proceso"
+    ).length;
 
-    const proceso =
-        tickets.filter(function (ticket) {
 
-            return (
-                normalizarEstatus(ticket.estatus) ===
-                "En Proceso"
-            );
+    const resueltos = tickets.filter(
+        ticket =>
+            normalizarEstatus(ticket.estatus) === "Resuelto"
+    ).length;
 
-        }).length;
 
-    const resueltos =
-        tickets.filter(function (ticket) {
+    const cancelados = tickets.filter(
+        ticket =>
+            normalizarEstatus(ticket.estatus) === "Cancelado"
+    ).length;
 
-            return (
-                normalizarEstatus(ticket.estatus) ===
-                "Resuelto"
-            );
 
-        }).length;
+    const cerrados = tickets.filter(
+        ticket =>
+            normalizarEstatus(ticket.estatus) === "Cerrado"
+    ).length;
 
-    const cerrados =
-        tickets.filter(function (ticket) {
 
-            return (
-                normalizarEstatus(ticket.estatus) ===
-                "Cerrado"
-            );
+    const sinAsignar = tickets.filter(
+        ticket => {
 
-        }).length;
+            const tecnico =
+                ticket.tecnico ||
+                ticket.tecnico_nombre ||
+                ticket.tecnico_id;
+
+            return !tecnico;
+
+        }
+    ).length;
+
+
+
+    /* =====================================================
+       ACTUALIZAR HTML
+    ===================================================== */
 
     actualizarTexto(
-        "totalTickets",
+        "kpiTotal",
         total
     );
 
+
     actualizarTexto(
-        "ticketsRegistrados",
+        "kpiRegistrados",
         registrados
     );
 
+
     actualizarTexto(
-        "ticketsPendientes",
+        "kpiPendientes",
         pendientes
     );
 
+
     actualizarTexto(
-        "ticketsProceso",
+        "kpiProceso",
         proceso
     );
 
+
     actualizarTexto(
-        "ticketsResueltos",
+        "kpiResueltos",
         resueltos
     );
 
+
     actualizarTexto(
-        "ticketsCerrados",
+        "kpiCancelados",
+        cancelados
+    );
+
+
+    actualizarTexto(
+        "kpiCerrados",
         cerrados
+    );
+
+
+    actualizarTexto(
+        "kpiSinAsignar",
+        sinAsignar
+    );
+
+
+    console.log(
+        "KPIs actualizados:",
+        {
+            total,
+            registrados,
+            pendientes,
+            proceso,
+            resueltos,
+            cancelados,
+            cerrados,
+            sinAsignar
+        }
     );
 
 }

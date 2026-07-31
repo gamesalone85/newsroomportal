@@ -1,155 +1,21 @@
+```css
 /* =========================================================
    NEWSROOM PORTAL
    DASHBOARD ADMINISTRATIVO DE TICKETS
-   tickets/css/dashboard-admin.css
-   ========================================================= */
+========================================================= */
 
 
 /* =========================================================
-   CONTENEDOR PRINCIPAL
+   DASHBOARD ACTIONS
 ========================================================= */
 
-.dashboard-admin {
-
-    width: 100%;
-
-}
-
-
-/* =========================================================
-   HEADER DEL DASHBOARD
-========================================================= */
-
-.dashboard-header {
-
-    display: flex;
-
-    align-items: flex-start;
-
-    justify-content: space-between;
-
-    gap: 20px;
-
-    margin-bottom: 26px;
-
-}
-
-.dashboard-header-content h1 {
-
-    margin: 0 0 7px;
-
-    color: #54565a;
-
-    font-size: 30px;
-
-    font-weight: 800;
-
-    line-height: 1.2;
-
-}
-
-.dashboard-header-content p {
-
-    margin: 0;
-
-    color: #968c83;
-
-    font-size: 14px;
-
-    line-height: 1.5;
-
-}
-
-
-/* =========================================================
-   ACCIONES DEL HEADER
-========================================================= */
-
-.dashboard-header-actions {
+.dashboard-actions {
 
     display: flex;
 
     align-items: center;
 
     gap: 10px;
-
-    flex-wrap: wrap;
-
-}
-
-
-/* =========================================================
-   BOTONES
-========================================================= */
-
-.dashboard-btn {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 8px;
-
-    min-height: 40px;
-
-    padding: 10px 15px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    text-decoration: none;
-
-    cursor: pointer;
-
-    transition: .2s ease;
-
-    white-space: nowrap;
-
-}
-
-.dashboard-btn:hover {
-
-    transform: translateY(-1px);
-
-}
-
-.dashboard-btn-primary {
-
-    background: #c8102e;
-
-    color: #ffffff;
-
-    box-shadow:
-        0 4px 12px rgba(200,16,46,.18);
-
-}
-
-.dashboard-btn-primary:hover {
-
-    background: #a30d26;
-
-}
-
-.dashboard-btn-secondary {
-
-    background: #ffffff;
-
-    color: #54565a;
-
-    border: 1px solid #d9dde3;
-
-}
-
-.dashboard-btn-secondary:hover {
-
-    background: #f8fafc;
 
 }
 
@@ -163,10 +29,7 @@
     display: grid;
 
     grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(180px, 1fr)
-        );
+        repeat(4, minmax(0, 1fr));
 
     gap: 18px;
 
@@ -182,8 +45,6 @@
 .dashboard-kpi-card {
 
     position: relative;
-
-    overflow: hidden;
 
     display: flex;
 
@@ -202,25 +63,16 @@
     border-radius: 18px;
 
     box-shadow:
-        0 5px 18px rgba(15,23,42,.05);
+        0 6px 20px rgba(15, 23, 42, .05);
 
-    transition: .2s ease;
+    overflow: hidden;
 
-}
-
-.dashboard-kpi-card:hover {
-
-    transform: translateY(-3px);
-
-    box-shadow:
-        0 12px 28px rgba(15,23,42,.09);
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease;
 
 }
 
-
-/* =========================================================
-   DECORACIÓN KPI
-========================================================= */
 
 .dashboard-kpi-card::after {
 
@@ -228,31 +80,37 @@
 
     position: absolute;
 
-    width: 95px;
+    width: 80px;
 
-    height: 95px;
+    height: 80px;
 
-    right: -35px;
+    right: -25px;
 
-    top: -35px;
+    top: -25px;
 
     border-radius: 50%;
 
     background:
-        rgba(210,208,205,.15);
+        rgba(200, 16, 46, .05);
+
+}
+
+
+.dashboard-kpi-card:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 12px 28px rgba(15, 23, 42, .09);
 
 }
 
 
 /* =========================================================
-   ICONO KPI
+   KPI ICON
 ========================================================= */
 
 .dashboard-kpi-icon {
-
-    position: relative;
-
-    z-index: 1;
 
     width: 52px;
 
@@ -266,7 +124,14 @@
 
     justify-content: center;
 
-    border-radius: 16px;
+    border-radius: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #c8102e,
+            #a30d26
+        );
 
     color: #ffffff;
 
@@ -276,120 +141,29 @@
 
 
 /* =========================================================
-   COLORES KPI
+   KPI TEXT
 ========================================================= */
 
-.kpi-total .dashboard-kpi-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #54565a,
-            #3f4245
-        );
-
-}
-
-.kpi-registrados .dashboard-kpi-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #2563eb,
-            #1d4ed8
-        );
-
-}
-
-.kpi-pendientes .dashboard-kpi-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #f59e0b,
-            #d97706
-        );
-
-}
-
-.kpi-proceso .dashboard-kpi-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #f59e0b,
-            #b45309
-        );
-
-}
-
-.kpi-resueltos .dashboard-kpi-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #16a34a,
-            #15803d
-        );
-
-}
-
-.kpi-cerrados .dashboard-kpi-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #64748b,
-            #475569
-        );
-
-}
-
-.kpi-cancelados .dashboard-kpi-icon {
-
-    background:
-        linear-gradient(
-            135deg,
-            #dc2626,
-            #b91c1c
-        );
-
-}
-
-
-/* =========================================================
-   TEXTO KPI
-========================================================= */
-
-.dashboard-kpi-info {
-
-    position: relative;
-
-    z-index: 1;
-
-    min-width: 0;
-
-}
-
-.dashboard-kpi-info span {
+.dashboard-kpi-card span {
 
     display: block;
 
     margin-bottom: 7px;
 
-    color: #968c83;
+    color: #6b7280;
 
-    font-size: 11px;
+    font-size: 12px;
 
     font-weight: 700;
 
     text-transform: uppercase;
 
-    letter-spacing: .45px;
+    letter-spacing: .35px;
 
 }
 
-.dashboard-kpi-info strong {
+
+.dashboard-kpi-card strong {
 
     display: block;
 
@@ -397,22 +171,18 @@
 
     font-size: 30px;
 
-    font-weight: 800;
-
     line-height: 1;
+
+    font-weight: 800;
 
 }
 
 
 /* =========================================================
-   FILTROS
+   FILTER CARD
 ========================================================= */
 
-.dashboard-filters-card {
-
-    margin-bottom: 22px;
-
-    padding: 18px;
+.dashboard-filter-card {
 
     background: #ffffff;
 
@@ -420,48 +190,48 @@
 
     border-radius: 18px;
 
+    padding: 20px;
+
+    margin-bottom: 24px;
+
     box-shadow:
-        0 5px 18px rgba(15,23,42,.04);
-
-}
-
-.dashboard-filters-header {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 15px;
-
-    margin-bottom: 15px;
-
-}
-
-.dashboard-filters-header h3 {
-
-    margin: 0;
-
-    color: #374151;
-
-    font-size: 15px;
-
-    font-weight: 800;
-
-}
-
-.dashboard-filters-header span {
-
-    color: #968c83;
-
-    font-size: 11px;
+        0 5px 18px rgba(15, 23, 42, .05);
 
 }
 
 
 /* =========================================================
-   GRID DE FILTROS
+   FILTER TITLE
+========================================================= */
+
+.filter-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    margin-bottom: 18px;
+
+    color: #374151;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+}
+
+
+.filter-title i {
+
+    color: #c8102e;
+
+}
+
+
+/* =========================================================
+   FILTER GRID
 ========================================================= */
 
 .dashboard-filters {
@@ -469,106 +239,124 @@
     display: grid;
 
     grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(180px, 1fr)
-        );
+        repeat(4, minmax(160px, 1fr));
 
-    gap: 12px;
+    gap: 16px;
 
 }
 
 
-/* =========================================================
-   CAMPO DE FILTRO
-========================================================= */
-
-.dashboard-filter-group {
+.filter-group {
 
     display: flex;
 
     flex-direction: column;
 
-    gap: 6px;
+    gap: 7px;
 
 }
 
-.dashboard-filter-group label {
 
-    color: #54565a;
+.filter-group label {
 
-    font-size: 11px;
+    color: #4b5563;
+
+    font-size: 12px;
 
     font-weight: 700;
 
 }
 
-.dashboard-filter-group input,
-.dashboard-filter-group select {
+
+.filter-group select,
+.filter-group input {
 
     width: 100%;
 
-    min-height: 40px;
+    height: 42px;
 
-    padding: 9px 11px;
+    padding:
+        0 12px;
 
     background: #ffffff;
 
-    border: 1px solid #d9dde3;
+    border:
+        1px solid #d1d5db;
 
-    border-radius: 9px;
-
-    outline: none;
+    border-radius: 10px;
 
     color: #374151;
 
-    font-family: inherit;
+    font-size: 13px;
 
-    font-size: 12px;
+    outline: none;
 
-    transition: .2s ease;
-
-    box-sizing: border-box;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
 
 }
 
-.dashboard-filter-group input:focus,
-.dashboard-filter-group select:focus {
+
+.filter-group select:focus,
+.filter-group input:focus {
 
     border-color: #c8102e;
 
     box-shadow:
-        0 0 0 3px rgba(200,16,46,.08);
+        0 0 0 3px rgba(200, 16, 46, .10);
+
+}
+
+
+.filter-search {
+
+    grid-column:
+        span 2;
 
 }
 
 
 /* =========================================================
-   ACCIONES DE FILTROS
+   DASHBOARD COLUMNS
 ========================================================= */
 
-.dashboard-filter-actions {
+.dashboard-columns {
 
-    display: flex;
+    display: grid;
 
-    align-items: flex-end;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
 
-    gap: 8px;
+    gap: 18px;
 
-}
-
-.dashboard-filter-actions button {
-
-    min-height: 40px;
+    margin-bottom: 24px;
 
 }
 
 
 /* =========================================================
-   RESUMEN
+   PANELS
 ========================================================= */
 
-.dashboard-summary {
+.dashboard-panel {
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 18px;
+
+    padding: 20px;
+
+    box-shadow:
+        0 5px 18px rgba(15, 23, 42, .05);
+
+}
+
+
+.dashboard-panel-header {
 
     display: flex;
 
@@ -576,15 +364,16 @@
 
     justify-content: space-between;
 
-    gap: 15px;
-
-    margin-bottom: 14px;
+    margin-bottom: 18px;
 
 }
 
-.dashboard-summary-title {
 
-    color: #374151;
+.dashboard-panel-header h3 {
+
+    margin: 0 0 5px;
+
+    color: #1f2937;
 
     font-size: 15px;
 
@@ -592,9 +381,12 @@
 
 }
 
-.dashboard-summary-count {
 
-    color: #968c83;
+.dashboard-panel-header p {
+
+    margin: 0;
+
+    color: #9ca3af;
 
     font-size: 12px;
 
@@ -602,27 +394,159 @@
 
 
 /* =========================================================
-   TABLA
+   SUMMARY LIST
 ========================================================= */
 
-.dashboard-table-card {
+.dashboard-summary-list {
 
-    overflow: hidden;
+    display: flex;
 
-    background: #ffffff;
+    flex-direction: column;
 
-    border: 1px solid #e5e7eb;
+    gap: 10px;
 
-    border-radius: 18px;
+}
 
-    box-shadow:
-        0 5px 18px rgba(15,23,42,.05);
+
+.dashboard-summary-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 10px 12px;
+
+    background: #f8fafc;
+
+    border-radius: 10px;
+
+}
+
+
+.dashboard-summary-item span {
+
+    color: #4b5563;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+}
+
+
+.dashboard-summary-item strong {
+
+    color: #1f2937;
+
+    font-size: 13px;
+
+    font-weight: 800;
 
 }
 
 
 /* =========================================================
-   CONTENEDOR SCROLL TABLA
+   TABLE CARD
+========================================================= */
+
+.dashboard-table-card {
+
+    background: #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 5px 18px rgba(15, 23, 42, .05);
+
+    overflow: hidden;
+
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.dashboard-table-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 20px;
+
+    border-bottom:
+        1px solid #edf0f4;
+
+}
+
+
+.dashboard-table-header h3 {
+
+    margin: 0 0 5px;
+
+    color: #1f2937;
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+}
+
+
+.dashboard-table-header p {
+
+    margin: 0;
+
+    color: #9ca3af;
+
+    font-size: 12px;
+
+}
+
+
+/* =========================================================
+   RESULTS COUNTER
+========================================================= */
+
+.results-counter {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 7px 11px;
+
+    border-radius: 50px;
+
+    background: #f3f4f6;
+
+    color: #4b5563;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
 ========================================================= */
 
 .dashboard-table-wrapper {
@@ -633,29 +557,9 @@
 
 }
 
-.dashboard-table-wrapper::-webkit-scrollbar {
-
-    height: 8px;
-
-}
-
-.dashboard-table-wrapper::-webkit-scrollbar-track {
-
-    background: #f1f5f9;
-
-}
-
-.dashboard-table-wrapper::-webkit-scrollbar-thumb {
-
-    background: #cbd5e1;
-
-    border-radius: 50px;
-
-}
-
 
 /* =========================================================
-   TABLA
+   TABLE
 ========================================================= */
 
 .dashboard-table {
@@ -670,16 +574,18 @@
 
 
 /* =========================================================
-   CABECERA
+   TABLE HEAD
 ========================================================= */
 
 .dashboard-table thead th {
 
-    padding: 13px 14px;
+    padding:
+        13px 14px;
 
     background: #f8fafc;
 
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom:
+        1px solid #e5e7eb;
 
     color: #374151;
 
@@ -695,14 +601,16 @@
 
 
 /* =========================================================
-   CUERPO
+   TABLE BODY
 ========================================================= */
 
 .dashboard-table tbody td {
 
-    padding: 13px 14px;
+    padding:
+        13px 14px;
 
-    border-bottom: 1px solid #edf0f4;
+    border-bottom:
+        1px solid #edf0f4;
 
     color: #374151;
 
@@ -712,17 +620,21 @@
 
 }
 
+
 .dashboard-table tbody tr {
 
-    transition: .15s ease;
+    transition:
+        background .15s ease;
 
 }
+
 
 .dashboard-table tbody tr:hover {
 
     background: #fafafa;
 
 }
+
 
 .dashboard-table tbody tr:last-child td {
 
@@ -732,43 +644,28 @@
 
 
 /* =========================================================
-   FOLIO
+   TICKET TITLE
 ========================================================= */
 
-.ticket-folio {
+.ticket-title-cell {
 
-    color: #c8102e;
+    max-width: 280px;
 
-    font-weight: 800;
-
-    white-space: nowrap;
-
-}
-
-.ticket-title {
-
-    display: block;
-
-    max-width: 260px;
-
-    overflow: hidden;
-
-    color: #374151;
+    color: #1f2937;
 
     font-weight: 700;
 
-    text-overflow: ellipsis;
-
-    white-space: nowrap;
+    line-height: 1.4;
 
 }
 
 
 /* =========================================================
-   BADGES GENERALES
+   BADGES
 ========================================================= */
 
-.dashboard-badge {
+.priority-badge,
+.status-badge {
 
     display: inline-flex;
 
@@ -776,7 +673,8 @@
 
     justify-content: center;
 
-    padding: 5px 9px;
+    padding:
+        6px 10px;
 
     border-radius: 50px;
 
@@ -790,18 +688,29 @@
 
 
 /* =========================================================
-   ESTATUS
+   PRIORITIES
 ========================================================= */
 
-.dashboard-status-registrado {
+.priority-crítica,
+.priority-critica {
 
-    background: #dbeafe;
+    background: #fee2e2;
 
-    color: #1d4ed8;
+    color: #991b1b;
 
 }
 
-.dashboard-status-pendiente {
+
+.priority-alta {
+
+    background: #ffedd5;
+
+    color: #c2410c;
+
+}
+
+
+.priority-media {
 
     background: #fef3c7;
 
@@ -809,7 +718,39 @@
 
 }
 
-.dashboard-status-en-proceso {
+
+.priority-baja {
+
+    background: #dcfce7;
+
+    color: #166534;
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status-registrado {
+
+    background: #dbeafe;
+
+    color: #1d4ed8;
+
+}
+
+
+.status-pendiente {
+
+    background: #fef3c7;
+
+    color: #92400e;
+
+}
+
+
+.status-en-proceso {
 
     background: #fef3c7;
 
@@ -817,7 +758,8 @@
 
 }
 
-.dashboard-status-resuelto {
+
+.status-resuelto {
 
     background: #dcfce7;
 
@@ -825,7 +767,17 @@
 
 }
 
-.dashboard-status-cerrado {
+
+.status-cancelado {
+
+    background: #fee2e2;
+
+    color: #991b1b;
+
+}
+
+
+.status-cerrado {
 
     background: #e5e7eb;
 
@@ -833,273 +785,60 @@
 
 }
 
-.dashboard-status-cancelado {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-}
-
 
 /* =========================================================
-   PRIORIDADES
+   BUTTON VIEW
 ========================================================= */
 
-.dashboard-priority-baja {
+.btn-view {
 
-    background: #f1f5f9;
-
-    color: #475569;
-
-}
-
-.dashboard-priority-media {
-
-    background: #dbeafe;
-
-    color: #1d4ed8;
-
-}
-
-.dashboard-priority-alta {
-
-    background: #fef3c7;
-
-    color: #92400e;
-
-}
-
-.dashboard-priority-crítica {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-}
-
-
-/* =========================================================
-   TÉCNICO
-========================================================= */
-
-.ticket-technician {
-
-    color: #54565a;
-
-    font-weight: 600;
-
-}
-
-.ticket-unassigned {
-
-    color: #968c83;
-
-    font-style: italic;
-
-}
-
-
-/* =========================================================
-   FECHAS
-========================================================= */
-
-.ticket-date {
-
-    color: #6b7280;
-
-    font-size: 11px;
-
-    white-space: nowrap;
-
-}
-
-
-/* =========================================================
-   ACCIONES
-========================================================= */
-
-.dashboard-actions {
-
-    display: flex;
+    display: inline-flex;
 
     align-items: center;
+
+    justify-content: center;
 
     gap: 6px;
 
-    flex-wrap: wrap;
+    padding:
+        8px 11px;
 
-}
+    background: #c8102e;
 
-.dashboard-action-btn {
+    color: #ffffff;
 
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 5px;
-
-    min-height: 32px;
-
-    padding: 6px 9px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    font-size: 10px;
-
-    font-weight: 800;
+    border-radius: 9px;
 
     text-decoration: none;
 
-    cursor: pointer;
+    font-size: 10px;
 
-    transition: .18s ease;
+    font-weight: 700;
 
     white-space: nowrap;
 
-}
-
-.dashboard-action-btn:hover {
-
-    transform: translateY(-1px);
+    transition:
+        background .2s ease,
+        transform .2s ease;
 
 }
 
-.dashboard-action-view {
 
-    background: #e0f2fe;
+.btn-view:hover {
 
-    color: #0369a1;
+    background: #a30d26;
 
-}
-
-.dashboard-action-view:hover {
-
-    background: #bae6fd;
-
-}
-
-.dashboard-action-edit {
-
-    background: #ede9fe;
-
-    color: #5b21b6;
-
-}
-
-.dashboard-action-edit:hover {
-
-    background: #ddd6fe;
+    transform:
+        translateY(-1px);
 
 }
 
 
 /* =========================================================
-   ESTADO VACÍO
+   PRIMARY BUTTON
 ========================================================= */
 
-.dashboard-empty {
-
-    padding: 55px 20px;
-
-    text-align: center;
-
-}
-
-.dashboard-empty-icon {
-
-    width: 58px;
-
-    height: 58px;
-
-    margin: 0 auto 14px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 18px;
-
-    background: #f3f4f6;
-
-    color: #968c83;
-
-    font-size: 23px;
-
-}
-
-.dashboard-empty h3 {
-
-    margin: 0 0 6px;
-
-    color: #374151;
-
-    font-size: 15px;
-
-    font-weight: 800;
-
-}
-
-.dashboard-empty p {
-
-    margin: 0;
-
-    color: #968c83;
-
-    font-size: 12px;
-
-}
-
-
-/* =========================================================
-   PAGINACIÓN
-========================================================= */
-
-.dashboard-pagination {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 12px;
-
-    padding: 15px 18px;
-
-    border-top: 1px solid #edf0f4;
-
-}
-
-.dashboard-pagination-info {
-
-    color: #968c83;
-
-    font-size: 11px;
-
-}
-
-.dashboard-pagination-actions {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 5px;
-
-}
-
-.dashboard-page-btn {
-
-    min-width: 32px;
-
-    height: 32px;
+.dashboard-actions .btn-primary {
 
     display: inline-flex;
 
@@ -1107,121 +846,43 @@
 
     justify-content: center;
 
-    padding: 0 8px;
+    gap: 8px;
 
-    border: 1px solid #d9dde3;
+    min-height: 42px;
 
-    border-radius: 8px;
+    padding:
+        0 16px;
 
-    background: #ffffff;
+    border: none;
 
-    color: #54565a;
+    border-radius: 10px;
 
-    font-size: 11px;
+    background: #c8102e;
+
+    color: #ffffff;
+
+    font-size: 12px;
 
     font-weight: 700;
 
     cursor: pointer;
 
-    transition: .18s ease;
+    box-shadow:
+        0 4px 12px rgba(200, 16, 46, .18);
 
-}
-
-.dashboard-page-btn:hover {
-
-    background: #f8fafc;
-
-}
-
-.dashboard-page-btn.active {
-
-    background: #c8102e;
-
-    border-color: #c8102e;
-
-    color: #ffffff;
-
-}
-
-.dashboard-page-btn:disabled {
-
-    opacity: .45;
-
-    cursor: not-allowed;
+    transition:
+        background .2s ease,
+        transform .2s ease;
 
 }
 
 
-/* =========================================================
-   MENSAJES
-========================================================= */
+.dashboard-actions .btn-primary:hover {
 
-.dashboard-message {
+    background: #a30d26;
 
-    display: none;
-
-    margin-bottom: 18px;
-
-    padding: 12px 14px;
-
-    border-radius: 10px;
-
-    font-size: 12px;
-
-    font-weight: 600;
-
-}
-
-.dashboard-message.success {
-
-    background: #dcfce7;
-
-    color: #166534;
-
-    border: 1px solid #bbf7d0;
-
-}
-
-.dashboard-message.error {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-    border: 1px solid #fecaca;
-
-}
-
-.dashboard-message.info {
-
-    background: #dbeafe;
-
-    color: #1d4ed8;
-
-    border: 1px solid #bfdbfe;
-
-}
-
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-.dashboard-loading {
-
-    padding: 45px 20px;
-
-    text-align: center;
-
-    color: #968c83;
-
-    font-size: 12px;
-
-}
-
-.dashboard-loading i {
-
-    margin-right: 7px;
+    transform:
+        translateY(-1px);
 
 }
 
@@ -1230,59 +891,80 @@
    RESPONSIVE
 ========================================================= */
 
-@media(max-width:1100px){
+@media (max-width: 1200px) {
 
     .dashboard-kpi-grid {
 
         grid-template-columns:
-            repeat(3,1fr);
+            repeat(3, minmax(0, 1fr));
+
+    }
+
+
+    .dashboard-filters {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+
+    .filter-search {
+
+        grid-column:
+            span 2;
+
+    }
+
+
+    .dashboard-columns {
+
+        grid-template-columns:
+            1fr;
 
     }
 
 }
 
 
-@media(max-width:900px){
+/* =========================================================
+   TABLET
+========================================================= */
 
-    .dashboard-header {
+@media (max-width: 900px) {
+
+    .dashboard-kpi-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+
+    .dashboard-table-header {
+
+        align-items: flex-start;
 
         flex-direction: column;
 
-        align-items: stretch;
-
-    }
-
-    .dashboard-header-actions {
-
-        justify-content: flex-start;
-
-    }
-
-    .dashboard-kpi-grid {
-
-        grid-template-columns:
-            repeat(2,1fr);
-
     }
 
 }
 
 
-@media(max-width:600px){
+/* =========================================================
+   MOBILE
+========================================================= */
 
-    .dashboard-header-content h1 {
-
-        font-size: 25px;
-
-    }
+@media (max-width: 600px) {
 
     .dashboard-kpi-grid {
 
-        grid-template-columns: 1fr;
-
-        gap: 12px;
+        grid-template-columns:
+            1fr;
 
     }
+
 
     .dashboard-kpi-card {
 
@@ -1292,69 +974,62 @@
 
     }
 
-    .dashboard-kpi-info strong {
+
+    .dashboard-kpi-icon {
+
+        width: 46px;
+
+        height: 46px;
+
+        border-radius: 13px;
+
+        font-size: 18px;
+
+    }
+
+
+    .dashboard-kpi-card strong {
 
         font-size: 26px;
 
     }
 
-    .dashboard-filters-card {
-
-        padding: 14px;
-
-    }
 
     .dashboard-filters {
 
-        grid-template-columns: 1fr;
+        grid-template-columns:
+            1fr;
 
     }
 
-    .dashboard-filter-actions {
 
-        align-items: stretch;
+    .filter-search {
 
-    }
-
-    .dashboard-filter-actions button {
-
-        width: 100%;
+        grid-column:
+            auto;
 
     }
 
-    .dashboard-summary {
 
-        align-items: flex-start;
+    .dashboard-filter-card {
 
-        flex-direction: column;
-
-        gap: 5px;
+        padding: 16px;
 
     }
 
-    .dashboard-pagination {
 
-        align-items: flex-start;
+    .dashboard-panel {
 
-        flex-direction: column;
+        padding: 16px;
+
+    }
+
+
+    .dashboard-table-header {
+
+        padding: 16px;
 
     }
 
 }
-
-
-/* =========================================================
-   ACCESIBILIDAD
-========================================================= */
-
-.dashboard-btn:focus-visible,
-.dashboard-action-btn:focus-visible,
-.dashboard-page-btn:focus-visible,
-.dashboard-filter-group input:focus-visible,
-.dashboard-filter-group select:focus-visible {
-
-    outline: 3px solid rgba(200,16,46,.18);
-
-    outline-offset: 2px;
-
-}
+```

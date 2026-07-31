@@ -1,528 +1,382 @@
+```javascript
 /* =========================================================
-NEWSROOM PORTAL
-DASHBOARD ADMINISTRATIVO DE TICKETS
+   NEWSROOM PORTAL
+   DASHBOARD ADMINISTRATIVO DE TICKETS
 ========================================================= */
 
-/* =========================================================
-INICIALIZACIÓN
-========================================================= */
+document.addEventListener("DOMContentLoaded", function () {
 
-document.addEventListener(
-"DOMContentLoaded",
-() => {
-
-```
     console.log(
         "Newsroom Portal: dashboard-admin.js cargado correctamente."
     );
 
-
-    /* =================================================
+    /* =====================================================
        VERIFICAR SESIÓN
-    ================================================== */
+    ===================================================== */
 
-    if (
-        typeof verificarSesion !==
-        "function"
-    ) {
+    if (typeof verificarSesion !== "function") {
 
         console.error(
             "Newsroom Portal: auth.js no está disponible."
         );
 
         return;
-
     }
 
-
-    if (
-        !verificarSesion(
-            "../../login.html"
-        )
-    ) {
-
+    if (!verificarSesion("../../login.html")) {
         return;
-
     }
-
 
     const session =
-        typeof obtenerSesion ===
-        "function"
-
+        typeof obtenerSesion === "function"
             ? obtenerSesion()
-
             : null;
 
-
     if (!session) {
-
         return;
-
     }
 
-
-
-    /* =================================================
+    /* =====================================================
        VERIFICAR ADMINISTRADOR
-    ================================================== */
+    ===================================================== */
 
-    if (
-        Number(session.rol_id) !== 1
-    ) {
+    if (Number(session.rol_id) !== 1) {
 
         alert(
             "No tienes permisos para acceder a esta sección."
         );
 
-
         window.location.href =
             "../dashboard/index.html";
 
-
         return;
-
     }
 
+    /* =====================================================
+       ACTUALIZAR USUARIO
+    ===================================================== */
 
+    actualizarUsuario(session);
 
-    /* =================================================
-       USUARIO
-    ================================================== */
-
-    actualizarUsuario(
-        session
-    );
-
-
-
-    /* =================================================
+    /* =====================================================
        CARGAR DASHBOARD
-    ================================================= */
+    ===================================================== */
 
     cargarDashboard();
 
-
-
-    /* =================================================
+    /* =====================================================
        EVENTOS
-    ================================================= */
+    ===================================================== */
 
     configurarEventos();
 
+});
 
-}
-```
-
-);
 
 /* =========================================================
-ACTUALIZAR USUARIO
+   ACTUALIZAR USUARIO
 ========================================================= */
 
-function actualizarUsuario(
-session
-) {
+function actualizarUsuario(session) {
 
-```
-const nombre =
-    session.nombre ||
-    session.usuario ||
-    "Administrador";
+    const nombre =
+        session.nombre ||
+        session.usuario ||
+        "Administrador";
 
+    const userName =
+        document.getElementById("userName");
 
-const userName =
-    document.getElementById(
-        "userName"
-    );
+    const userAvatar =
+        document.getElementById("userAvatar");
 
+    if (userName) {
+        userName.textContent = nombre;
+    }
 
-const userAvatar =
-    document.getElementById(
-        "userAvatar"
-    );
+    if (userAvatar) {
 
+        userAvatar.textContent =
+            nombre.charAt(0).toUpperCase();
 
-if (userName) {
-
-    userName.textContent =
-        nombre;
+    }
 
 }
 
-
-if (userAvatar) {
-
-    userAvatar.textContent =
-        nombre
-            .charAt(0)
-            .toUpperCase();
-
-}
-```
-
-}
 
 /* =========================================================
-OBTENER TICKETS
+   OBTENER TICKETS
 ========================================================= */
 
 function obtenerTicketsAdmin() {
 
-```
-let tickets = [];
+    let tickets = [];
 
-
-/*
- * Primero intentamos utilizar
- * la estructura global existente.
- */
-
-if (
-    typeof NEWSROOM_TICKETS !==
-    "undefined"
-    &&
-    Array.isArray(
-        NEWSROOM_TICKETS
-    )
-) {
-
-    tickets =
-        NEWSROOM_TICKETS;
-
-}
-
-
-
-/*
- * Después revisamos localStorage.
- *
- * Esto es importante porque crear-ticket.js
- * actualmente guarda los tickets aquí.
- */
-
-try {
-
-    const almacenados =
-        JSON.parse(
-            localStorage.getItem(
-                "newsroomTickets"
-            )
-        );
-
+    /* -----------------------------------------------------
+       ESTRUCTURA GLOBAL
+    ----------------------------------------------------- */
 
     if (
-        Array.isArray(
-            almacenados
-        )
+        typeof NEWSROOM_TICKETS !== "undefined" &&
+        Array.isArray(NEWSROOM_TICKETS)
     ) {
 
-        tickets =
-            almacenados;
+        tickets = NEWSROOM_TICKETS;
 
     }
 
-} catch(error) {
+    /* -----------------------------------------------------
+       LOCAL STORAGE
+    ----------------------------------------------------- */
 
-    console.error(
-        "Error leyendo newsroomTickets:",
-        error
-    );
+    try {
+
+        const almacenados =
+            JSON.parse(
+                localStorage.getItem("newsroomTickets")
+            );
+
+        if (Array.isArray(almacenados)) {
+
+            tickets = almacenados;
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Error leyendo newsroomTickets:",
+            error
+        );
+
+    }
+
+    return Array.isArray(tickets)
+        ? tickets
+        : [];
 
 }
 
-
-return Array.isArray(
-    tickets
-)
-    ? tickets
-    : [];
-```
-
-}
 
 /* =========================================================
-CARGAR DASHBOARD
+   CARGAR DASHBOARD
 ========================================================= */
 
 function cargarDashboard() {
 
-```
-const tickets =
-    obtenerTicketsAdmin();
+    const tickets =
+        obtenerTicketsAdmin();
 
+    actualizarKPIs(tickets);
 
-actualizarKPIs(
-    tickets
-);
-
-
-renderizarTickets(
-    tickets
-);
-```
+    renderizarTickets(tickets);
 
 }
+
 
 /* =========================================================
-ACTUALIZAR KPIs
+   ACTUALIZAR KPIs
 ========================================================= */
 
-function actualizarKPIs(
-tickets
-) {
+function actualizarKPIs(tickets) {
 
-```
-const total =
-    tickets.length;
+    const total =
+        tickets.length;
 
-
-const registrados =
-    tickets.filter(
-        ticket =>
-            normalizarEstatus(
-                ticket.estatus
-            ) ===
-            "Registrado"
-    ).length;
-
-
-const pendientes =
-    tickets.filter(
-        ticket =>
-            normalizarEstatus(
-                ticket.estatus
-            ) ===
-            "Pendiente"
-    ).length;
-
-
-const proceso =
-    tickets.filter(
-        ticket =>
-            normalizarEstatus(
-                ticket.estatus
-            ) ===
-            "En Proceso"
-    ).length;
-
-
-const resueltos =
-    tickets.filter(
-        ticket =>
-            normalizarEstatus(
-                ticket.estatus
-            ) ===
-            "Resuelto"
-    ).length;
-
-
-const cerrados =
-    tickets.filter(
-        ticket =>
-            normalizarEstatus(
-                ticket.estatus
-            ) ===
-            "Cerrado"
-    ).length;
-
-
-
-actualizarTexto(
-    "totalTickets",
-    total
-);
-
-
-actualizarTexto(
-    "ticketsRegistrados",
-    registrados
-);
-
-
-actualizarTexto(
-    "ticketsPendientes",
-    pendientes
-);
-
-
-actualizarTexto(
-    "ticketsProceso",
-    proceso
-);
-
-
-actualizarTexto(
-    "ticketsResueltos",
-    resueltos
-);
-
-
-actualizarTexto(
-    "ticketsCerrados",
-    cerrados
-);
-```
-
-}
-
-/* =========================================================
-ACTUALIZAR TEXTO
-========================================================= */
-
-function actualizarTexto(
-id,
-valor
-) {
-
-```
-const elemento =
-    document.getElementById(
-        id
-    );
-
-
-if (elemento) {
-
-    elemento.textContent =
-        valor;
-
-}
-```
-
-}
-
-/* =========================================================
-RENDERIZAR TABLA
-========================================================= */
-
-function renderizarTickets(
-tickets
-) {
-
-```
-const tbody =
-    document.getElementById(
-        "ticketsTableBody"
-    );
-
-
-if (!tbody) {
-
-    return;
-
-}
-
-
-tbody.innerHTML =
-    "";
-
-
-
-if (
-    !tickets.length
-) {
-
-    tbody.innerHTML = `
-
-        <tr>
-
-            <td
-                colspan="10"
-                style="
-                    text-align:center;
-                    padding:40px;
-                    color:#6b7280;
-                "
-            >
-
-                <i
-                    class="fa-solid fa-ticket"
-                    style="
-                        font-size:28px;
-                        display:block;
-                        margin-bottom:10px;
-                    "
-                ></i>
-
-                No existen tickets registrados.
-
-            </td>
-
-        </tr>
-
-    `;
-
-
-    actualizarResultado(
-        0
-    );
-
-
-    return;
-
-}
-
-
-
-/*
- * Ordenamos del más reciente
- * al más antiguo.
- */
-
-const ordenados =
-    [...tickets].sort(
-        (
-            a,
-            b
-        ) => {
-
-            const fechaA =
-                obtenerFecha(
-                    a.fecha_creacion
-                );
-
-
-            const fechaB =
-                obtenerFecha(
-                    b.fecha_creacion
-                );
-
+    const registrados =
+        tickets.filter(function (ticket) {
 
             return (
-                fechaB -
-                fechaA
+                normalizarEstatus(ticket.estatus) ===
+                "Registrado"
             );
 
-        }
+        }).length;
+
+    const pendientes =
+        tickets.filter(function (ticket) {
+
+            return (
+                normalizarEstatus(ticket.estatus) ===
+                "Pendiente"
+            );
+
+        }).length;
+
+    const proceso =
+        tickets.filter(function (ticket) {
+
+            return (
+                normalizarEstatus(ticket.estatus) ===
+                "En Proceso"
+            );
+
+        }).length;
+
+    const resueltos =
+        tickets.filter(function (ticket) {
+
+            return (
+                normalizarEstatus(ticket.estatus) ===
+                "Resuelto"
+            );
+
+        }).length;
+
+    const cerrados =
+        tickets.filter(function (ticket) {
+
+            return (
+                normalizarEstatus(ticket.estatus) ===
+                "Cerrado"
+            );
+
+        }).length;
+
+    actualizarTexto(
+        "totalTickets",
+        total
     );
 
+    actualizarTexto(
+        "ticketsRegistrados",
+        registrados
+    );
+
+    actualizarTexto(
+        "ticketsPendientes",
+        pendientes
+    );
+
+    actualizarTexto(
+        "ticketsProceso",
+        proceso
+    );
+
+    actualizarTexto(
+        "ticketsResueltos",
+        resueltos
+    );
+
+    actualizarTexto(
+        "ticketsCerrados",
+        cerrados
+    );
+
+}
 
 
-ordenados.forEach(
-    ticket => {
+/* =========================================================
+   ACTUALIZAR TEXTO
+========================================================= */
+
+function actualizarTexto(id, valor) {
+
+    const elemento =
+        document.getElementById(id);
+
+    if (elemento) {
+
+        elemento.textContent =
+            valor;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDERIZAR TABLA
+========================================================= */
+
+function renderizarTickets(tickets) {
+
+    const tbody =
+        document.getElementById(
+            "ticketsTableBody"
+        );
+
+    if (!tbody) {
+
+        console.warn(
+            "No existe #ticketsTableBody en el HTML."
+        );
+
+        return;
+    }
+
+    tbody.innerHTML = "";
+
+    if (!tickets.length) {
+
+        tbody.innerHTML = `
+            <tr>
+                <td
+                    colspan="10"
+                    style="
+                        text-align:center;
+                        padding:40px;
+                        color:#6b7280;
+                    "
+                >
+                    <i
+                        class="fa-solid fa-ticket"
+                        style="
+                            font-size:28px;
+                            display:block;
+                            margin-bottom:10px;
+                        "
+                    ></i>
+
+                    No existen tickets registrados.
+                </td>
+            </tr>
+        `;
+
+        actualizarResultado(0);
+
+        return;
+    }
+
+    /* -----------------------------------------------------
+       ORDENAR MÁS RECIENTE PRIMERO
+    ----------------------------------------------------- */
+
+    const ordenados =
+        [...tickets].sort(function (a, b) {
+
+            const fechaA =
+                obtenerFecha(a.fecha_creacion);
+
+            const fechaB =
+                obtenerFecha(b.fecha_creacion);
+
+            return fechaB - fechaA;
+
+        });
+
+
+    /* -----------------------------------------------------
+       CREAR FILAS
+    ----------------------------------------------------- */
+
+    ordenados.forEach(function (ticket) {
 
         const tr =
-            document.createElement(
-                "tr"
-            );
-
+            document.createElement("tr");
 
         const estatus =
             ticket.estatus ||
             "Registrado";
 
-
         const prioridad =
             ticket.prioridad ||
             "Media";
-
 
         const tecnico =
             ticket.tecnico ||
             ticket.tecnico_nombre ||
             "Sin asignar";
-
 
 
         tr.innerHTML = `
@@ -532,15 +386,11 @@ ordenados.forEach(
                 <strong>
                     ${escapeHTML(
                         ticket.folio ||
-                        "#" + (
-                            ticket.id ||
-                            ""
-                        )
+                        "#" + (ticket.id || "")
                     )}
                 </strong>
 
             </td>
-
 
 
             <td>
@@ -557,7 +407,6 @@ ordenados.forEach(
             </td>
 
 
-
             <td>
 
                 ${escapeHTML(
@@ -567,7 +416,6 @@ ordenados.forEach(
                 )}
 
             </td>
-
 
 
             <td>
@@ -580,7 +428,6 @@ ordenados.forEach(
             </td>
 
 
-
             <td>
 
                 ${escapeHTML(
@@ -589,7 +436,6 @@ ordenados.forEach(
                 )}
 
             </td>
-
 
 
             <td>
@@ -612,7 +458,6 @@ ordenados.forEach(
             </td>
 
 
-
             <td>
 
                 <span
@@ -633,7 +478,6 @@ ordenados.forEach(
             </td>
 
 
-
             <td>
 
                 ${formatearFecha(
@@ -641,7 +485,6 @@ ordenados.forEach(
                 )}
 
             </td>
-
 
 
             <td>
@@ -653,12 +496,11 @@ ordenados.forEach(
             </td>
 
 
-
             <td>
 
                 <a
                     href="detalle-ticket.html?id=${encodeURIComponent(
-                        ticket.id
+                        ticket.id || ""
                     )}"
                     class="btn-view"
                 >
@@ -675,195 +517,160 @@ ordenados.forEach(
 
         `;
 
+        tbody.appendChild(tr);
 
-        tbody.appendChild(
-            tr
-        );
-
-    }
-);
+    });
 
 
-actualizarResultado(
-    ordenados.length
-);
-```
+    actualizarResultado(
+        ordenados.length
+    );
 
 }
 
+
 /* =========================================================
-CONFIGURAR EVENTOS
+   CONFIGURAR EVENTOS
 ========================================================= */
 
 function configurarEventos() {
 
-```
-const filtroEstatus =
-    document.getElementById(
-        "filtroEstatus"
-    );
+    const filtroEstatus =
+        document.getElementById(
+            "filtroEstatus"
+        );
+
+    const filtroPrioridad =
+        document.getElementById(
+            "filtroPrioridad"
+        );
+
+    const filtroBusqueda =
+        document.getElementById(
+            "filtroBusqueda"
+        );
+
+    const limpiarFiltros =
+        document.getElementById(
+            "limpiarFiltros"
+        );
 
 
-const filtroPrioridad =
-    document.getElementById(
-        "filtroPrioridad"
-    );
+    /* -----------------------------------------------------
+       ESTATUS
+    ----------------------------------------------------- */
+
+    if (filtroEstatus) {
+
+        filtroEstatus.addEventListener(
+            "change",
+            aplicarFiltros
+        );
+
+    }
 
 
-const filtroBusqueda =
-    document.getElementById(
-        "filtroBusqueda"
-    );
+    /* -----------------------------------------------------
+       PRIORIDAD
+    ----------------------------------------------------- */
+
+    if (filtroPrioridad) {
+
+        filtroPrioridad.addEventListener(
+            "change",
+            aplicarFiltros
+        );
+
+    }
 
 
-const limpiarFiltros =
-    document.getElementById(
-        "limpiarFiltros"
-    );
+    /* -----------------------------------------------------
+       BÚSQUEDA
+    ----------------------------------------------------- */
+
+    if (filtroBusqueda) {
+
+        filtroBusqueda.addEventListener(
+            "input",
+            aplicarFiltros
+        );
+
+    }
 
 
+    /* -----------------------------------------------------
+       LIMPIAR
+    ----------------------------------------------------- */
 
-/* =================================================
-   FILTRO ESTATUS
-================================================== */
+    if (limpiarFiltros) {
 
-if (filtroEstatus) {
+        limpiarFiltros.addEventListener(
+            "click",
+            function () {
 
-    filtroEstatus.addEventListener(
-        "change",
-        aplicarFiltros
-    );
+                if (filtroEstatus) {
+                    filtroEstatus.value = "";
+                }
 
-}
+                if (filtroPrioridad) {
+                    filtroPrioridad.value = "";
+                }
 
+                if (filtroBusqueda) {
+                    filtroBusqueda.value = "";
+                }
 
-
-/* =================================================
-   FILTRO PRIORIDAD
-================================================== */
-
-if (filtroPrioridad) {
-
-    filtroPrioridad.addEventListener(
-        "change",
-        aplicarFiltros
-    );
-
-}
-
-
-
-/* =================================================
-   BUSCADOR
-================================================== */
-
-if (filtroBusqueda) {
-
-    filtroBusqueda.addEventListener(
-        "input",
-        aplicarFiltros
-    );
-
-}
-
-
-
-/* =================================================
-   LIMPIAR FILTROS
-================================================== */
-
-if (limpiarFiltros) {
-
-    limpiarFiltros.addEventListener(
-        "click",
-        () => {
-
-            if (filtroEstatus) {
-
-                filtroEstatus.value =
-                    "";
-
-            }
-
-
-            if (filtroPrioridad) {
-
-                filtroPrioridad.value =
-                    "";
+                aplicarFiltros();
 
             }
+        );
 
-
-            if (filtroBusqueda) {
-
-                filtroBusqueda.value =
-                    "";
-
-            }
-
-
-            aplicarFiltros();
-
-        }
-    );
+    }
 
 }
-```
 
-}
 
 /* =========================================================
-APLICAR FILTROS
+   APLICAR FILTROS
 ========================================================= */
 
 function aplicarFiltros() {
 
-```
-const tickets =
-    obtenerTicketsAdmin();
+    const tickets =
+        obtenerTicketsAdmin();
 
-
-const estatus =
-    document.getElementById(
-        "filtroEstatus"
-    )?.value ||
-    "";
-
-
-const prioridad =
-    document.getElementById(
-        "filtroPrioridad"
-    )?.value ||
-    "";
-
-
-const busqueda =
-    (
+    const estatus =
         document.getElementById(
-            "filtroBusqueda"
-        )?.value ||
-        ""
-    )
-    .trim()
-    .toLowerCase();
+            "filtroEstatus"
+        )?.value || "";
+
+    const prioridad =
+        document.getElementById(
+            "filtroPrioridad"
+        )?.value || "";
+
+    const busqueda =
+        (
+            document.getElementById(
+                "filtroBusqueda"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
 
 
+    const filtrados =
+        tickets.filter(function (ticket) {
 
-const filtrados =
-    tickets.filter(
-        ticket => {
-
-
-            /* =====================================
+            /* ---------------------------------------------
                ESTATUS
-            ===================================== */
+            --------------------------------------------- */
 
             if (
                 estatus &&
                 normalizarEstatus(
                     ticket.estatus
-                ) !==
-                estatus
+                ) !== estatus
             ) {
 
                 return false;
@@ -871,18 +678,15 @@ const filtrados =
             }
 
 
-
-            /* =====================================
+            /* ---------------------------------------------
                PRIORIDAD
-            ===================================== */
+            --------------------------------------------- */
 
             if (
                 prioridad &&
                 String(
-                    ticket.prioridad ||
-                    ""
-                ) !==
-                prioridad
+                    ticket.prioridad || ""
+                ) !== prioridad
             ) {
 
                 return false;
@@ -890,39 +694,25 @@ const filtrados =
             }
 
 
-
-            /* =====================================
+            /* ---------------------------------------------
                BÚSQUEDA
-            ===================================== */
+            --------------------------------------------- */
 
-            if (
-                busqueda
-            ) {
+            if (busqueda) {
 
                 const contenido = [
 
                     ticket.id,
-
                     ticket.folio,
-
                     ticket.titulo,
-
                     ticket.descripcion,
-
                     ticket.empleado,
-
                     ticket.contacto,
-
                     ticket.usuario,
-
                     ticket.nombre_usuario,
-
                     ticket.division,
-
                     ticket.area,
-
                     ticket.categoria,
-
                     ticket.tecnico
 
                 ]
@@ -945,268 +735,209 @@ const filtrados =
 
             return true;
 
+        });
+
+
+    renderizarTickets(
+        filtrados
+    );
+
+}
+
+
+/* =========================================================
+   RESULTADO
+========================================================= */
+
+function actualizarResultado(cantidad) {
+
+    const elemento =
+        document.getElementById(
+            "resultadoTickets"
+        );
+
+    if (!elemento) {
+        return;
+    }
+
+    elemento.textContent =
+        cantidad === 1
+            ? "Mostrando 1 ticket"
+            : `Mostrando ${cantidad} tickets`;
+
+}
+
+
+/* =========================================================
+   NORMALIZAR ESTATUS
+========================================================= */
+
+function normalizarEstatus(estatus) {
+
+    const valor =
+        String(
+            estatus || ""
+        )
+        .trim()
+        .toLowerCase();
+
+    const mapa = {
+
+        "registrado":
+            "Registrado",
+
+        "pendiente":
+            "Pendiente",
+
+        "en proceso":
+            "En Proceso",
+
+        "en-proceso":
+            "En Proceso",
+
+        "resuelto":
+            "Resuelto",
+
+        "cancelado":
+            "Cancelado",
+
+        "cerrado":
+            "Cerrado"
+
+    };
+
+    return (
+        mapa[valor] ||
+        estatus ||
+        "Registrado"
+    );
+
+}
+
+
+/* =========================================================
+   NORMALIZAR CLASE CSS
+========================================================= */
+
+function normalizarClase(valor) {
+
+    return String(
+        valor || ""
+    )
+    .normalize("NFD")
+    .replace(
+        /[\u0300-\u036f]/g,
+        ""
+    )
+    .toLowerCase()
+    .replace(
+        /\s+/g,
+        "-"
+    )
+    .replace(
+        /[^a-z0-9-]/g,
+        ""
+    );
+
+}
+
+
+/* =========================================================
+   FORMATEAR FECHA
+========================================================= */
+
+function formatearFecha(fecha) {
+
+    if (!fecha) {
+        return "-";
+    }
+
+    const fechaObj =
+        obtenerFecha(fecha);
+
+    if (
+        isNaN(
+            fechaObj.getTime()
+        )
+    ) {
+
+        return escapeHTML(
+            String(fecha)
+        );
+
+    }
+
+    return fechaObj.toLocaleString(
+        "es-MX",
+        {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
         }
     );
 
-
-renderizarTickets(
-    filtrados
-);
-```
-
 }
+
 
 /* =========================================================
-RESULTADO
+   OBTENER FECHA
 ========================================================= */
 
-function actualizarResultado(
-cantidad
-) {
+function obtenerFecha(fecha) {
 
-```
-const elemento =
-    document.getElementById(
-        "resultadoTickets"
-    );
-
-
-if (!elemento) {
-
-    return;
-
-}
-
-
-elemento.textContent =
-    cantidad === 1
-
-        ? "Mostrando 1 ticket"
-
-        : `Mostrando ${cantidad} tickets`;
-```
-
-}
-
-/* =========================================================
-NORMALIZAR ESTATUS
-========================================================= */
-
-function normalizarEstatus(
-estatus
-) {
-
-```
-const valor =
-    String(
-        estatus ||
-        ""
-    )
-    .trim()
-    .toLowerCase();
-
-
-const mapa = {
-
-    "registrado":
-        "Registrado",
-
-    "pendiente":
-        "Pendiente",
-
-    "en proceso":
-        "En Proceso",
-
-    "en-proceso":
-        "En Proceso",
-
-    "resuelto":
-        "Resuelto",
-
-    "cancelado":
-        "Cancelado",
-
-    "cerrado":
-        "Cerrado"
-
-};
-
-
-return (
-    mapa[
-        valor
-    ] ||
-    estatus ||
-    "Registrado"
-);
-```
-
-}
-
-/* =========================================================
-NORMALIZAR CLASE CSS
-========================================================= */
-
-function normalizarClase(
-valor
-) {
-
-```
-return String(
-    valor ||
-    ""
-)
-.normalize("NFD")
-.replace(
-    /[\u0300-\u036f]/g,
-    ""
-)
-.toLowerCase()
-.replace(
-    /\s+/g,
-    "-"
-)
-.replace(
-    /[^a-z0-9-]/g,
-    ""
-);
-```
-
-}
-
-/* =========================================================
-FORMATEAR FECHA
-========================================================= */
-
-function formatearFecha(
-fecha
-) {
-
-```
-if (!fecha) {
-
-    return "-";
-
-}
-
-
-const fechaObj =
-    obtenerFecha(
-        fecha
-    );
-
-
-if (
-    isNaN(
-        fechaObj.getTime()
-    )
-) {
-
-    return escapeHTML(
-        String(fecha)
-    );
-
-}
-
-
-return fechaObj.toLocaleString(
-    "es-MX",
-    {
-        day:
-            "2-digit",
-
-        month:
-            "2-digit",
-
-        year:
-            "numeric",
-
-        hour:
-            "2-digit",
-
-        minute:
-            "2-digit"
+    if (fecha instanceof Date) {
+        return fecha;
     }
-);
-```
+
+    const resultado =
+        new Date(fecha);
+
+    if (
+        !isNaN(
+            resultado.getTime()
+        )
+    ) {
+
+        return resultado;
+
+    }
+
+    return new Date(0);
 
 }
+
 
 /* =========================================================
-OBTENER FECHA
+   ESCAPE HTML
 ========================================================= */
 
-function obtenerFecha(
-fecha
-) {
+function escapeHTML(valor) {
 
-```
-if (
-    fecha instanceof Date
-) {
-
-    return fecha;
-
-}
-
-
-const resultado =
-    new Date(
-        fecha
+    return String(
+        valor ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
     );
 
-
-if (
-    !isNaN(
-        resultado.getTime()
-    )
-) {
-
-    return resultado;
-
 }
-
-
-return new Date(
-    0
-);
 ```
-
-}
-
-/* =========================================================
-ESCAPE HTML
-========================================================= */
-
-function escapeHTML(
-valor
-) {
-
-```
-return String(
-    valor ??
-    ""
-)
-.replace(
-    /&/g,
-    "&amp;"
-)
-.replace(
-    /</g,
-    "&lt;"
-)
-.replace(
-    />/g,
-    "&gt;"
-)
-.replace(
-    /"/g,
-    "&quot;"
-)
-.replace(
-    /'/g,
-    "&#039;"
-);
-```
-
-}

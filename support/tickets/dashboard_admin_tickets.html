@@ -31,6 +31,11 @@
     href="../css/layout-corporate.css"
 >
 
+<link
+    rel="stylesheet"
+    href="css/dashboard-dark.css"
+>
+
 
 <!-- ==================================================
      ICONOS
@@ -40,941 +45,6 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
 >
-
-
-<!-- ==================================================
-     ESTILOS DEL DASHBOARD
-================================================== -->
-
-<style>
-
-    /* =================================================
-       CONTENT
-    ================================================= */
-
-    .dashboard-content{
-
-        width:100%;
-
-    }
-
-
-    /* =================================================
-       HEADER
-    ================================================= */
-
-    .dashboard-header{
-
-        display:flex;
-
-        justify-content:space-between;
-
-        align-items:flex-start;
-
-        gap:20px;
-
-        margin-bottom:25px;
-
-    }
-
-
-    .dashboard-header h2{
-
-        margin:0 0 6px;
-
-        font-size:28px;
-
-        font-weight:800;
-
-        color:#54565a;
-
-    }
-
-
-    .dashboard-header p{
-
-        margin:0;
-
-        color:#968C83;
-
-        font-size:14px;
-
-    }
-
-
-    .dashboard-date{
-
-        color:#968C83;
-
-        font-size:12px;
-
-        text-align:right;
-
-    }
-
-
-    /* =================================================
-       KPI GRID
-    ================================================= */
-
-    .dashboard-kpi-grid{
-
-        display:grid;
-
-        grid-template-columns:
-        repeat(auto-fit,minmax(190px,1fr));
-
-        gap:18px;
-
-        margin-bottom:25px;
-
-    }
-
-
-    /* =================================================
-       KPI CARD
-    ================================================= */
-
-    .dashboard-kpi{
-
-        position:relative;
-
-        overflow:hidden;
-
-        background:#ffffff;
-
-        border:
-
-        1px solid #e9edf3;
-
-        border-radius:18px;
-
-        padding:21px;
-
-        box-shadow:
-
-        0 5px 18px rgba(0,0,0,.05);
-
-        transition:.2s ease;
-
-    }
-
-
-    .dashboard-kpi:hover{
-
-        transform:translateY(-3px);
-
-        box-shadow:
-
-        0 10px 25px rgba(0,0,0,.08);
-
-    }
-
-
-    .dashboard-kpi::before{
-
-        content:"";
-
-        position:absolute;
-
-        left:0;
-
-        top:0;
-
-        width:4px;
-
-        height:100%;
-
-        background:#c8102e;
-
-    }
-
-
-    .dashboard-kpi-top{
-
-        display:flex;
-
-        justify-content:space-between;
-
-        align-items:center;
-
-        margin-bottom:15px;
-
-    }
-
-
-    .dashboard-kpi-icon{
-
-        width:42px;
-
-        height:42px;
-
-        border-radius:12px;
-
-        display:flex;
-
-        align-items:center;
-
-        justify-content:center;
-
-        background:#f3f4f6;
-
-        color:#54565a;
-
-        font-size:18px;
-
-    }
-
-
-    .dashboard-kpi-label{
-
-        display:block;
-
-        color:#968C83;
-
-        font-size:11px;
-
-        font-weight:700;
-
-        text-transform:uppercase;
-
-        letter-spacing:.4px;
-
-        margin-bottom:8px;
-
-    }
-
-
-    .dashboard-kpi-value{
-
-        margin:0;
-
-        color:#54565a;
-
-        font-size:34px;
-
-        line-height:1;
-
-        font-weight:800;
-
-    }
-
-
-    /* =================================================
-       KPI COLORS
-    ================================================= */
-
-    .kpi-total::before{
-        background:#c8102e;
-    }
-
-    .kpi-registrado::before{
-        background:#2563eb;
-    }
-
-    .kpi-proceso::before{
-        background:#f59e0b;
-    }
-
-    .kpi-pendiente::before{
-        background:#d97706;
-    }
-
-    .kpi-resuelto::before{
-        background:#16a34a;
-    }
-
-    .kpi-cancelado::before{
-        background:#dc2626;
-    }
-
-    .kpi-cerrado::before{
-        background:#6b7280;
-    }
-
-
-    /* =================================================
-       MAIN GRID
-    ================================================= */
-
-    .dashboard-main-grid{
-
-        display:grid;
-
-        grid-template-columns:
-
-        minmax(0,2fr)
-
-        minmax(280px,1fr);
-
-        gap:20px;
-
-        margin-bottom:25px;
-
-    }
-
-
-    /* =================================================
-       PANEL
-    ================================================= */
-
-    .dashboard-panel{
-
-        background:#ffffff;
-
-        border:
-
-        1px solid #e9edf3;
-
-        border-radius:18px;
-
-        box-shadow:
-
-        0 5px 18px rgba(0,0,0,.05);
-
-        overflow:hidden;
-
-    }
-
-
-    .dashboard-panel-header{
-
-        display:flex;
-
-        justify-content:space-between;
-
-        align-items:center;
-
-        gap:15px;
-
-        padding:18px 20px;
-
-        border-bottom:
-
-        1px solid #edf0f4;
-
-    }
-
-
-    .dashboard-panel-header h3{
-
-        margin:0;
-
-        font-size:15px;
-
-        font-weight:800;
-
-        color:#374151;
-
-    }
-
-
-    .dashboard-panel-header span{
-
-        font-size:11px;
-
-        color:#968C83;
-
-    }
-
-
-    .dashboard-panel-body{
-
-        padding:20px;
-
-    }
-
-
-    /* =================================================
-       STATUS SUMMARY
-    ================================================= */
-
-    .status-list{
-
-        display:flex;
-
-        flex-direction:column;
-
-        gap:14px;
-
-    }
-
-
-    .status-row{
-
-        display:grid;
-
-        grid-template-columns:
-
-        130px
-
-        1fr
-
-        45px;
-
-        align-items:center;
-
-        gap:12px;
-
-    }
-
-
-    .status-name{
-
-        font-size:12px;
-
-        font-weight:700;
-
-        color:#374151;
-
-    }
-
-
-    .status-bar{
-
-        height:9px;
-
-        background:#f1f5f9;
-
-        border-radius:50px;
-
-        overflow:hidden;
-
-    }
-
-
-    .status-bar-fill{
-
-        height:100%;
-
-        width:0%;
-
-        border-radius:50px;
-
-        transition:
-
-        width .5s ease;
-
-    }
-
-
-    .status-number{
-
-        text-align:right;
-
-        font-size:12px;
-
-        font-weight:800;
-
-        color:#54565a;
-
-    }
-
-
-    .bar-registrado{
-
-        background:#2563eb;
-
-    }
-
-
-    .bar-proceso{
-
-        background:#f59e0b;
-
-    }
-
-
-    .bar-pendiente{
-
-        background:#d97706;
-
-    }
-
-
-    .bar-resuelto{
-
-        background:#16a34a;
-
-    }
-
-
-    .bar-cancelado{
-
-        background:#dc2626;
-
-    }
-
-
-    .bar-cerrado{
-
-        background:#6b7280;
-
-    }
-
-
-    /* =================================================
-       PRIORITY
-    ================================================= */
-
-    .priority-list{
-
-        display:flex;
-
-        flex-direction:column;
-
-        gap:16px;
-
-    }
-
-
-    .priority-row{
-
-        display:flex;
-
-        justify-content:space-between;
-
-        align-items:center;
-
-        padding:12px 14px;
-
-        border-radius:12px;
-
-        background:#f8fafc;
-
-    }
-
-
-    .priority-info{
-
-        display:flex;
-
-        align-items:center;
-
-        gap:10px;
-
-    }
-
-
-    .priority-dot{
-
-        width:10px;
-
-        height:10px;
-
-        border-radius:50%;
-
-    }
-
-
-    .priority-label{
-
-        font-size:12px;
-
-        font-weight:700;
-
-        color:#374151;
-
-    }
-
-
-    .priority-count{
-
-        font-size:14px;
-
-        font-weight:800;
-
-        color:#54565a;
-
-    }
-
-
-    .dot-baja{
-
-        background:#16a34a;
-
-    }
-
-
-    .dot-media{
-
-        background:#f59e0b;
-
-    }
-
-
-    .dot-alta{
-
-        background:#dc2626;
-
-    }
-
-
-    .dot-critica{
-
-        background:#7f1d1d;
-
-    }
-
-
-    /* =================================================
-       RECENT TICKETS
-    ================================================= */
-
-    .recent-ticket-list{
-
-        display:flex;
-
-        flex-direction:column;
-
-    }
-
-
-    .recent-ticket{
-
-        display:grid;
-
-        grid-template-columns:
-
-        95px
-
-        minmax(0,1fr)
-
-        110px
-
-        90px;
-
-        gap:15px;
-
-        align-items:center;
-
-        padding:14px 0;
-
-        border-bottom:
-
-        1px solid #edf0f4;
-
-    }
-
-
-    .recent-ticket:last-child{
-
-        border-bottom:none;
-
-    }
-
-
-    .recent-ticket-id{
-
-        color:#c8102e;
-
-        font-size:11px;
-
-        font-weight:800;
-
-    }
-
-
-    .recent-ticket-title{
-
-        min-width:0;
-
-    }
-
-
-    .recent-ticket-title strong{
-
-        display:block;
-
-        color:#374151;
-
-        font-size:12px;
-
-        white-space:nowrap;
-
-        overflow:hidden;
-
-        text-overflow:ellipsis;
-
-    }
-
-
-    .recent-ticket-title span{
-
-        display:block;
-
-        margin-top:3px;
-
-        color:#968C83;
-
-        font-size:10px;
-
-    }
-
-
-    .recent-status{
-
-        display:inline-flex;
-
-        justify-content:center;
-
-        align-items:center;
-
-        padding:5px 8px;
-
-        border-radius:50px;
-
-        font-size:10px;
-
-        font-weight:700;
-
-        white-space:nowrap;
-
-    }
-
-
-    .recent-date{
-
-        color:#968C83;
-
-        font-size:10px;
-
-        text-align:right;
-
-    }
-
-
-    /* =================================================
-       QUICK ACTIONS
-    ================================================= */
-
-    .quick-actions{
-
-        display:grid;
-
-        grid-template-columns:
-
-        repeat(2,1fr);
-
-        gap:10px;
-
-    }
-
-
-    .quick-action{
-
-        display:flex;
-
-        align-items:center;
-
-        gap:10px;
-
-        padding:13px;
-
-        border-radius:12px;
-
-        background:#f8fafc;
-
-        color:#374151;
-
-        text-decoration:none;
-
-        font-size:11px;
-
-        font-weight:700;
-
-        transition:.2s ease;
-
-    }
-
-
-    .quick-action:hover{
-
-        background:#f1f5f9;
-
-        transform:translateY(-1px);
-
-    }
-
-
-    .quick-action i{
-
-        width:32px;
-
-        height:32px;
-
-        border-radius:9px;
-
-        display:flex;
-
-        align-items:center;
-
-        justify-content:center;
-
-        background:#ffffff;
-
-        color:#c8102e;
-
-    }
-
-
-    /* =================================================
-       EMPTY
-    ================================================= */
-
-    .dashboard-empty{
-
-        text-align:center;
-
-        padding:30px 15px;
-
-        color:#968C83;
-
-    }
-
-
-    .dashboard-empty i{
-
-        font-size:30px;
-
-        margin-bottom:10px;
-
-        opacity:.5;
-
-    }
-
-
-    .dashboard-empty strong{
-
-        display:block;
-
-        color:#54565a;
-
-        font-size:13px;
-
-        margin-bottom:5px;
-
-    }
-
-
-    .dashboard-empty span{
-
-        font-size:11px;
-
-    }
-
-
-    /* =================================================
-       RESPONSIVE
-    ================================================= */
-
-    @media(max-width:1100px){
-
-        .dashboard-main-grid{
-
-            grid-template-columns:1fr;
-
-        }
-
-    }
-
-
-    @media(max-width:800px){
-
-        .dashboard-kpi-grid{
-
-            grid-template-columns:
-
-            repeat(2,1fr);
-
-        }
-
-
-        .recent-ticket{
-
-            grid-template-columns:
-
-            80px
-
-            minmax(0,1fr)
-
-            90px;
-
-        }
-
-
-        .recent-date{
-
-            display:none;
-
-        }
-
-    }
-
-
-    @media(max-width:600px){
-
-        .dashboard-header{
-
-            flex-direction:column;
-
-        }
-
-
-        .dashboard-date{
-
-            text-align:left;
-
-        }
-
-
-        .dashboard-kpi-grid{
-
-            grid-template-columns:1fr;
-
-        }
-
-
-        .status-row{
-
-            grid-template-columns:
-
-            100px
-
-            1fr
-
-            35px;
-
-        }
-
-
-        .recent-ticket{
-
-            grid-template-columns:
-
-            1fr
-
-            90px;
-
-        }
-
-
-        .recent-ticket-id{
-
-            display:none;
-
-        }
-
-
-        .quick-actions{
-
-            grid-template-columns:1fr;
-
-        }
-
-    }
-
-</style>
 ```
 
 </head>
@@ -996,7 +66,7 @@
 
 
 <!-- ==================================================
-     MAIN
+     MAIN CONTENT
 ================================================== -->
 
 <main class="main-content">
@@ -1016,7 +86,6 @@
         </div>
 
 
-
         <div class="topbar-user">
 
 
@@ -1024,27 +93,20 @@
                 class="user-avatar"
                 id="userAvatar"
             >
-
                 A
-
             </div>
-
 
 
             <div class="user-info">
 
 
                 <strong id="userName">
-
                     Administrador
-
                 </strong>
 
 
                 <span>
-
-                    Support Portal
-
+                    Newsroom Portal
                 </span>
 
 
@@ -1062,43 +124,44 @@
          CONTENT
     ================================================== -->
 
-    <section class="content dashboard-content">
+    <section class="content">
 
 
         <!-- ==================================================
              HEADER
         ================================================== -->
 
-        <div class="dashboard-header">
+        <div class="page-header">
 
 
             <div>
 
-
                 <h2>
-
-                    Centro de Control de Tickets
-
+                    Dashboard Operativo
                 </h2>
 
-
-                <p>
-
-                    Resumen operativo y seguimiento
-                    general de incidencias.
-
+                <p class="page-subtitle">
+                    Monitoreo general de tickets y operación de soporte
                 </p>
-
 
             </div>
 
 
-            <div
-                class="dashboard-date"
-                id="dashboardDate"
-            >
+            <div class="dashboard-actions">
 
-                --
+
+                <button
+                    type="button"
+                    class="btn-primary"
+                    id="btnActualizar"
+                >
+
+                    <i class="fa-solid fa-rotate"></i>
+
+                    Actualizar
+
+                </button>
+
 
             </div>
 
@@ -1108,252 +171,239 @@
 
 
         <!-- ==================================================
-             KPIs
+             KPI GRID
         ================================================== -->
 
         <div class="dashboard-kpi-grid">
 
 
-            <div class="dashboard-kpi kpi-total">
+            <!-- TOTAL -->
 
-                <div class="dashboard-kpi-top">
+            <div class="dashboard-kpi-card">
 
-                    <div
-                        class="dashboard-kpi-icon"
-                    >
 
-                        <i class="fa-solid fa-ticket"></i>
+                <div class="dashboard-kpi-icon">
 
-                    </div>
+                    <i class="fa-solid fa-ticket"></i>
 
                 </div>
 
 
-                <span class="dashboard-kpi-label">
+                <div>
 
-                    Total Tickets
+                    <span>
+                        Total Tickets
+                    </span>
 
-                </span>
+                    <strong id="kpiTotal">
+                        0
+                    </strong>
 
+                </div>
 
-                <h3
-                    class="dashboard-kpi-value"
-                    id="kpiTotal"
-                >
-
-                    0
-
-                </h3>
 
             </div>
 
 
 
-            <div class="dashboard-kpi kpi-registrado">
+            <!-- REGISTRADOS -->
 
-                <div class="dashboard-kpi-top">
+            <div class="dashboard-kpi-card">
 
-                    <div
-                        class="dashboard-kpi-icon"
-                    >
 
-                        <i class="fa-solid fa-circle-plus"></i>
+                <div class="dashboard-kpi-icon">
 
-                    </div>
+                    <i class="fa-solid fa-inbox"></i>
 
                 </div>
 
 
-                <span class="dashboard-kpi-label">
+                <div>
 
-                    Registrados
+                    <span>
+                        Registrados
+                    </span>
 
-                </span>
+                    <strong id="kpiRegistrados">
+                        0
+                    </strong>
 
+                </div>
 
-                <h3
-                    class="dashboard-kpi-value"
-                    id="kpiRegistrados"
-                >
-
-                    0
-
-                </h3>
 
             </div>
 
 
 
-            <div class="dashboard-kpi kpi-proceso">
+            <!-- PENDIENTES -->
 
-                <div class="dashboard-kpi-top">
+            <div class="dashboard-kpi-card">
 
-                    <div
-                        class="dashboard-kpi-icon"
-                    >
 
-                        <i class="fa-solid fa-spinner"></i>
+                <div class="dashboard-kpi-icon">
 
-                    </div>
+                    <i class="fa-solid fa-clock"></i>
 
                 </div>
 
 
-                <span class="dashboard-kpi-label">
+                <div>
 
-                    En Proceso
+                    <span>
+                        Pendientes
+                    </span>
 
-                </span>
+                    <strong id="kpiPendientes">
+                        0
+                    </strong>
 
+                </div>
 
-                <h3
-                    class="dashboard-kpi-value"
-                    id="kpiProceso"
-                >
-
-                    0
-
-                </h3>
 
             </div>
 
 
 
-            <div class="dashboard-kpi kpi-pendiente">
+            <!-- EN PROCESO -->
 
-                <div class="dashboard-kpi-top">
+            <div class="dashboard-kpi-card">
 
-                    <div
-                        class="dashboard-kpi-icon"
-                    >
 
-                        <i class="fa-solid fa-clock"></i>
+                <div class="dashboard-kpi-icon">
 
-                    </div>
+                    <i class="fa-solid fa-spinner"></i>
 
                 </div>
 
 
-                <span class="dashboard-kpi-label">
+                <div>
 
-                    Pendientes
+                    <span>
+                        En Proceso
+                    </span>
 
-                </span>
+                    <strong id="kpiProceso">
+                        0
+                    </strong>
 
+                </div>
 
-                <h3
-                    class="dashboard-kpi-value"
-                    id="kpiPendientes"
-                >
-
-                    0
-
-                </h3>
 
             </div>
 
 
 
-            <div class="dashboard-kpi kpi-resuelto">
+            <!-- RESUELTOS -->
 
-                <div class="dashboard-kpi-top">
+            <div class="dashboard-kpi-card">
 
-                    <div
-                        class="dashboard-kpi-icon"
-                    >
 
-                        <i class="fa-solid fa-circle-check"></i>
+                <div class="dashboard-kpi-icon">
 
-                    </div>
+                    <i class="fa-solid fa-circle-check"></i>
 
                 </div>
 
 
-                <span class="dashboard-kpi-label">
+                <div>
 
-                    Resueltos
+                    <span>
+                        Resueltos
+                    </span>
 
-                </span>
+                    <strong id="kpiResueltos">
+                        0
+                    </strong>
 
+                </div>
 
-                <h3
-                    class="dashboard-kpi-value"
-                    id="kpiResueltos"
-                >
-
-                    0
-
-                </h3>
 
             </div>
 
 
 
-            <div class="dashboard-kpi kpi-cancelado">
+            <!-- CANCELADOS -->
 
-                <div class="dashboard-kpi-top">
+            <div class="dashboard-kpi-card">
 
-                    <div
-                        class="dashboard-kpi-icon"
-                    >
 
-                        <i class="fa-solid fa-circle-xmark"></i>
+                <div class="dashboard-kpi-icon">
 
-                    </div>
+                    <i class="fa-solid fa-ban"></i>
 
                 </div>
 
 
-                <span class="dashboard-kpi-label">
+                <div>
 
-                    Cancelados
+                    <span>
+                        Cancelados
+                    </span>
 
-                </span>
+                    <strong id="kpiCancelados">
+                        0
+                    </strong>
 
+                </div>
 
-                <h3
-                    class="dashboard-kpi-value"
-                    id="kpiCancelados"
-                >
-
-                    0
-
-                </h3>
 
             </div>
 
 
 
-            <div class="dashboard-kpi kpi-cerrado">
+            <!-- CERRADOS -->
 
-                <div class="dashboard-kpi-top">
+            <div class="dashboard-kpi-card">
 
-                    <div
-                        class="dashboard-kpi-icon"
-                    >
 
-                        <i class="fa-solid fa-lock"></i>
+                <div class="dashboard-kpi-icon">
 
-                    </div>
+                    <i class="fa-solid fa-lock"></i>
 
                 </div>
 
 
-                <span class="dashboard-kpi-label">
+                <div>
 
-                    Cerrados
+                    <span>
+                        Cerrados
+                    </span>
 
-                </span>
+                    <strong id="kpiCerrados">
+                        0
+                    </strong>
+
+                </div>
 
 
-                <h3
-                    class="dashboard-kpi-value"
-                    id="kpiCerrados"
-                >
+            </div>
 
-                    0
 
-                </h3>
+
+            <!-- SIN ASIGNAR -->
+
+            <div class="dashboard-kpi-card">
+
+
+                <div class="dashboard-kpi-icon">
+
+                    <i class="fa-solid fa-user-clock"></i>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Sin Asignar
+                    </span>
+
+                    <strong id="kpiSinAsignar">
+                        0
+                    </strong>
+
+                </div>
+
 
             </div>
 
@@ -1363,202 +413,218 @@
 
 
         <!-- ==================================================
-             MAIN DASHBOARD GRID
+             FILTROS
         ================================================== -->
 
-        <div class="dashboard-main-grid">
+        <div class="dashboard-filter-card">
 
 
-            <!-- ==================================================
-                 ESTATUS
-            ================================================== -->
+            <div class="filter-title">
+
+                <i class="fa-solid fa-filter"></i>
+
+                Filtros
+
+            </div>
+
+
+            <div class="dashboard-filters">
+
+
+                <!-- ESTATUS -->
+
+                <div class="filter-group">
+
+
+                    <label for="filtroEstatus">
+                        Estatus
+                    </label>
+
+
+                    <select id="filtroEstatus">
+
+                        <option value="">
+                            Todos
+                        </option>
+
+                        <option value="Registrado">
+                            Registrado
+                        </option>
+
+                        <option value="Pendiente">
+                            Pendiente
+                        </option>
+
+                        <option value="En Proceso">
+                            En Proceso
+                        </option>
+
+                        <option value="Resuelto">
+                            Resuelto
+                        </option>
+
+                        <option value="Cancelado">
+                            Cancelado
+                        </option>
+
+                        <option value="Cerrado">
+                            Cerrado
+                        </option>
+
+                    </select>
+
+
+                </div>
+
+
+
+                <!-- PRIORIDAD -->
+
+                <div class="filter-group">
+
+
+                    <label for="filtroPrioridad">
+                        Prioridad
+                    </label>
+
+
+                    <select id="filtroPrioridad">
+
+                        <option value="">
+                            Todas
+                        </option>
+
+                        <option value="Crítica">
+                            Crítica
+                        </option>
+
+                        <option value="Alta">
+                            Alta
+                        </option>
+
+                        <option value="Media">
+                            Media
+                        </option>
+
+                        <option value="Baja">
+                            Baja
+                        </option>
+
+                    </select>
+
+
+                </div>
+
+
+
+                <!-- DIVISIÓN -->
+
+                <div class="filter-group">
+
+
+                    <label for="filtroDivision">
+                        División
+                    </label>
+
+
+                    <select id="filtroDivision">
+
+                        <option value="">
+                            Todas
+                        </option>
+
+                    </select>
+
+
+                </div>
+
+
+
+                <!-- TÉCNICO -->
+
+                <div class="filter-group">
+
+
+                    <label for="filtroTecnico">
+                        Técnico
+                    </label>
+
+
+                    <select id="filtroTecnico">
+
+                        <option value="">
+                            Todos
+                        </option>
+
+                    </select>
+
+
+                </div>
+
+
+
+                <!-- BÚSQUEDA -->
+
+                <div class="filter-group filter-search">
+
+
+                    <label for="filtroBusqueda">
+                        Buscar
+                    </label>
+
+
+                    <input
+                        type="search"
+                        id="filtroBusqueda"
+                        placeholder="Ticket, título, empleado..."
+                    >
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- ==================================================
+             RESUMEN OPERATIVO
+        ================================================== -->
+
+        <div class="dashboard-columns">
+
+
+            <!-- PRIORIDADES -->
 
             <div class="dashboard-panel">
 
 
                 <div class="dashboard-panel-header">
 
+                    <div>
 
-                    <h3>
+                        <h3>
+                            Tickets por Prioridad
+                        </h3>
 
-                        Distribución por Estatus
+                        <p>
+                            Distribución actual
+                        </p>
 
-                    </h3>
-
-
-                    <span>
-
-                        Tickets actuales
-
-                    </span>
-
+                    </div>
 
                 </div>
 
 
-                <div class="dashboard-panel-body">
+                <div
+                    id="prioridadesContainer"
+                    class="dashboard-summary-list"
+                >
 
-
-                    <div class="status-list">
-
-
-                        <div class="status-row">
-
-                            <span class="status-name">
-                                Registrados
-                            </span>
-
-                            <div class="status-bar">
-
-                                <div
-                                    class="status-bar-fill bar-registrado"
-                                    id="barRegistrado"
-                                ></div>
-
-                            </div>
-
-                            <span
-                                class="status-number"
-                                id="countRegistrado"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="status-row">
-
-                            <span class="status-name">
-                                En Proceso
-                            </span>
-
-                            <div class="status-bar">
-
-                                <div
-                                    class="status-bar-fill bar-proceso"
-                                    id="barProceso"
-                                ></div>
-
-                            </div>
-
-                            <span
-                                class="status-number"
-                                id="countProceso"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="status-row">
-
-                            <span class="status-name">
-                                Pendientes
-                            </span>
-
-                            <div class="status-bar">
-
-                                <div
-                                    class="status-bar-fill bar-pendiente"
-                                    id="barPendiente"
-                                ></div>
-
-                            </div>
-
-                            <span
-                                class="status-number"
-                                id="countPendiente"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="status-row">
-
-                            <span class="status-name">
-                                Resueltos
-                            </span>
-
-                            <div class="status-bar">
-
-                                <div
-                                    class="status-bar-fill bar-resuelto"
-                                    id="barResuelto"
-                                ></div>
-
-                            </div>
-
-                            <span
-                                class="status-number"
-                                id="countResuelto"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="status-row">
-
-                            <span class="status-name">
-                                Cancelados
-                            </span>
-
-                            <div class="status-bar">
-
-                                <div
-                                    class="status-bar-fill bar-cancelado"
-                                    id="barCancelado"
-                                ></div>
-
-                            </div>
-
-                            <span
-                                class="status-number"
-                                id="countCancelado"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="status-row">
-
-                            <span class="status-name">
-                                Cerrados
-                            </span>
-
-                            <div class="status-bar">
-
-                                <div
-                                    class="status-bar-fill bar-cerrado"
-                                    id="barCerrado"
-                                ></div>
-
-                            </div>
-
-                            <span
-                                class="status-number"
-                                id="countCerrado"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-                    </div>
-
+                    <!-- JS -->
 
                 </div>
 
@@ -1567,190 +633,73 @@
 
 
 
-            <!-- ==================================================
-                 PRIORIDADES
-            ================================================== -->
+            <!-- DIVISIONES -->
 
             <div class="dashboard-panel">
 
 
                 <div class="dashboard-panel-header">
 
+                    <div>
 
-                    <h3>
+                        <h3>
+                            Tickets por División
+                        </h3>
 
-                        Prioridades
-
-                    </h3>
-
-
-                    <span>
-
-                        Distribución
-
-                    </span>
-
-
-                </div>
-
-
-                <div class="dashboard-panel-body">
-
-
-                    <div class="priority-list">
-
-
-                        <div class="priority-row">
-
-                            <div class="priority-info">
-
-                                <span
-                                    class="priority-dot dot-baja"
-                                ></span>
-
-                                <span class="priority-label">
-                                    Baja
-                                </span>
-
-                            </div>
-
-                            <span
-                                class="priority-count"
-                                id="priorityBaja"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="priority-row">
-
-                            <div class="priority-info">
-
-                                <span
-                                    class="priority-dot dot-media"
-                                ></span>
-
-                                <span class="priority-label">
-                                    Media
-                                </span>
-
-                            </div>
-
-                            <span
-                                class="priority-count"
-                                id="priorityMedia"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="priority-row">
-
-                            <div class="priority-info">
-
-                                <span
-                                    class="priority-dot dot-alta"
-                                ></span>
-
-                                <span class="priority-label">
-                                    Alta
-                                </span>
-
-                            </div>
-
-                            <span
-                                class="priority-count"
-                                id="priorityAlta"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
-
-
-                        <div class="priority-row">
-
-                            <div class="priority-info">
-
-                                <span
-                                    class="priority-dot dot-critica"
-                                ></span>
-
-                                <span class="priority-label">
-                                    Crítica
-                                </span>
-
-                            </div>
-
-                            <span
-                                class="priority-count"
-                                id="priorityCritica"
-                            >
-                                0
-                            </span>
-
-                        </div>
-
+                        <p>
+                            Carga operativa
+                        </p>
 
                     </div>
 
-
                 </div>
 
 
-            </div>
-
-
-        </div>
-
-
-
-        <!-- ==================================================
-             RECENT TICKETS
-        ================================================== -->
-
-        <div class="dashboard-panel">
-
-
-            <div class="dashboard-panel-header">
-
-
-                <h3>
-
-                    Tickets Recientes
-
-                </h3>
-
-
-                <a
-                    href="estatus_reportes.html"
-                    style="
-                        color:#c8102e;
-                        font-size:11px;
-                        font-weight:700;
-                        text-decoration:none;
-                    "
+                <div
+                    id="divisionesContainer"
+                    class="dashboard-summary-list"
                 >
 
-                    Ver todos
+                    <!-- JS -->
 
-                </a>
+                </div>
 
 
             </div>
 
 
-            <div
-                class="dashboard-panel-body"
-                id="recentTickets"
-            >
+
+            <!-- TÉCNICOS -->
+
+            <div class="dashboard-panel">
+
+
+                <div class="dashboard-panel-header">
+
+                    <div>
+
+                        <h3>
+                            Tickets por Técnico
+                        </h3>
+
+                        <p>
+                            Distribución de trabajo
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="tecnicosContainer"
+                    class="dashboard-summary-list"
+                >
+
+                    <!-- JS -->
+
+                </div>
+
 
             </div>
 
@@ -1760,83 +709,118 @@
 
 
         <!-- ==================================================
-             QUICK ACTIONS
+             TABLA DE TICKETS
         ================================================== -->
 
-        <div
-            class="dashboard-panel"
-            style="margin-top:20px;"
-        >
+        <div class="dashboard-table-card">
 
 
-            <div class="dashboard-panel-header">
+            <div class="dashboard-table-header">
 
 
-                <h3>
+                <div>
 
-                    Acciones Rápidas
+                    <h3>
+                        Tickets
+                    </h3>
 
-                </h3>
+                    <p>
+                        Consulta y gestión de reportes
+                    </p>
+
+                </div>
+
+
+                <div>
+
+                    <span
+                        id="totalResultados"
+                        class="results-counter"
+                    >
+                        0 tickets
+                    </span>
+
+                </div>
 
 
             </div>
 
 
-            <div class="dashboard-panel-body">
+
+            <div class="dashboard-table-wrapper">
 
 
-                <div class="quick-actions">
+                <table
+                    class="dashboard-table"
+                >
 
 
-                    <a
-                        href="estatus_reportes.html"
-                        class="quick-action"
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Ticket
+                            </th>
+
+                            <th>
+                                Título
+                            </th>
+
+                            <th>
+                                Empleado
+                            </th>
+
+                            <th>
+                                División
+                            </th>
+
+                            <th>
+                                Área
+                            </th>
+
+                            <th>
+                                Categoría
+                            </th>
+
+                            <th>
+                                Prioridad
+                            </th>
+
+                            <th>
+                                Estatus
+                            </th>
+
+                            <th>
+                                Técnico
+                            </th>
+
+                            <th>
+                                Fecha
+                            </th>
+
+                            <th>
+                                Acción
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="ticketsTableBody"
                     >
 
-                        <i class="fa-solid fa-list"></i>
+                        <!--
+                            Generado por
+                            dashboard-admin.js
+                        -->
 
-                        Ver todos los tickets
-
-                    </a>
-
-
-                    <a
-                        href="crear-ticket.html"
-                        class="quick-action"
-                    >
-
-                        <i class="fa-solid fa-plus"></i>
-
-                        Crear ticket
-
-                    </a>
+                    </tbody>
 
 
-                    <a
-                        href="historico_tecnico.html"
-                        class="quick-action"
-                    >
-
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-
-                        Histórico técnico
-
-                    </a>
-
-
-                    <a
-                        href="dashboard_tecnico.html"
-                        class="quick-action"
-                    >
-
-                        <i class="fa-solid fa-user-gear"></i>
-
-                        Dashboard técnico
-
-                    </a>
-
-
-                </div>
+                </table>
 
 
             </div>
@@ -1863,874 +847,7 @@
 
 <script src="../js/sidebar.js"></script>
 
-<script>
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        /* =========================================
-           SESIÓN
-        ========================================= */
-
-        if (
-            typeof verificarSesion !==
-            "function"
-        ){
-
-            console.error(
-                "Newsroom Portal: auth.js no disponible."
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !verificarSesion(
-                "../../login.html"
-            )
-        ){
-
-            return;
-
-        }
-
-
-        const session =
-            typeof obtenerSesion ===
-            "function"
-
-                ? obtenerSesion()
-
-                : null;
-
-
-        if (!session){
-
-            return;
-
-        }
-
-
-
-        /* =========================================
-           ADMIN
-        ========================================= */
-
-        if (
-            Number(session.rol_id) !== 1
-        ){
-
-            alert(
-                "No tienes permisos para acceder a este dashboard."
-            );
-
-
-            window.location.href =
-                "../dashboard/index.html";
-
-
-            return;
-
-        }
-
-
-
-        /* =========================================
-           USUARIO
-        ========================================= */
-
-        const nombre =
-            session.nombre ||
-            session.usuario ||
-            "Administrador";
-
-
-        const userName =
-            document.getElementById(
-                "userName"
-            );
-
-
-        const userAvatar =
-            document.getElementById(
-                "userAvatar"
-            );
-
-
-        if (userName){
-
-            userName.textContent =
-                nombre;
-
-        }
-
-
-        if (userAvatar){
-
-            userAvatar.textContent =
-                nombre
-                    .charAt(0)
-                    .toUpperCase();
-
-        }
-
-
-
-        /* =========================================
-           FECHA
-        ========================================= */
-
-        const dashboardDate =
-            document.getElementById(
-                "dashboardDate"
-            );
-
-
-        if (dashboardDate){
-
-            dashboardDate.textContent =
-                new Date()
-                    .toLocaleDateString(
-                        "es-MX",
-                        {
-                            weekday:"long",
-                            year:"numeric",
-                            month:"long",
-                            day:"numeric"
-                        }
-                    );
-
-        }
-
-
-
-        /* =========================================
-           CARGAR DASHBOARD
-        ========================================= */
-
-        cargarDashboardAdmin();
-
-    }
-);
-
-
-
-/* =========================================================
-   OBTENER TICKETS
-========================================================= */
-
-function obtenerTicketsDashboard(){
-
-    try{
-
-        const tickets =
-            JSON.parse(
-                localStorage.getItem(
-                    "newsroomTickets"
-                )
-            ) || [];
-
-
-        return Array.isArray(tickets)
-            ? tickets
-            : [];
-
-    }
-    catch(error){
-
-        console.error(
-            "Error leyendo newsroomTickets:",
-            error
-        );
-
-        return [];
-
-    }
-
-}
-
-
-
-/* =========================================================
-   CARGAR DASHBOARD
-========================================================= */
-
-function cargarDashboardAdmin(){
-
-    const tickets =
-        obtenerTicketsDashboard();
-
-
-    actualizarKPIsDashboard(
-        tickets
-    );
-
-
-    actualizarEstatusDashboard(
-        tickets
-    );
-
-
-    actualizarPrioridadesDashboard(
-        tickets
-    );
-
-
-    renderizarTicketsRecientes(
-        tickets
-    );
-
-}
-
-
-
-/* =========================================================
-   KPIs
-========================================================= */
-
-function actualizarKPIsDashboard(
-    tickets
-){
-
-    const contar =
-        estatus =>
-            tickets.filter(
-                ticket =>
-                    normalizar(
-                        ticket.estatus
-                    ) ===
-                    normalizar(
-                        estatus
-                    )
-            ).length;
-
-
-    actualizarTexto(
-        "kpiTotal",
-        tickets.length
-    );
-
-
-    actualizarTexto(
-        "kpiRegistrados",
-        contar("Registrado")
-    );
-
-
-    actualizarTexto(
-        "kpiProceso",
-        contar("En Proceso")
-    );
-
-
-    actualizarTexto(
-        "kpiPendientes",
-        contar("Pendiente")
-    );
-
-
-    actualizarTexto(
-        "kpiResueltos",
-        contar("Resuelto")
-    );
-
-
-    actualizarTexto(
-        "kpiCancelados",
-        contar("Cancelado")
-    );
-
-
-    actualizarTexto(
-        "kpiCerrados",
-        contar("Cerrado")
-    );
-
-}
-
-
-
-/* =========================================================
-   ESTATUS
-========================================================= */
-
-function actualizarEstatusDashboard(
-    tickets
-){
-
-    const total =
-        tickets.length || 1;
-
-
-    const estados = {
-
-        Registrado:
-            "Registrado",
-
-        "En Proceso":
-            "En Proceso",
-
-        Pendiente:
-            "Pendiente",
-
-        Resuelto:
-            "Resuelto",
-
-        Cancelado:
-            "Cancelado",
-
-        Cerrado:
-            "Cerrado"
-
-    };
-
-
-    Object.keys(
-        estados
-    )
-    .forEach(
-        estado => {
-
-            const cantidad =
-                tickets.filter(
-                    ticket =>
-                        normalizar(
-                            ticket.estatus
-                        ) ===
-                        normalizar(
-                            estado
-                        )
-                ).length;
-
-
-            const porcentaje =
-                (
-                    cantidad /
-                    total
-                ) *
-                100;
-
-
-            const idBase =
-                estado
-                    .toLowerCase()
-                    .replace(
-                        " ",
-                        ""
-                    );
-
-
-            let barId;
-
-            let countId;
-
-
-            switch(
-                estado
-            ){
-
-                case "Registrado":
-
-                    barId =
-                        "barRegistrado";
-
-                    countId =
-                        "countRegistrado";
-
-                    break;
-
-
-                case "En Proceso":
-
-                    barId =
-                        "barProceso";
-
-                    countId =
-                        "countProceso";
-
-                    break;
-
-
-                case "Pendiente":
-
-                    barId =
-                        "barPendiente";
-
-                    countId =
-                        "countPendiente";
-
-                    break;
-
-
-                case "Resuelto":
-
-                    barId =
-                        "barResuelto";
-
-                    countId =
-                        "countResuelto";
-
-                    break;
-
-
-                case "Cancelado":
-
-                    barId =
-                        "barCancelado";
-
-                    countId =
-                        "countCancelado";
-
-                    break;
-
-
-                case "Cerrado":
-
-                    barId =
-                        "barCerrado";
-
-                    countId =
-                        "countCerrado";
-
-                    break;
-
-            }
-
-
-            const bar =
-                document.getElementById(
-                    barId
-                );
-
-
-            const count =
-                document.getElementById(
-                    countId
-                );
-
-
-            if (bar){
-
-                bar.style.width =
-                    `${porcentaje}%`;
-
-            }
-
-
-            if (count){
-
-                count.textContent =
-                    cantidad;
-
-            }
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   PRIORIDADES
-========================================================= */
-
-function actualizarPrioridadesDashboard(
-    tickets
-){
-
-    const prioridades = {
-
-        Baja:
-            "priorityBaja",
-
-        Media:
-            "priorityMedia",
-
-        Alta:
-            "priorityAlta",
-
-        Crítica:
-            "priorityCritica"
-
-    };
-
-
-    Object.entries(
-        prioridades
-    )
-    .forEach(
-        ([prioridad,id]) => {
-
-            const cantidad =
-                tickets.filter(
-                    ticket =>
-                        normalizar(
-                            ticket.prioridad
-                        ) ===
-                        normalizar(
-                            prioridad
-                        )
-                ).length;
-
-
-            actualizarTexto(
-                id,
-                cantidad
-            );
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   TICKETS RECIENTES
-========================================================= */
-
-function renderizarTicketsRecientes(
-    tickets
-){
-
-    const container =
-        document.getElementById(
-            "recentTickets"
-        );
-
-
-    if (!container){
-
-        return;
-
-    }
-
-
-    const recientes =
-        tickets
-            .slice()
-            .sort(
-                (a,b) =>
-                    Number(b.id || 0) -
-                    Number(a.id || 0)
-            )
-            .slice(
-                0,
-                8
-            );
-
-
-    if (!recientes.length){
-
-        container.innerHTML = `
-
-            <div class="dashboard-empty">
-
-                <i class="fa-solid fa-ticket"></i>
-
-                <strong>
-                    No existen tickets registrados
-                </strong>
-
-                <span>
-                    Los tickets nuevos aparecerán aquí.
-                </span>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML = `
-
-        <div class="recent-ticket-list">
-
-            ${recientes
-                .map(
-                    ticket => {
-
-                        const estatus =
-                            ticket.estatus ||
-                            "Registrado";
-
-
-                        const clase =
-                            normalizarClase(
-                                estatus
-                            );
-
-
-                        return `
-
-                            <div
-                                class="recent-ticket"
-                            >
-
-                                <div>
-
-                                    <span
-                                        class="recent-ticket-id"
-                                    >
-
-                                        #${escapeHTML(
-                                            ticket.id
-                                        )}
-
-                                    </span>
-
-                                </div>
-
-
-                                <div
-                                    class="recent-ticket-title"
-                                >
-
-                                    <strong>
-
-                                        ${escapeHTML(
-                                            ticket.titulo ||
-                                            "Sin título"
-                                        )}
-
-                                    </strong>
-
-
-                                    <span>
-
-                                        ${escapeHTML(
-                                            ticket.empleado ||
-                                            ticket.nombre_usuario ||
-                                            "Usuario"
-                                        )}
-
-                                    </span>
-
-                                </div>
-
-
-                                <div>
-
-                                    <span
-                                        class="
-                                            recent-status
-                                            status-${clase}
-                                        "
-                                    >
-
-                                        ${escapeHTML(
-                                            estatus
-                                        )}
-
-                                    </span>
-
-                                </div>
-
-
-                                <div
-                                    class="recent-date"
-                                >
-
-                                    ${formatearFechaCorta(
-                                        ticket.fecha_creacion
-                                    )}
-
-                                </div>
-
-                            </div>
-
-                        `;
-
-                    }
-                )
-                .join("")
-            }
-
-        </div>
-
-    `;
-
-}
-
-
-
-/* =========================================================
-   NORMALIZAR
-========================================================= */
-
-function normalizar(
-    valor
-){
-
-    return String(
-        valor || ""
-    )
-    .trim()
-    .toLowerCase();
-
-}
-
-
-
-/* =========================================================
-   NORMALIZAR CLASE
-========================================================= */
-
-function normalizarClase(
-    valor
-){
-
-    return String(
-        valor || ""
-    )
-    .trim()
-    .toLowerCase()
-    .replace(
-        /á/g,
-        "a"
-    )
-    .replace(
-        /é/g,
-        "e"
-    )
-    .replace(
-        /í/g,
-        "i"
-    )
-    .replace(
-        /ó/g,
-        "o"
-    )
-    .replace(
-        /ú/g,
-        "u"
-    )
-    .replace(
-        /ñ/g,
-        "n"
-    )
-    .replace(
-        /\s+/g,
-        "-"
-    );
-
-}
-
-
-
-/* =========================================================
-   FECHA CORTA
-========================================================= */
-
-function formatearFechaCorta(
-    fecha
-){
-
-    if (!fecha){
-
-        return "-";
-
-    }
-
-
-    const date =
-        new Date(
-            fecha
-        );
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ){
-
-        return "-";
-
-    }
-
-
-    return date.toLocaleDateString(
-        "es-MX",
-        {
-            day:"2-digit",
-            month:"2-digit",
-            year:"numeric"
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   ACTUALIZAR TEXTO
-========================================================= */
-
-function actualizarTexto(
-    id,
-    valor
-){
-
-    const elemento =
-        document.getElementById(
-            id
-        );
-
-
-    if (elemento){
-
-        elemento.textContent =
-            valor;
-
-    }
-
-}
-
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHTML(
-    valor
-){
-
-    return String(
-        valor ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
-
-}
-
-</script>
+<script src="js/dashboard-admin.js"></script>
 
 </body>
 

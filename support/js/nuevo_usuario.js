@@ -1,4 +1,3 @@
-```javascript
 /* =========================================================
    NEWSROOM PORTAL
    CREAR USUARIO
@@ -457,4 +456,3 @@ document.addEventListener(
 
     }
 );
-```

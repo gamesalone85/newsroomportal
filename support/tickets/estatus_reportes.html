@@ -1,0 +1,1800 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Estatus Reportes | Newsroom Portal
+    </title>
+
+
+    <!-- =====================================================
+         ESTILOS GENERALES
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/layout-corporate.css"
+    >
+
+
+    <!-- =====================================================
+         ICONOS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+
+    <!-- =====================================================
+         ESTILOS DE ESTA PÁGINA
+    ====================================================== -->
+
+    <style>
+
+        /* =========================================
+           CONTENT
+        ========================================= */
+
+        .content{
+            width:100%;
+        }
+
+
+        /* =========================================
+           PAGE HEADER
+        ========================================= */
+
+        .page-header{
+
+            margin-bottom:18px;
+
+        }
+
+
+        .page-header h2{
+
+            font-size:24px;
+
+            color:#1f2937;
+
+            font-weight:800;
+
+            margin:0;
+
+        }
+
+
+        /* =========================================
+           KPI GRID
+        ========================================= */
+
+        .kpi-grid{
+
+            display:grid;
+
+            grid-template-columns:
+            repeat(auto-fit,minmax(160px,1fr));
+
+            gap:14px;
+
+            margin-bottom:22px;
+
+        }
+
+
+        /* =========================================
+           KPI CARD
+        ========================================= */
+
+        .kpi-card{
+
+            background:#ffffff;
+
+            border-radius:14px;
+
+            padding:16px 18px;
+
+            border:
+            1px solid #e9edf3;
+
+            box-shadow:
+            0 3px 10px rgba(0,0,0,.04);
+
+            transition:.2s ease;
+
+            position:relative;
+
+            overflow:hidden;
+
+        }
+
+
+        .kpi-card:hover{
+
+            transform:
+            translateY(-2px);
+
+            box-shadow:
+            0 8px 18px rgba(0,0,0,.08);
+
+        }
+
+
+        .kpi-card::before{
+
+            content:'';
+
+            position:absolute;
+
+            left:0;
+
+            top:0;
+
+            width:4px;
+
+            height:100%;
+
+            background:#c8102e;
+
+        }
+
+
+        .kpi-card span{
+
+            display:block;
+
+            color:#6b7280;
+
+            font-size:12px;
+
+            font-weight:600;
+
+            margin-bottom:8px;
+
+            text-transform:uppercase;
+
+            letter-spacing:.5px;
+
+        }
+
+
+        .kpi-card h2{
+
+            font-size:28px;
+
+            line-height:1;
+
+            color:#111827;
+
+            font-weight:800;
+
+            margin:0;
+
+        }
+
+
+        /* =========================================
+           KPI VARIANTS
+        ========================================= */
+
+        .kpi-total::before{
+
+            background:#c8102e;
+
+        }
+
+
+        .kpi-proceso::before{
+
+            background:#f59e0b;
+
+        }
+
+
+        .kpi-pendiente::before{
+
+            background:#d97706;
+
+        }
+
+
+        .kpi-resuelto::before{
+
+            background:#16a34a;
+
+        }
+
+
+        .kpi-cancelado::before{
+
+            background:#dc2626;
+
+        }
+
+
+        .kpi-cerrado::before{
+
+            background:#6b7280;
+
+        }
+
+
+        /* =========================================
+           TABLE CONTAINER
+        ========================================= */
+
+        .table-container{
+
+            overflow:auto;
+
+            background:#fff;
+
+            border-radius:18px;
+
+            padding:18px;
+
+            box-shadow:
+            0 5px 18px rgba(0,0,0,.05);
+
+            border:
+            1px solid #edf0f4;
+
+        }
+
+
+        /* =========================================
+           TABLE
+        ========================================= */
+
+        .tickets-table{
+
+            width:100%;
+
+            border-collapse:collapse;
+
+            min-width:1450px;
+
+        }
+
+
+        .tickets-table th{
+
+            background:#f8fafc;
+
+            color:#374151;
+
+            padding:13px 14px;
+
+            text-align:left;
+
+            font-size:12px;
+
+            font-weight:700;
+
+            border-bottom:
+            1px solid #e5e7eb;
+
+            white-space:nowrap;
+
+        }
+
+
+        .tickets-table td{
+
+            padding:13px 14px;
+
+            border-bottom:
+            1px solid #edf0f4;
+
+            font-size:12px;
+
+            vertical-align:middle;
+
+            color:#374151;
+
+        }
+
+
+        .tickets-table tbody tr{
+
+            transition:.18s ease;
+
+        }
+
+
+        .tickets-table tbody tr:hover{
+
+            background:#fafafa;
+
+        }
+
+
+        /* =========================================
+           TICKET TITLE
+        ========================================= */
+
+        .ticket-id{
+
+            font-weight:800;
+
+            color:#111827;
+
+            display:block;
+
+            margin-bottom:4px;
+
+        }
+
+
+        .ticket-title{
+
+            color:#6b7280;
+
+            display:block;
+
+            max-width:260px;
+
+            overflow:hidden;
+
+            text-overflow:ellipsis;
+
+            white-space:nowrap;
+
+        }
+
+
+        /* =========================================
+           BADGES
+        ========================================= */
+
+        .priority-badge,
+        .status-badge{
+
+            padding:6px 10px;
+
+            border-radius:50px;
+
+            font-size:11px;
+
+            font-weight:700;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            white-space:nowrap;
+
+        }
+
+
+        /* =========================================
+           PRIORITY
+        ========================================= */
+
+        .priority-critica{
+
+            background:#fee2e2;
+
+            color:#991b1b;
+
+        }
+
+
+        .priority-alta{
+
+            background:#ffedd5;
+
+            color:#c2410c;
+
+        }
+
+
+        .priority-media{
+
+            background:#fef3c7;
+
+            color:#92400e;
+
+        }
+
+
+        .priority-baja{
+
+            background:#dcfce7;
+
+            color:#166534;
+
+        }
+
+
+        .priority-default{
+
+            background:#eef2ff;
+
+            color:#3730a3;
+
+        }
+
+
+        /* =========================================
+           STATUS
+        ========================================= */
+
+        .status-registrado{
+
+            background:#dbeafe;
+
+            color:#1d4ed8;
+
+        }
+
+
+        .status-en-proceso{
+
+            background:#fef3c7;
+
+            color:#b45309;
+
+        }
+
+
+        .status-pendiente{
+
+            background:#fde68a;
+
+            color:#92400e;
+
+        }
+
+
+        .status-resuelto{
+
+            background:#dcfce7;
+
+            color:#166534;
+
+        }
+
+
+        .status-cancelado{
+
+            background:#fee2e2;
+
+            color:#991b1b;
+
+        }
+
+
+        .status-cerrado{
+
+            background:#e5e7eb;
+
+            color:#111827;
+
+        }
+
+
+        /* =========================================
+           BUTTON
+        ========================================= */
+
+        .btn-view{
+
+            background:#c8102e;
+
+            color:#fff;
+
+            padding:8px 12px;
+
+            border-radius:10px;
+
+            text-decoration:none;
+
+            font-size:11px;
+
+            font-weight:700;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            gap:6px;
+
+            transition:.2s ease;
+
+            white-space:nowrap;
+
+        }
+
+
+        .btn-view:hover{
+
+            background:#a30d26;
+
+            transform:
+            translateY(-1px);
+
+        }
+
+
+        /* =========================================
+           TIMES
+        ========================================= */
+
+        .time-ok{
+
+            color:#166534;
+
+            font-weight:700;
+
+            font-size:12px;
+
+        }
+
+
+        .time-open{
+
+            color:#92400e;
+
+            font-weight:700;
+
+            font-size:12px;
+
+        }
+
+
+        /* =========================================
+           EMPTY
+        ========================================= */
+
+        .empty-state{
+
+            text-align:center;
+
+            padding:50px 20px;
+
+            color:#6b7280;
+
+        }
+
+
+        .empty-state i{
+
+            display:block;
+
+            font-size:38px;
+
+            margin-bottom:12px;
+
+            color:#c8102e;
+
+        }
+
+
+        .empty-state strong{
+
+            display:block;
+
+            color:#374151;
+
+            font-size:15px;
+
+            margin-bottom:5px;
+
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media(max-width:900px){
+
+            .kpi-grid{
+
+                grid-template-columns:
+                repeat(2,1fr);
+
+            }
+
+
+            .kpi-card{
+
+                padding:14px;
+
+            }
+
+
+            .kpi-card h2{
+
+                font-size:24px;
+
+            }
+
+
+            .table-container{
+
+                padding:12px;
+
+            }
+
+        }
+
+
+        @media(max-width:600px){
+
+            .kpi-grid{
+
+                grid-template-columns:1fr;
+
+            }
+
+
+            .page-header h2{
+
+                font-size:21px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+    <!-- =================================================
+         SIDEBAR
+    ================================================== -->
+
+    <div
+        id="sidebarContainer"
+        data-sidebar="../includes/sidebar.html"
+    ></div>
+
+
+    <!-- =================================================
+         MAIN
+    ================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+
+            <div class="page-title">
+
+                Consola Operativa
+
+            </div>
+
+
+            <div class="topbar-user">
+
+
+                <div
+                    class="user-avatar"
+                    id="userAvatar"
+                >
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong id="userName">
+                        Administrador
+                    </strong>
+
+                    <span>
+                        Support Portal
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- =================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="content">
+
+
+            <!-- =================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <div class="page-header">
+
+                <h2>
+                    Estatus General de Reportes
+                </h2>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 KPI GRID
+            ================================================== -->
+
+            <div class="kpi-grid">
+
+
+                <!-- TOTAL -->
+
+                <div class="kpi-card kpi-total">
+
+                    <span>
+                        Total Tickets
+                    </span>
+
+                    <h2 id="totalTickets">
+                        0
+                    </h2>
+
+                </div>
+
+
+                <!-- EN PROCESO -->
+
+                <div class="kpi-card kpi-proceso">
+
+                    <span>
+                        En Proceso
+                    </span>
+
+                    <h2 id="ticketsProceso">
+                        0
+                    </h2>
+
+                </div>
+
+
+                <!-- PENDIENTES -->
+
+                <div class="kpi-card kpi-pendiente">
+
+                    <span>
+                        Pendientes
+                    </span>
+
+                    <h2 id="ticketsPendientes">
+                        0
+                    </h2>
+
+                </div>
+
+
+                <!-- RESUELTOS -->
+
+                <div class="kpi-card kpi-resuelto">
+
+                    <span>
+                        Resueltos
+                    </span>
+
+                    <h2 id="ticketsResueltos">
+                        0
+                    </h2>
+
+                </div>
+
+
+                <!-- CANCELADOS -->
+
+                <div class="kpi-card kpi-cancelado">
+
+                    <span>
+                        Cancelados
+                    </span>
+
+                    <h2 id="ticketsCancelados">
+                        0
+                    </h2>
+
+                </div>
+
+
+                <!-- CERRADOS -->
+
+                <div class="kpi-card kpi-cerrado">
+
+                    <span>
+                        Cerrados
+                    </span>
+
+                    <h2 id="ticketsCerrados">
+                        0
+                    </h2>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 TABLE
+            ================================================== -->
+
+            <div class="table-container">
+
+
+                <table class="tickets-table">
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Ticket
+                            </th>
+
+                            <th>
+                                División
+                            </th>
+
+                            <th>
+                                Área
+                            </th>
+
+                            <th>
+                                Categoría
+                            </th>
+
+                            <th>
+                                Prioridad
+                            </th>
+
+                            <th>
+                                Estatus
+                            </th>
+
+                            <th>
+                                Técnico
+                            </th>
+
+                            <th>
+                                Fecha Creación
+                            </th>
+
+                            <th>
+                                Última Actualización
+                            </th>
+
+                            <th>
+                                Fecha Cierre
+                            </th>
+
+                            <th>
+                                Tiempo Resolución
+                            </th>
+
+                            <th>
+                                Acción
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="ticketsTableBody">
+
+                    </tbody>
+
+
+                </table>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
+<script src="../js/data.js"></script>
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/sidebar.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        console.log(
+            "Newsroom Portal: Estatus de reportes cargado."
+        );
+
+
+        /* =================================================
+           SESIÓN
+        ================================================== */
+
+        if(
+            typeof verificarSesion ===
+            "function"
+        ){
+
+            if(
+                !verificarSesion(
+                    "../../login.html"
+                )
+            ){
+
+                return;
+
+            }
+
+        }
+
+
+        /* =================================================
+           USUARIO
+        ================================================== */
+
+        if(
+            typeof obtenerSesion ===
+            "function"
+        ){
+
+            const session =
+                obtenerSesion();
+
+
+            if(session){
+
+                const nombre =
+                    session.nombre ||
+                    session.usuario ||
+                    "Administrador";
+
+
+                const userName =
+                    document.getElementById(
+                        "userName"
+                    );
+
+
+                const userAvatar =
+                    document.getElementById(
+                        "userAvatar"
+                    );
+
+
+                if(userName){
+
+                    userName.textContent =
+                        nombre;
+
+                }
+
+
+                if(userAvatar){
+
+                    userAvatar.textContent =
+                        nombre
+                            .charAt(0)
+                            .toUpperCase();
+
+                }
+
+            }
+
+        }
+
+
+        /* =================================================
+           CARGAR TICKETS
+        ================================================== */
+
+        renderizarEstatusTickets();
+
+
+        actualizarKPIs();
+
+
+    }
+);
+
+
+
+/* =========================================================
+   OBTENER TICKETS
+========================================================= */
+
+function obtenerTicketsAdmin(){
+
+    /*
+     * Por ahora utilizamos la misma fuente
+     * de datos que utiliza el resto del portal.
+     */
+
+    if(
+        typeof obtenerTickets ===
+        "function"
+    ){
+
+        return obtenerTickets();
+
+    }
+
+
+    if(
+        typeof NEWSROOM_TICKETS !==
+        "undefined"
+    ){
+
+        return NEWSROOM_TICKETS;
+
+    }
+
+
+    return [];
+
+}
+
+
+
+/* =========================================================
+   RENDERIZAR TABLA
+========================================================= */
+
+function renderizarEstatusTickets(){
+
+    const tbody =
+        document.getElementById(
+            "ticketsTableBody"
+        );
+
+
+    if(!tbody){
+
+        return;
+
+    }
+
+
+    const tickets =
+        obtenerTicketsAdmin();
+
+
+    tbody.innerHTML = "";
+
+
+
+    if(
+        !tickets ||
+        tickets.length === 0
+    ){
+
+        tbody.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="12"
+                    class="empty-state"
+                >
+
+                    <i class="fa-solid fa-ticket"></i>
+
+                    <strong>
+                        No existen tickets registrados
+                    </strong>
+
+                    <span>
+                        Los nuevos reportes aparecerán aquí.
+                    </span>
+
+                </td>
+
+            </tr>
+
+        `;
+
+
+        return;
+
+    }
+
+
+
+    /*
+     * Ordenamos primero por prioridad
+     * y después por ID descendente.
+     */
+
+    const prioridadOrden = {
+
+        "Crítica":1,
+
+        "Critica":1,
+
+        "Alta":2,
+
+        "Media":3,
+
+        "Baja":4
+
+    };
+
+
+    const lista =
+        [...tickets].sort(
+            function(a,b){
+
+                const prioridadA =
+                    prioridadOrden[
+                        a.prioridad
+                    ] || 99;
+
+
+                const prioridadB =
+                    prioridadOrden[
+                        b.prioridad
+                    ] || 99;
+
+
+                if(
+                    prioridadA !==
+                    prioridadB
+                ){
+
+                    return (
+                        prioridadA -
+                        prioridadB
+                    );
+
+                }
+
+
+                return (
+                    Number(b.id || 0) -
+                    Number(a.id || 0)
+                );
+
+            }
+        );
+
+
+
+    lista.forEach(
+        function(ticket){
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            const estatus =
+                ticket.estatus ||
+                "Registrado";
+
+
+            const prioridad =
+                ticket.prioridad ||
+                "Media";
+
+
+            const prioridadClase =
+                normalizarClase(
+                    prioridad
+                );
+
+
+            const estatusClase =
+                normalizarClase(
+                    estatus
+                );
+
+
+            const fechaCreacion =
+                ticket.fecha_creacion ||
+                ticket.fecha ||
+                "-";
+
+
+            const fechaActualizacion =
+                ticket.fecha_actualizacion ||
+                ticket.actualizado ||
+                "-";
+
+
+            const fechaCierre =
+                ticket.fecha_cierre ||
+                "";
+
+
+            const tiempoResolucion =
+                obtenerTiempoResolucion(
+                    ticket
+                );
+
+
+            tr.innerHTML = `
+
+                <td>
+
+                    <span class="ticket-id">
+
+                        #${escapeHTML(
+                            ticket.id
+                        )}
+
+                    </span>
+
+
+                    <span class="ticket-title">
+
+                        ${escapeHTML(
+                            ticket.titulo ||
+                            ticket.asunto ||
+                            "Sin título"
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        ticket.division ||
+                        "-"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        ticket.area ||
+                        "-"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        ticket.categoria ||
+                        "-"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="priority-badge priority-${prioridadClase}"
+                    >
+
+                        ${escapeHTML(
+                            prioridad
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="status-badge status-${estatusClase}"
+                    >
+
+                        ${escapeHTML(
+                            estatus
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        ticket.tecnico ||
+                        "Sin asignar"
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        fechaCreacion
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        fechaActualizacion
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${
+                        fechaCierre
+
+                        ?
+
+                        escapeHTML(
+                            fechaCierre
+                        )
+
+                        :
+
+                        "Abierto"
+
+                    }
+
+                </td>
+
+
+                <td>
+
+                    ${tiempoResolucion}
+
+                </td>
+
+
+                <td>
+
+                    <a
+                        href="detalle-ticket.html?id=${encodeURIComponent(ticket.id)}"
+                        class="btn-view"
+                    >
+
+                        <i
+                            class="fa-solid fa-eye"
+                        ></i>
+
+                        Gestionar
+
+                    </a>
+
+                </td>
+
+            `;
+
+
+            tbody.appendChild(
+                tr
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   KPI
+========================================================= */
+
+function actualizarKPIs(){
+
+    const tickets =
+        obtenerTicketsAdmin();
+
+
+    const total =
+        tickets.length;
+
+
+    const proceso =
+        tickets.filter(
+            function(ticket){
+
+                return normalizarTexto(
+                    ticket.estatus
+                ) ===
+                "en proceso";
+
+            }
+        ).length;
+
+
+    const pendientes =
+        tickets.filter(
+            function(ticket){
+
+                return normalizarTexto(
+                    ticket.estatus
+                ) ===
+                "pendiente";
+
+            }
+        ).length;
+
+
+    const resueltos =
+        tickets.filter(
+            function(ticket){
+
+                return normalizarTexto(
+                    ticket.estatus
+                ) ===
+                "resuelto";
+
+            }
+        ).length;
+
+
+    const cancelados =
+        tickets.filter(
+            function(ticket){
+
+                return normalizarTexto(
+                    ticket.estatus
+                ) ===
+                "cancelado";
+
+            }
+        ).length;
+
+
+    const cerrados =
+        tickets.filter(
+            function(ticket){
+
+                return normalizarTexto(
+                    ticket.estatus
+                ) ===
+                "cerrado";
+
+            }
+        ).length;
+
+
+
+    actualizarTexto(
+        "totalTickets",
+        total
+    );
+
+
+    actualizarTexto(
+        "ticketsProceso",
+        proceso
+    );
+
+
+    actualizarTexto(
+        "ticketsPendientes",
+        pendientes
+    );
+
+
+    actualizarTexto(
+        "ticketsResueltos",
+        resueltos
+    );
+
+
+    actualizarTexto(
+        "ticketsCancelados",
+        cancelados
+    );
+
+
+    actualizarTexto(
+        "ticketsCerrados",
+        cerrados
+    );
+
+}
+
+
+
+/* =========================================================
+   TIEMPO DE RESOLUCIÓN
+========================================================= */
+
+function obtenerTiempoResolucion(
+    ticket
+){
+
+    const minutos =
+        Number(
+            ticket.tiempo_resolucion
+        );
+
+
+    if(
+        !isNaN(minutos) &&
+        minutos > 0
+    ){
+
+        const horas =
+            Math.floor(
+                minutos / 60
+            );
+
+
+        const min =
+            minutos % 60;
+
+
+        return `
+
+            <span class="time-ok">
+
+                ${horas}h ${min}m
+
+            </span>
+
+        `;
+
+    }
+
+
+    /*
+     * Si no existe el campo,
+     * intentamos calcularlo usando
+     * fecha de creación y cierre.
+     */
+
+    if(
+        ticket.fecha_creacion &&
+        ticket.fecha_cierre
+    ){
+
+        const inicio =
+            new Date(
+                ticket.fecha_creacion
+            );
+
+
+        const fin =
+            new Date(
+                ticket.fecha_cierre
+            );
+
+
+        if(
+            !isNaN(
+                inicio.getTime()
+            ) &&
+            !isNaN(
+                fin.getTime()
+            )
+        ){
+
+            const diferencia =
+                Math.max(
+                    0,
+                    Math.floor(
+                        (
+                            fin -
+                            inicio
+                        ) / 60000
+                    )
+                );
+
+
+            const horas =
+                Math.floor(
+                    diferencia / 60
+                );
+
+
+            const minutosRestantes =
+                diferencia % 60;
+
+
+            return `
+
+                <span class="time-ok">
+
+                    ${horas}h
+                    ${minutosRestantes}m
+
+                </span>
+
+            `;
+
+        }
+
+    }
+
+
+    return `
+
+        <span class="time-open">
+
+            Sin cerrar
+
+        </span>
+
+    `;
+
+}
+
+
+
+/* =========================================================
+   NORMALIZAR TEXTO
+========================================================= */
+
+function normalizarTexto(
+    texto
+){
+
+    return String(
+        texto ||
+        ""
+    )
+    .normalize("NFD")
+    .replace(
+        /[\u0300-\u036f]/g,
+        ""
+    )
+    .toLowerCase()
+    .trim();
+
+}
+
+
+
+/* =========================================================
+   NORMALIZAR CLASE CSS
+========================================================= */
+
+function normalizarClase(
+    texto
+){
+
+    return normalizarTexto(
+        texto
+    )
+    .replace(
+        /\s+/g,
+        "-"
+    );
+
+}
+
+
+
+/* =========================================================
+   ACTUALIZAR TEXTO
+========================================================= */
+
+function actualizarTexto(
+    id,
+    valor
+){
+
+    const elemento =
+        document.getElementById(
+            id
+        );
+
+
+    if(elemento){
+
+        elemento.textContent =
+            valor;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(
+    valor
+){
+
+    return String(
+        valor ??
+        ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+</script>
+
+
+</body>
+
+</html>
+```

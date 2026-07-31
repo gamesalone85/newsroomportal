@@ -1,6 +1,8 @@
+```javascript
 /* =========================================================
    NEWSROOM PORTAL
    AUTHENTICATION CONTROLLER
+   FIREBASE
    ========================================================= */
 
 
@@ -18,25 +20,32 @@ const NEWSROOM_SESSION_KEY =
 
 const NEWSROOM_ROUTES = {
 
-    1: "support/dashboard/index.html",
+    1:
+        "support/dashboard/index.html",
 
-    2: "support/dashboard/index.html",
+    2:
+        "support/dashboard/index.html",
 
-    3: "rooms/index.html",
+    3:
+        "rooms/index.html",
 
-    4: "rooms_admin/index.html",
+    4:
+        "rooms_admin/index.html",
 
-    5: "cvehicular/admin/index.html",
+    5:
+        "cvehicular/admin/index.html",
 
-    7: "credencializacion/index.html",
+    7:
+        "credencializacion/index.html",
 
-    8: "capitalhumano/index.html"
+    8:
+        "capitalhumano/index.html"
 
 };
 
 
 /* =========================================================
-   OBTENER SESIÓN
+   OBTENER SESIÓN LOCAL
 ========================================================= */
 
 function obtenerSesion() {
@@ -46,9 +55,13 @@ function obtenerSesion() {
             NEWSROOM_SESSION_KEY
         );
 
+
     if (!session) {
+
         return null;
+
     }
+
 
     try {
 
@@ -63,12 +76,16 @@ function obtenerSesion() {
             error
         );
 
+
         localStorage.removeItem(
             NEWSROOM_SESSION_KEY
         );
 
+
         return null;
+
     }
+
 }
 
 
@@ -80,40 +97,64 @@ function guardarSesion(
     usuario
 ) {
 
+    if (!usuario) {
+
+        console.error(
+            "Newsroom Portal: no se recibió perfil de usuario."
+        );
+
+        return null;
+
+    }
+
+
     const session = {
 
         id:
-            usuario.id,
+            usuario.id || null,
+
+        uid:
+            usuario.uid || null,
 
         user_id:
-            usuario.id,
+            usuario.uid ||
+            usuario.id ||
+            null,
 
         usuario:
-            usuario.usuario,
+            usuario.usuario || "",
 
         nombre:
-            usuario.nombre,
+            usuario.nombre || "",
+
+        correo:
+            usuario.correo || "",
 
         rol_id:
-            Number(usuario.rol_id),
+            Number(
+                usuario.rol_id || 0
+            ),
 
         rol:
-            usuario.rol,
+            usuario.rol || "",
 
         estado:
-            usuario.estado,
+            usuario.estado || "Activo",
 
         loginAt:
             new Date().toISOString()
 
     };
 
+
     localStorage.setItem(
         NEWSROOM_SESSION_KEY,
         JSON.stringify(session)
     );
 
+
     return session;
+
 }
 
 
@@ -121,16 +162,39 @@ function guardarSesion(
    CERRAR SESIÓN
 ========================================================= */
 
-function cerrarSesion(
+async function cerrarSesion(
     loginUrl = "../../login.html"
 ) {
+
+    try {
+
+        if (
+            typeof newsroomAuth !==
+            "undefined"
+        ) {
+
+            await newsroomAuth.signOut();
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Newsroom Portal: error cerrando sesión Firebase.",
+            error
+        );
+
+    }
+
 
     localStorage.removeItem(
         NEWSROOM_SESSION_KEY
     );
 
+
     window.location.href =
         loginUrl;
+
 }
 
 
@@ -148,11 +212,12 @@ function obtenerRutaPorRol(
         ] ||
         "index.html"
     );
+
 }
 
 
 /* =========================================================
-   VERIFICAR SESIÓN
+   VERIFICAR SESIÓN LOCAL
 ========================================================= */
 
 function verificarSesion(
@@ -162,13 +227,16 @@ function verificarSesion(
     const session =
         obtenerSesion();
 
+
     if (!session) {
 
         window.location.href =
             loginUrl;
 
         return false;
+
     }
+
 
     if (
         session.estado &&
@@ -180,9 +248,12 @@ function verificarSesion(
         );
 
         return false;
+
     }
 
+
     return true;
+
 }
 
 
@@ -197,18 +268,24 @@ function verificarRol(
     const session =
         obtenerSesion();
 
+
     if (!session) {
+
         return false;
+
     }
+
 
     const rol =
         Number(
             session.rol_id
         );
 
+
     return rolesPermitidos
         .map(Number)
         .includes(rol);
+
 }
 
 
@@ -221,55 +298,23 @@ function redirigirSegunRol() {
     const session =
         obtenerSesion();
 
+
     if (!session) {
 
         window.location.href =
             "login.html";
 
         return;
+
     }
+
 
     window.location.href =
         obtenerRutaPorRol(
             session.rol_id
         );
+
 }
-
-
-/* =========================================================
-   CREDENCIALES TEMPORALES DE DESARROLLO
-=========================================================
-
-   SOLO PARA DESARROLLO.
-
-   No utilizar en producción.
-
-========================================================= */
-
-const NEWSROOM_DEMO_PASSWORDS = {
-
-    admin:
-        "admin123",
-
-    support:
-        "support123",
-
-    rooms:
-        "rooms123",
-
-    roomsadmin:
-        "rooms123",
-
-    vehicular:
-        "vehicular123",
-
-    credencializacion:
-        "credencial123",
-
-    capitalhumano:
-        "capital123"
-
-};
 
 
 /* =========================================================
@@ -282,165 +327,374 @@ async function autenticarUsuario(
 ) {
 
     if (
-        typeof obtenerUsuarios !==
-        "function"
+        typeof newsroomAuth ===
+        "undefined"
     ) {
 
         throw new Error(
-            "data.js no está cargado."
+            "Firebase Authentication no está disponible."
         );
+
     }
 
 
-    const usuarios =
-        obtenerUsuarios();
-
-
-    const usuarioBuscado =
+    const usuarioNormalizado =
         String(usuario)
             .trim()
             .toLowerCase();
 
 
-    const encontrado =
-        usuarios.find(
-            item =>
-                String(
-                    item.usuario
-                )
-                    .trim()
-                    .toLowerCase() ===
-                usuarioBuscado
-        );
+    const passwordNormalizada =
+        String(password);
 
-
-    if (!encontrado) {
-
-        return {
-
-            success: false,
-
-            message:
-                "Usuario o contraseña incorrectos."
-
-        };
-    }
-
-
-    /* =========================================
-       ESTADO
-    ========================================== */
 
     if (
-        encontrado.estado !==
-        "Activo"
+        !usuarioNormalizado ||
+        !passwordNormalizada
     ) {
 
         return {
 
-            success: false,
+            success:
+                false,
 
             message:
-                "Este usuario se encuentra suspendido."
+                "Ingresa tu usuario y contraseña."
 
         };
+
     }
-
-
-    /* =========================================
-       CONTRASEÑA DEMO
-    ========================================== */
-
-    const passwordDemo =
-        NEWSROOM_DEMO_PASSWORDS[
-            encontrado.usuario
-                .toLowerCase()
-        ];
 
 
     /*
-     * Usuarios originales del sistema.
+     * -----------------------------------------------------
+     * ACTUALMENTE EL LOGIN UTILIZARÁ CORREO
+     * COMO IDENTIFICADOR DE FIREBASE.
+     *
+     * Posteriormente podemos recuperar el usuario
+     * mediante un alias/usuario de Firestore.
+     * -----------------------------------------------------
      */
 
-    if (passwordDemo) {
+    let correo =
+        usuarioNormalizado;
 
-        if (
-            password !==
-            passwordDemo
-        ) {
 
-            return {
+    /*
+     * Si el usuario escribe solamente "admin",
+     * temporalmente lo convertimos al correo
+     * registrado en nuestro sistema.
+     *
+     * ESTO ES SOLO PARA LA MIGRACIÓN INICIAL.
+     */
 
-                success: false,
+    const correosTemporales = {
 
-                message:
-                    "Usuario o contraseña incorrectos."
+        admin:
+            "admin@newsroomportal.com",
 
-            };
-        }
+        support:
+            "support@newsroomportal.com",
 
-    } else {
+        rooms:
+            "rooms@newsroomportal.com",
 
-        /*
-         * Usuario creado temporalmente
-         * desde Administración.
-         *
-         * Todavía no existe backend.
-         */
+        roomsadmin:
+            "roomsadmin@newsroomportal.com",
 
-        if (
-            !password ||
-            password.length < 6
-        ) {
+        vehicular:
+            "vehicular@newsroomportal.com",
 
-            return {
+        credencializacion:
+            "credencializacion@newsroomportal.com",
 
-                success: false,
+        capitalhumano:
+            "capitalhumano@newsroomportal.com"
 
-                message:
-                    "Usuario o contraseña incorrectos."
+    };
 
-            };
-        }
+
+    if (
+        correosTemporales[
+            usuarioNormalizado
+        ]
+    ) {
+
+        correo =
+            correosTemporales[
+                usuarioNormalizado
+            ];
+
     }
 
 
-    /* =========================================
-       CREAR SESIÓN
-    ========================================== */
+    try {
 
-    const session =
-        guardarSesion(
-            encontrado
+        /*
+         * -------------------------------------------------
+         * FIREBASE AUTHENTICATION
+         * -------------------------------------------------
+         */
+
+        const resultado =
+            await newsroomAuth
+                .signInWithEmailAndPassword(
+                    correo,
+                    passwordNormalizada
+                );
+
+
+        const firebaseUser =
+            resultado.user;
+
+
+        if (!firebaseUser) {
+
+            return {
+
+                success:
+                    false,
+
+                message:
+                    "No fue posible identificar al usuario."
+
+            };
+
+        }
+
+
+        /*
+         * -------------------------------------------------
+         * OBTENER PERFIL DE FIRESTORE
+         * -------------------------------------------------
+         */
+
+        const perfilSnapshot =
+            await newsroomDB
+                .collection("usuarios")
+                .doc(firebaseUser.uid)
+                .get();
+
+
+        if (
+            !perfilSnapshot.exists
+        ) {
+
+            /*
+             * Si Authentication funciona pero
+             * todavía no existe el perfil,
+             * cerramos la sesión.
+             */
+
+            await newsroomAuth.signOut();
+
+
+            return {
+
+                success:
+                    false,
+
+                message:
+                    "La cuenta existe, pero todavía no tiene un perfil registrado en Newsroom."
+
+            };
+
+        }
+
+
+        const perfil =
+            perfilSnapshot.data();
+
+
+        /*
+         * -------------------------------------------------
+         * VERIFICAR ESTADO
+         * -------------------------------------------------
+         */
+
+        if (
+            perfil.estado &&
+            perfil.estado !== "Activo"
+        ) {
+
+            await newsroomAuth.signOut();
+
+
+            return {
+
+                success:
+                    false,
+
+                message:
+                    "Este usuario se encuentra suspendido."
+
+            };
+
+        }
+
+
+        /*
+         * -------------------------------------------------
+         * CONSTRUIR PERFIL DE SESIÓN
+         * -------------------------------------------------
+         */
+
+        const usuarioNewsroom = {
+
+            id:
+                perfil.id ||
+                firebaseUser.uid,
+
+            uid:
+                firebaseUser.uid,
+
+            usuario:
+                perfil.usuario ||
+                firebaseUser.email,
+
+            nombre:
+                perfil.nombre ||
+                firebaseUser.displayName ||
+                "",
+
+            correo:
+                perfil.correo ||
+                firebaseUser.email ||
+                "",
+
+            rol_id:
+                Number(
+                    perfil.rol_id || 0
+                ),
+
+            rol:
+                perfil.rol ||
+                "",
+
+            estado:
+                perfil.estado ||
+                "Activo"
+
+        };
+
+
+        /*
+         * -------------------------------------------------
+         * GUARDAR SESIÓN COMPATIBLE
+         * -------------------------------------------------
+         */
+
+        const session =
+            guardarSesion(
+                usuarioNewsroom
+            );
+
+
+        return {
+
+            success:
+                true,
+
+            session:
+                session,
+
+            usuario:
+                usuarioNewsroom
+
+        };
+
+
+    } catch (error) {
+
+        console.error(
+            "Newsroom Portal: error Firebase Authentication.",
+            error
         );
 
 
-    return {
+        let mensaje =
+            "Usuario o contraseña incorrectos.";
 
-        success: true,
 
-        session:
-            session
+        switch (
+            error.code
+        ) {
 
-    };
+            case "auth/invalid-credential":
+
+                mensaje =
+                    "Usuario o contraseña incorrectos.";
+
+                break;
+
+
+            case "auth/user-not-found":
+
+                mensaje =
+                    "Usuario o contraseña incorrectos.";
+
+                break;
+
+
+            case "auth/wrong-password":
+
+                mensaje =
+                    "Usuario o contraseña incorrectos.";
+
+                break;
+
+
+            case "auth/too-many-requests":
+
+                mensaje =
+                    "Demasiados intentos. Espera unos minutos e inténtalo nuevamente.";
+
+                break;
+
+
+            case "auth/network-request-failed":
+
+                mensaje =
+                    "No fue posible conectar con Firebase.";
+
+                break;
+
+        }
+
+
+        return {
+
+            success:
+                false,
+
+            message:
+                mensaje
+
+        };
+
+    }
+
 }
 
 
 /* =========================================================
-   LOGIN CENTRAL
+   INICIO AUTOMÁTICO DEL LOGIN
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    function () {
 
         const form =
             document.getElementById(
                 "loginForm"
             );
 
+
         if (!form) {
+
             return;
+
         }
 
 
@@ -449,15 +703,18 @@ document.addEventListener(
                 "usuario"
             );
 
+
         const passwordInput =
             document.getElementById(
                 "password"
             );
 
+
         const error =
             document.getElementById(
                 "loginError"
             );
+
 
         const button =
             document.getElementById(
@@ -470,48 +727,57 @@ document.addEventListener(
         ) {
 
             if (!error) {
+
                 return;
+
             }
+
 
             error.textContent =
                 mensaje;
 
+
             error.style.display =
                 "block";
+
         }
 
 
         function ocultarError() {
 
             if (!error) {
+
                 return;
+
             }
+
 
             error.textContent =
                 "";
 
+
             error.style.display =
                 "none";
+
         }
 
 
         form.addEventListener(
             "submit",
-            async event => {
+            async function (event) {
 
                 event.preventDefault();
+
 
                 ocultarError();
 
 
                 const usuario =
-                    usuarioInput
-                        .value
-                        .trim();
+                    usuarioInput.value.trim();
+
 
                 const password =
-                    passwordInput
-                        .value;
+                    passwordInput.value;
 
 
                 if (!usuario) {
@@ -521,6 +787,7 @@ document.addEventListener(
                     );
 
                     return;
+
                 }
 
 
@@ -531,14 +798,19 @@ document.addEventListener(
                     );
 
                     return;
+
                 }
 
 
-                button.disabled =
-                    true;
+                if (button) {
 
-                button.textContent =
-                    "Ingresando...";
+                    button.disabled =
+                        true;
+
+                    button.textContent =
+                        "Ingresando...";
+
+                }
 
 
                 try {
@@ -558,15 +830,16 @@ document.addEventListener(
                             resultado.message
                         );
 
-                        button.disabled =
-                            false;
-
-                        button.textContent =
-                            "Ingresar";
-
                         return;
+
                     }
 
+
+                    /*
+                     * -------------------------------------------------
+                     * REDIRECCIÓN
+                     * -------------------------------------------------
+                     */
 
                     window.location.href =
                         obtenerRutaPorRol(
@@ -579,19 +852,27 @@ document.addEventListener(
                 } catch (errorLogin) {
 
                     console.error(
-                        "Newsroom Portal: error de autenticación.",
+                        "Newsroom Portal: error durante el login.",
                         errorLogin
                     );
+
 
                     mostrarError(
                         "No fue posible iniciar sesión."
                     );
 
-                    button.disabled =
-                        false;
+                } finally {
 
-                    button.textContent =
-                        "Ingresar";
+                    if (button) {
+
+                        button.disabled =
+                            false;
+
+                        button.textContent =
+                            "Ingresar";
+
+                    }
+
                 }
 
             }
@@ -599,3 +880,4 @@ document.addEventListener(
 
     }
 );
+```

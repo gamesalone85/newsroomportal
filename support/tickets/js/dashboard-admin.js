@@ -1232,7 +1232,7 @@ function renderizarTickets(
                 <td>
 
                     <a
-                        href="detalle-ticket.html?id=${encodeURIComponent(
+                        href="detalle_ticket.html?id=${encodeURIComponent(
                             ticket.id ||
                             ""
                         )}"

@@ -148,79 +148,203 @@ async function cargarUsuarios() {
 
 
     const tbody =
-        document.getElementById("usuariosTableBody");
+        document.getElementById(
+            "usuariosTableBody"
+        );
 
 
     if (tbody) {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" style="text-align:center;">
+                <td
+                    colspan="7"
+                    style="text-align:center;"
+                >
                     Cargando usuarios...
                 </td>
             </tr>
         `;
+
     }
 
 
     try {
 
+        /*
+         * IMPORTANTE:
+         *
+         * No utilizamos orderBy("id") porque
+         * los documentos actuales no tienen
+         * necesariamente un campo "id".
+         *
+         * El UID de Firebase es el ID real
+         * del documento.
+         */
+
         const snapshot =
             await newsroomDB
-                .collection(NEWSROOM_USERS_COLLECTION)
-                .orderBy("id", "asc")
+                .collection(
+                    NEWSROOM_USERS_COLLECTION
+                )
                 .get();
 
 
         newsroomUsuarios = [];
 
 
-        snapshot.forEach(function (doc) {
+        snapshot.forEach(
+            function (doc) {
 
-            const data = doc.data();
+                const data =
+                    doc.data();
 
 
-            newsroomUsuarios.push({
+                /*
+                 * UID PRINCIPAL
+                 *
+                 * Primero intentamos utilizar
+                 * el campo uid.
+                 *
+                 * Si no existe, utilizamos
+                 * el ID del documento.
+                 */
 
-                firestoreId: doc.id,
+                const uid =
+                    data.uid ||
+                    doc.id;
 
-                id: data.id,
 
-                usuario:
-                    data.usuario || "",
+                /*
+                 * ROL
+                 *
+                 * La estructura actual de Firestore
+                 * utiliza "rol_nombre".
+                 */
 
-                nombre:
-                    data.nombre || "",
+                const rolId =
+                    Number(
+                        data.rol_id ||
+                        0
+                    );
 
-                correo:
-                    data.correo || "",
 
-                rol_id:
-                    Number(data.rol_id || 0),
+                const rolNombre =
+                    data.rol_nombre ||
+                    data.rol ||
+                    obtenerNombreRol(
+                        rolId
+                    );
 
-                rol:
-                    data.rol || "",
 
-                estado:
-                    data.estado || "Activo"
+                newsroomUsuarios.push({
 
-            });
+                    /*
+                     * ID REAL DEL DOCUMENTO
+                     */
 
-        });
+                    firestoreId:
+                        doc.id,
+
+
+                    /*
+                     * UID DE FIREBASE
+                     */
+
+                    uid:
+                        uid,
+
+
+                    /*
+                     * Para mostrar en la columna ID
+                     */
+
+                    id:
+                        data.id ||
+                        uid,
+
+
+                    usuario:
+                        data.usuario ||
+                        "",
+
+
+                    nombre:
+                        data.nombre ||
+                        "",
+
+
+                    correo:
+                        data.correo ||
+                        "",
+
+
+                    rol_id:
+                        rolId,
+
+
+                    rol:
+                        rolNombre,
+
+
+                    estado:
+                        data.estado ||
+                        "Activo"
+
+                });
+
+            }
+        );
+
+
+        /*
+         * ORDENAR USUARIOS
+         *
+         * Los usuarios se ordenan por nombre
+         * para evitar depender de un campo
+         * "id" que no existe en todos.
+         */
+
+        newsroomUsuarios.sort(
+            function (a, b) {
+
+                return String(
+                    a.nombre || ""
+                ).localeCompare(
+                    String(
+                        b.nombre || ""
+                    ),
+                    "es",
+                    {
+                        sensitivity:
+                            "base"
+                    }
+                );
+
+            }
+        );
 
 
         console.log(
-            "Usuarios obtenidos:",
+            "Newsroom Portal: usuarios obtenidos:",
             newsroomUsuarios
+        );
+
+
+        console.log(
+            "Newsroom Portal: total de usuarios:",
+            newsroomUsuarios.length
         );
 
 
         renderizarUsuarios();
 
+
         actualizarKPIs();
 
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Newsroom Portal: error cargando usuarios:",
@@ -232,11 +356,15 @@ async function cargarUsuarios() {
 
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" style="text-align:center;">
+                    <td
+                        colspan="7"
+                        style="text-align:center;"
+                    >
                         No fue posible cargar los usuarios.
                     </td>
                 </tr>
             `;
+
         }
 
 
@@ -244,7 +372,9 @@ async function cargarUsuarios() {
             error,
             "No fue posible cargar los usuarios."
         );
+
     }
+
 }
 
 

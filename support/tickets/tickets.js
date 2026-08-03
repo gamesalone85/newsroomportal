@@ -246,6 +246,18 @@ function cargarDivisiones() {
 
 /* =========================================================
    CARGAR ÁREAS
+=========================================================
+
+   Todas las áreas están disponibles para las tres
+   divisiones:
+
+       DNI
+       DUCTER
+       FSN
+
+   La propiedad division_id del catálogo actualmente
+   utiliza "TODAS".
+
 ========================================================= */
 
 function cargarAreas() {
@@ -455,34 +467,69 @@ async function crearTicket(
                 .trim();
 
 
-        const divisionId =
-            Number(
-                document
-                    .getElementById(
-                        "division"
-                    )
-                    .value
-            );
+        /* =================================================
+           DIVISIÓN
 
+           IMPORTANTE:
+           Los nuevos IDs son texto:
+
+               DNI
+               DUCTER
+               FSN
+
+           Por eso NO utilizamos Number().
+        ================================================= */
+
+        const divisionId =
+            document
+                .getElementById(
+                    "division"
+                )
+                .value
+                .trim();
+
+
+        /* =================================================
+           ÁREA
+
+           IDs como:
+
+               CONT
+               TES
+               SIST
+               CXP
+               CXC
+               etc.
+        ================================================= */
 
         const areaId =
-            Number(
-                document
-                    .getElementById(
-                        "area"
-                    )
-                    .value
-            );
+            document
+                .getElementById(
+                    "area"
+                )
+                .value
+                .trim();
 
+
+        /* =================================================
+           CATEGORÍA
+
+           IDs como:
+
+               HARDWARE
+               SOFTWARE
+               RED
+               CORREO
+               etc.
+        ================================================= */
 
         const categoriaId =
-            Number(
-                document
-                    .getElementById(
-                        "categoria"
-                    )
-                    .value
-            );
+            document
+                .getElementById(
+                    "categoria"
+                )
+                .value
+                .trim();
 
 
         const equipo =
@@ -556,8 +603,8 @@ async function crearTicket(
             obtenerDivisiones()
                 .find(
                     item =>
-                        Number(item.id) ===
-                        divisionId
+                        String(item.id) ===
+                        String(divisionId)
                 );
 
 
@@ -565,8 +612,8 @@ async function crearTicket(
             obtenerAreas()
                 .find(
                     item =>
-                        Number(item.id) ===
-                        areaId
+                        String(item.id) ===
+                        String(areaId)
                 );
 
 
@@ -574,9 +621,56 @@ async function crearTicket(
             obtenerCategorias()
                 .find(
                     item =>
-                        Number(item.id) ===
-                        categoriaId
+                        String(item.id) ===
+                        String(categoriaId)
                 );
+
+
+
+        /* =================================================
+           VALIDAR CATÁLOGOS
+        ================================================= */
+
+        if (!division) {
+
+            mostrarMensaje(
+                "La división seleccionada no es válida.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
+
+        if (!area) {
+
+            mostrarMensaje(
+                "El área seleccionada no es válida.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
+
+        if (!categoria) {
+
+            mostrarMensaje(
+                "La categoría seleccionada no es válida.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
 
 
 
@@ -669,35 +763,45 @@ async function crearTicket(
                 equipo,
 
 
+            /* =============================================
+               DIVISIÓN
+            ============================================= */
+
             division_id:
                 divisionId,
 
 
             division:
-                division
-                    ? division.nombre
-                    : "",
+                division.nombre,
 
+
+            /* =============================================
+               ÁREA
+            ============================================= */
 
             area_id:
                 areaId,
 
 
             area:
-                area
-                    ? area.nombre
-                    : "",
+                area.nombre,
 
+
+            /* =============================================
+               CATEGORÍA
+            ============================================= */
 
             categoria_id:
                 categoriaId,
 
 
             categoria:
-                categoria
-                    ? categoria.nombre
-                    : "",
+                categoria.nombre,
 
+
+            /* =============================================
+               ESTATUS
+            ============================================= */
 
             estatus:
                 "Registrado",
@@ -706,6 +810,10 @@ async function crearTicket(
             tecnico:
                 null,
 
+
+            /* =============================================
+               FECHAS
+            ============================================= */
 
             fecha_creacion:
                 firebase.firestore

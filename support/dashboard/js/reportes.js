@@ -1,7 +1,7 @@
 /* =========================================================
    NEWSROOM PORTAL
    CENTRO DE REPORTES
-   FIRESTORE
+   FIREBASE AUTH + FIRESTORE
 ========================================================= */
 
 document.addEventListener(
@@ -12,107 +12,10 @@ document.addEventListener(
             "Newsroom Portal: reportes.js cargado correctamente."
         );
 
-
-        /* =====================================================
-           VERIFICAR AUTH
-        ===================================================== */
-
-        if (
-            typeof verificarSesion !==
-            "function"
-        ) {
-
-            console.error(
-                "Newsroom Portal: auth.js no está disponible."
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !verificarSesion(
-                "../../login.html"
-            )
-        ) {
-
-            return;
-
-        }
-
-
-        /* =====================================================
-           OBTENER SESIÓN
-        ===================================================== */
-
-        const session =
-            typeof obtenerSesion ===
-            "function"
-                ? obtenerSesion()
-                : null;
-
-
-        if (!session) {
-
-            console.error(
-                "Newsroom Portal: no existe una sesión activa."
-            );
-
-            return;
-
-        }
-
-
-        /* =====================================================
-           VERIFICAR ADMINISTRADOR
-        ===================================================== */
-
-        if (
-            Number(
-                session.rol_id
-            ) !== 1
-        ) {
-
-            alert(
-                "No tienes permisos para acceder a esta sección."
-            );
-
-
-            window.location.href =
-                "../dashboard/index.html";
-
-
-            return;
-
-        }
-
-
-        /* =====================================================
-           USUARIO
-        ===================================================== */
-
-        actualizarUsuarioReportes(
-            session
-        );
-
-
-        /* =====================================================
-           EVENTOS
-        ===================================================== */
-
-        configurarEventosReportes();
-
-
-        /* =====================================================
-           INICIAR FIRESTORE
-        ===================================================== */
-
-        iniciarReportesFirestore();
+        iniciarCentroReportes();
 
     }
 );
-
 
 
 /* =========================================================
@@ -123,6 +26,368 @@ let newsroomReportesTickets = [];
 
 let newsroomReportesUnsubscribe = null;
 
+let newsroomReportesUsuario = null;
+
+
+/* =========================================================
+   INICIAR CENTRO DE REPORTES
+========================================================= */
+
+async function iniciarCentroReportes() {
+
+    console.log(
+        "Newsroom Portal: iniciando Centro de Reportes..."
+    );
+
+
+    /* =====================================================
+       VERIFICAR FIREBASE
+    ===================================================== */
+
+    if (
+        typeof firebase ===
+        "undefined"
+    ) {
+
+        console.error(
+            "Newsroom Portal: Firebase no está disponible."
+        );
+
+        mostrarEstadoReporte(
+            "Firebase no está cargado correctamente.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       VERIFICAR AUTH
+    ===================================================== */
+
+    if (
+        !firebase.auth
+    ) {
+
+        console.error(
+            "Newsroom Portal: Firebase Authentication no está disponible."
+        );
+
+        mostrarEstadoReporte(
+            "Firebase Authentication no está disponible.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       VERIFICAR FIRESTORE
+    ===================================================== */
+
+    if (
+        typeof newsroomDB ===
+        "undefined" ||
+        !newsroomDB
+    ) {
+
+        console.error(
+            "Newsroom Portal: Firestore no está disponible."
+        );
+
+        mostrarEstadoReporte(
+            "La conexión con Firestore no está disponible.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       ESPERAR ESTADO DE AUTH
+    ===================================================== */
+
+    firebase.auth().onAuthStateChanged(
+        async function (user) {
+
+            console.log(
+                "Newsroom Portal: cambio de estado Auth:",
+                user
+                    ? user.email
+                    : "sin usuario"
+            );
+
+
+            if (!user) {
+
+                console.warn(
+                    "Newsroom Portal: no existe usuario autenticado."
+                );
+
+
+                window.location.href =
+                    "../login.html";
+
+
+                return;
+
+            }
+
+
+            newsroomReportesUsuario =
+                user;
+
+
+            /* =============================================
+               VERIFICAR ADMINISTRADOR
+            ============================================= */
+
+            const esAdministrador =
+                await verificarAdministradorFirebase(
+                    user
+                );
+
+
+            if (!esAdministrador) {
+
+                console.warn(
+                    "Newsroom Portal: usuario sin permisos administrativos."
+                );
+
+
+                alert(
+                    "No tienes permisos para acceder a esta sección."
+                );
+
+
+                window.location.href =
+                    "index.html";
+
+
+                return;
+
+            }
+
+
+            /* =============================================
+               ACTUALIZAR USUARIO
+            ============================================= */
+
+            actualizarUsuarioReportes(
+                user
+            );
+
+
+            /* =============================================
+               CONFIGURAR EVENTOS
+            ============================================= */
+
+            configurarEventosReportes();
+
+
+            /* =============================================
+               INICIAR FIRESTORE
+            ============================================= */
+
+            iniciarReportesFirestore();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   VERIFICAR ADMINISTRADOR FIREBASE
+========================================================= */
+
+async function verificarAdministradorFirebase(
+    user
+) {
+
+    try {
+
+        if (!user || !user.uid) {
+
+            return false;
+
+        }
+
+
+        /* =================================================
+           COLECCIÓN ADMINS
+        ================================================= */
+
+        const adminDoc =
+            await newsroomDB
+                .collection("admins")
+                .doc(user.uid)
+                .get();
+
+
+        if (
+            adminDoc.exists
+        ) {
+
+            const adminData =
+                adminDoc.data() ||
+                {};
+
+
+            console.log(
+                "Newsroom Portal: administrador encontrado:",
+                adminData
+            );
+
+
+            /*
+             * Si existe el documento en admins,
+             * consideramos al usuario administrador.
+             *
+             * Si existe un campo activo, también
+             * respetamos su valor.
+             */
+
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    adminData,
+                    "activo"
+                )
+            ) {
+
+                return (
+                    adminData.activo ===
+                    true
+                );
+
+            }
+
+
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    adminData,
+                    "active"
+                )
+            ) {
+
+                return (
+                    adminData.active ===
+                    true
+                );
+
+            }
+
+
+            return true;
+
+        }
+
+
+        /* =================================================
+           FALLBACK POR CORREO
+        ================================================= */
+
+        /*
+         * Este fallback permite trabajar con una colección
+         * admins donde el documento no necesariamente tiene
+         * como ID el UID.
+         *
+         * Si tu colección admins utiliza exclusivamente
+         * el UID como ID, esta consulta no será necesaria.
+         */
+
+        if (
+            user.email
+        ) {
+
+            const snapshot =
+                await newsroomDB
+                    .collection("admins")
+                    .where(
+                        "correo",
+                        "==",
+                        user.email
+                    )
+                    .limit(1)
+                    .get();
+
+
+            if (
+                !snapshot.empty
+            ) {
+
+                const adminData =
+                    snapshot
+                        .docs[0]
+                        .data() ||
+                        {};
+
+
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        adminData,
+                        "activo"
+                    )
+                ) {
+
+                    return (
+                        adminData.activo ===
+                        true
+                    );
+
+                }
+
+
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        adminData,
+                        "active"
+                    )
+                ) {
+
+                    return (
+                        adminData.active ===
+                        true
+                    );
+
+                }
+
+
+                return true;
+
+            }
+
+        }
+
+
+        return false;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Newsroom Portal: error verificando administrador:",
+            error
+        );
+
+
+        /*
+         * Importante:
+         * Si Firestore rechaza la consulta por reglas,
+         * NO damos acceso.
+         */
+
+        return false;
+
+    }
+
+}
 
 
 /* =========================================================
@@ -130,13 +395,19 @@ let newsroomReportesUnsubscribe = null;
 ========================================================= */
 
 function actualizarUsuarioReportes(
-    session
+    user
 ) {
 
+    if (!user) {
+
+        return;
+
+    }
+
+
     const nombre =
-        session.nombre ||
-        session.usuario ||
-        session.correo ||
+        user.displayName ||
+        user.email ||
         "Administrador";
 
 
@@ -172,7 +443,6 @@ function actualizarUsuarioReportes(
 }
 
 
-
 /* =========================================================
    INICIAR FIRESTORE
 ========================================================= */
@@ -180,23 +450,8 @@ function actualizarUsuarioReportes(
 function iniciarReportesFirestore() {
 
     console.log(
-        "Newsroom Portal: iniciando Centro de Reportes..."
+        "Newsroom Portal: iniciando escucha de tickets..."
     );
-
-
-    if (
-        typeof firebase ===
-        "undefined"
-    ) {
-
-        mostrarEstadoReporte(
-            "Firebase no está cargado correctamente.",
-            "error"
-        );
-
-        return;
-
-    }
 
 
     if (
@@ -304,7 +559,6 @@ function iniciarReportesFirestore() {
             );
 
 }
-
 
 
 /* =========================================================
@@ -417,11 +671,7 @@ function configurarEventosReportes() {
 
         btnActualizar.addEventListener(
             "click",
-            function () {
-
-                recargarReportesFirestore();
-
-            }
+            recargarReportesFirestore
         );
 
     }
@@ -509,7 +759,6 @@ function configurarEventosReportes() {
 }
 
 
-
 /* =========================================================
    RECARGAR FIRESTORE
 ========================================================= */
@@ -521,6 +770,11 @@ function recargarReportesFirestore() {
         "undefined" ||
         !newsroomDB
     ) {
+
+        mostrarEstadoReporte(
+            "Firestore no está disponible.",
+            "error"
+        );
 
         return;
 
@@ -595,7 +849,6 @@ function recargarReportesFirestore() {
 }
 
 
-
 /* =========================================================
    CARGAR OPCIONES
 ========================================================= */
@@ -663,7 +916,6 @@ function cargarOpcionesReportes() {
 }
 
 
-
 /* =========================================================
    OBTENER VALORES ÚNICOS
 ========================================================= */
@@ -694,9 +946,7 @@ function obtenerValoresUnicos(
                 ).trim();
 
 
-            if (
-                !valor
-            ) {
+            if (!valor) {
 
                 return;
 
@@ -741,7 +991,6 @@ function obtenerValoresUnicos(
     );
 
 }
-
 
 
 /* =========================================================
@@ -833,7 +1082,6 @@ function cargarOpcionesSelect(
 }
 
 
-
 /* =========================================================
    APLICAR FILTROS
 ========================================================= */
@@ -859,7 +1107,6 @@ function aplicarFiltrosReportes() {
     );
 
 }
-
 
 
 /* =========================================================
@@ -1114,8 +1361,7 @@ function obtenerTicketsFiltrados() {
                         function (valor) {
 
                             return String(
-                                valor ??
-                                ""
+                                valor ?? ""
                             );
 
                         }
@@ -1162,7 +1408,6 @@ function obtenerTicketsFiltrados() {
         );
 
 }
-
 
 
 /* =========================================================
@@ -1291,7 +1536,6 @@ function actualizarKPIsReportes(
 }
 
 
-
 /* =========================================================
    CONTADOR
 ========================================================= */
@@ -1319,7 +1563,6 @@ function actualizarContadorReportes(
             : `${tickets.length} tickets`;
 
 }
-
 
 
 /* =========================================================
@@ -1478,56 +1721,39 @@ function renderizarPreviewReportes(
                         ${escapeHTMLReporte(
                             folio
                         )}
-
                     </strong>
 
                 </td>
 
-
                 <td>
-
                     ${escapeHTMLReporte(
                         titulo
                     )}
-
                 </td>
 
-
                 <td>
-
                     ${escapeHTMLReporte(
                         usuario
                     )}
-
                 </td>
 
-
                 <td>
-
                     ${escapeHTMLReporte(
                         division
                     )}
-
                 </td>
 
-
                 <td>
-
                     ${escapeHTMLReporte(
                         area
                     )}
-
                 </td>
 
-
                 <td>
-
                     ${escapeHTMLReporte(
                         categoria
                     )}
-
                 </td>
-
 
                 <td>
 
@@ -1539,15 +1765,12 @@ function renderizarPreviewReportes(
                             )}
                         "
                     >
-
                         ${escapeHTMLReporte(
                             prioridad
                         )}
-
                     </span>
 
                 </td>
-
 
                 <td>
 
@@ -1559,31 +1782,23 @@ function renderizarPreviewReportes(
                             )}
                         "
                     >
-
                         ${escapeHTMLReporte(
                             estatus
                         )}
-
                     </span>
 
                 </td>
 
-
                 <td>
-
                     ${escapeHTMLReporte(
                         tecnico
                     )}
-
                 </td>
 
-
                 <td>
-
                     ${escapeHTMLReporte(
                         fecha
                     )}
-
                 </td>
 
             `;
@@ -1597,7 +1812,6 @@ function renderizarPreviewReportes(
     );
 
 }
-
 
 
 /* =========================================================
@@ -1743,7 +1957,6 @@ function exportarReporte(
 }
 
 
-
 /* =========================================================
    REPORTE TICKETS
 ========================================================= */
@@ -1848,7 +2061,6 @@ function construirReporteTickets(
 }
 
 
-
 /* =========================================================
    REPORTE TÉCNICOS
 ========================================================= */
@@ -1905,64 +2117,10 @@ function construirReporteTecnicos(
                 );
 
 
-            if (
-                estatus ===
-                "Registrado"
-            ) {
-
-                grupo.registrados++;
-
-            }
-
-
-            if (
-                estatus ===
-                "Pendiente"
-            ) {
-
-                grupo.pendientes++;
-
-            }
-
-
-            if (
-                estatus ===
-                "En Proceso"
-            ) {
-
-                grupo.proceso++;
-
-            }
-
-
-            if (
-                estatus ===
-                "Resuelto"
-            ) {
-
-                grupo.resueltos++;
-
-            }
-
-
-            if (
-                estatus ===
-                "Cerrado"
-            ) {
-
-                grupo.cerrados++;
-
-            }
-
-
-            if (
-                estatus ===
-                "Cancelado"
-            ) {
-
-                grupo.cancelados++;
-
-            }
+            incrementarEstado(
+                grupo,
+                estatus
+            );
 
         }
     );
@@ -2043,7 +2201,6 @@ function construirReporteTecnicos(
     );
 
 }
-
 
 
 /* =========================================================
@@ -2224,7 +2381,6 @@ function construirReporteUsuarios(
 }
 
 
-
 /* =========================================================
    REPORTE DIVISIONES
 ========================================================= */
@@ -2246,7 +2402,6 @@ function construirReporteDivisiones(
     );
 
 }
-
 
 
 /* =========================================================
@@ -2309,15 +2464,11 @@ function construirReporteAreas(
             grupos[clave].total++;
 
 
-            const estatus =
-                normalizarEstatusReporte(
-                    ticket.estatus
-                );
-
-
             incrementarEstado(
                 grupos[clave],
-                estatus
+                normalizarEstatusReporte(
+                    ticket.estatus
+                )
             );
 
         }
@@ -2377,7 +2528,6 @@ function construirReporteAreas(
 }
 
 
-
 /* =========================================================
    REPORTE CATEGORÍAS
 ========================================================= */
@@ -2397,13 +2547,9 @@ function construirReporteCategorias(
                 "Sin categoría";
 
 
-            contador[
-                categoria
-            ] =
+            contador[categoria] =
                 (
-                    contador[
-                        categoria
-                    ] ||
+                    contador[categoria] ||
                     0
                 ) + 1;
 
@@ -2460,7 +2606,6 @@ function construirReporteCategorias(
     );
 
 }
-
 
 
 /* =========================================================
@@ -2573,7 +2718,6 @@ function construirAgrupacionGeneral(
 }
 
 
-
 /* =========================================================
    INCREMENTAR ESTADO
 ========================================================= */
@@ -2629,7 +2773,6 @@ function incrementarEstado(
     }
 
 }
-
 
 
 /* =========================================================
@@ -2829,7 +2972,6 @@ function exportarTodoZIP() {
 }
 
 
-
 /* =========================================================
    README DE EXPORTACIÓN
 ========================================================= */
@@ -2908,7 +3050,6 @@ function generarREADMEExportacion(
 }
 
 
-
 /* =========================================================
    GENERAR CSV
 ========================================================= */
@@ -2937,10 +3078,11 @@ function generarCSV(
 
 
     const encabezados =
-        columnas.map(
-            escaparCSV
-        )
-        .join(",");
+        columnas
+            .map(
+                escaparCSV
+            )
+            .join(",");
 
 
     const filasCSV =
@@ -2978,7 +3120,6 @@ function generarCSV(
 }
 
 
-
 /* =========================================================
    ESCAPAR CSV
 ========================================================= */
@@ -3001,12 +3142,13 @@ function escaparCSV(
         );
 
 
-    return '"' +
+    return (
+        '"' +
         texto +
-        '"';
+        '"'
+    );
 
 }
-
 
 
 /* =========================================================
@@ -3073,7 +3215,6 @@ function descargarCSV(
     );
 
 }
-
 
 
 /* =========================================================
@@ -3155,7 +3296,6 @@ function generarNombreArchivo(
 }
 
 
-
 /* =========================================================
    LIMPIAR FILTROS
 ========================================================= */
@@ -3219,7 +3359,6 @@ function limpiarFiltrosReportes() {
 }
 
 
-
 /* =========================================================
    ACTUALIZAR TEXTO
 ========================================================= */
@@ -3243,7 +3382,6 @@ function actualizarTextoReporte(
     }
 
 }
-
 
 
 /* =========================================================
@@ -3280,18 +3418,20 @@ function mostrarEstadoReporte(
         );
 
 
+    const icono =
+        tipo === "error"
+            ? "fa-circle-exclamation"
+            : tipo === "success"
+                ? "fa-circle-check"
+                : "fa-circle-info";
+
+
     elemento.innerHTML = `
 
         <i
             class="
                 fa-solid
-                ${
-                    tipo === "error"
-                        ? "fa-circle-exclamation"
-                        : tipo === "success"
-                            ? "fa-circle-check"
-                            : "fa-circle-info"
-                }
+                ${icono}
             "
         ></i>
 
@@ -3319,7 +3459,6 @@ function mostrarEstadoReporte(
         );
 
 }
-
 
 
 /* =========================================================
@@ -3395,7 +3534,6 @@ function obtenerNombreTecnicoReporte(
 }
 
 
-
 /* =========================================================
    NORMALIZAR ESTATUS
 ========================================================= */
@@ -3453,7 +3591,6 @@ function normalizarEstatusReporte(
 }
 
 
-
 /* =========================================================
    NORMALIZAR PRIORIDAD
 ========================================================= */
@@ -3502,7 +3639,6 @@ function normalizarPrioridadReporte(
 }
 
 
-
 /* =========================================================
    NORMALIZAR CLASE
 ========================================================= */
@@ -3533,7 +3669,6 @@ function normalizarClaseReporte(
     );
 
 }
-
 
 
 /* =========================================================
@@ -3640,7 +3775,6 @@ function obtenerFechaReporte(
 }
 
 
-
 /* =========================================================
    FECHA FORMATEADA
 ========================================================= */
@@ -3690,7 +3824,6 @@ function formatearFechaReporte(
 }
 
 
-
 /* =========================================================
    FECHA ISO
 ========================================================= */
@@ -3718,7 +3851,6 @@ function obtenerFechaISOReporte(
     return fechaObj.toISOString();
 
 }
-
 
 
 /* =========================================================

@@ -31,27 +31,101 @@ const firebaseConfig = {
 
 
 /* =========================================================
-   INICIALIZAR FIREBASE
+   VERIFICAR SDK
 ========================================================= */
 
-firebase.initializeApp(
-    firebaseConfig
-);
+if (
+    typeof firebase === "undefined"
+) {
+
+    console.error(
+        "Newsroom Portal: Firebase SDK no está cargado."
+    );
+
+    throw new Error(
+        "Firebase SDK no está cargado."
+    );
+
+}
 
 
 /* =========================================================
-   SERVICIOS
+   INICIALIZAR APP PRINCIPAL
+========================================================= */
+
+const newsroomApp =
+    firebase.initializeApp(
+        firebaseConfig
+    );
+
+
+/* =========================================================
+   SERVICIOS PRINCIPALES
 ========================================================= */
 
 const newsroomAuth =
-    firebase.auth();
+    newsroomApp.auth();
 
 
 const newsroomDB =
-    firebase.firestore();
+    newsroomApp.firestore();
 
+
+/* =========================================================
+   APP SECUNDARIA
+   Se utiliza exclusivamente para crear usuarios.
+   
+   Esto evita cerrar la sesión del administrador actual.
+========================================================= */
+
+let newsroomSecondaryApp = null;
+
+let newsroomSecondaryAuth = null;
+
+
+try {
+
+    newsroomSecondaryApp =
+        firebase.initializeApp(
+            firebaseConfig,
+            "NewsroomUserCreation"
+        );
+
+
+    newsroomSecondaryAuth =
+        newsroomSecondaryApp.auth();
+
+
+}
+catch (error) {
+
+    console.error(
+        "Newsroom Portal: error inicializando Auth secundaria.",
+        error
+    );
+
+}
+
+
+/* =========================================================
+   CONFIRMACIÓN
+========================================================= */
 
 console.log(
     "Newsroom Portal: Firebase inicializado correctamente."
 );
 
+console.log(
+    "Firebase Auth principal:",
+    !!newsroomAuth
+);
+
+console.log(
+    "Firebase Firestore:",
+    !!newsroomDB
+);
+
+console.log(
+    "Firebase Auth secundaria:",
+    !!newsroomSecondaryAuth
+);

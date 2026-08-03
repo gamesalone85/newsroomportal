@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Centro de Reportes | Newsroom Portal
+    </title>
+
+
+    <!-- ==================================================
+         ESTILOS GENERALES
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/layout-corporate.css"
+    >
+
+
+    <!-- ==================================================
+         ESTILOS DEL DASHBOARD
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/dashboard-admin.css"
+    >
+
+
+    <!-- ==================================================
+         ESTILOS DE REPORTES
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/reportes.css"
+    >
+
+
+    <!-- ==================================================
+         ICONOS
+    ================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<div class="layout">
+
+
+    <!-- ==================================================
+         SIDEBAR
+    ================================================== -->
+
+    <div
+        id="sidebarContainer"
+        data-sidebar="../includes/sidebar.html"
+    ></div>
+
+
+
+    <!-- ==================================================
+         MAIN CONTENT
+    ================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- ==================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+
+            <div class="page-title">
+
+                Centro de Reportes
+
+            </div>
+
+
+            <div class="topbar-user">
+
+
+                <div
+                    class="user-avatar"
+                    id="userAvatar"
+                >
+                    A
+                </div>
+
+
+                <div class="user-info">
+
+                    <strong id="userName">
+                        Administrador
+                    </strong>
+
+                    <span>
+                        Newsroom Portal
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+        </header>
+
+
+
+        <!-- ==================================================
+             CONTENT
+        ================================================== -->
+
+        <section class="content reportes-content">
+
+
+            <!-- ==================================================
+                 PAGE HEADER
+            ================================================== -->
+
+            <div class="reportes-page-header">
+
+
+                <div>
+
+                    <div class="reportes-title-row">
+
+                        <div class="reportes-main-icon">
+
+                            <i class="fa-solid fa-chart-column"></i>
+
+                        </div>
+
+
+                        <div>
+
+                            <h2>
+                                Centro de Reportes
+                            </h2>
+
+                            <p>
+                                Análisis histórico, métricas operativas
+                                y exportación de información de soporte.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="reportes-header-actions">
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-secondary"
+                        id="btnActualizarReportes"
+                    >
+
+                        <i class="fa-solid fa-rotate"></i>
+
+                        Actualizar
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-primary"
+                        id="btnExportarTodo"
+                    >
+
+                        <i class="fa-solid fa-file-zipper"></i>
+
+                        Exportar todo
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 STATUS
+            ================================================== -->
+
+            <div
+                id="reportesStatus"
+                class="reportes-status"
+                hidden
+            ></div>
+
+
+
+            <!-- ==================================================
+                 FILTROS
+            ================================================== -->
+
+            <div class="reportes-card">
+
+
+                <div class="reportes-card-header">
+
+
+                    <div>
+
+                        <h3>
+
+                            <i class="fa-solid fa-filter"></i>
+
+                            Filtros avanzados
+
+                        </h3>
+
+                        <p>
+                            Selecciona el periodo y los criterios
+                            que deseas incluir en los reportes.
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        id="contadorFiltrados"
+                        class="reportes-result-badge"
+                    >
+                        0 tickets
+                    </span>
+
+
+                </div>
+
+
+
+                <div class="reportes-filters-grid">
+
+
+                    <!-- FECHA INICIAL -->
+
+                    <div class="reportes-field">
+
+                        <label for="fechaInicio">
+                            Fecha inicial
+                        </label>
+
+                        <input
+                            type="date"
+                            id="fechaInicio"
+                        >
+
+                    </div>
+
+
+
+                    <!-- FECHA FINAL -->
+
+                    <div class="reportes-field">
+
+                        <label for="fechaFin">
+                            Fecha final
+                        </label>
+
+                        <input
+                            type="date"
+                            id="fechaFin"
+                        >
+
+                    </div>
+
+
+
+                    <!-- ESTATUS -->
+
+                    <div class="reportes-field">
+
+                        <label for="reporteEstatus">
+                            Estatus
+                        </label>
+
+                        <select id="reporteEstatus">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            <option value="Registrado">
+                                Registrado
+                            </option>
+
+                            <option value="Pendiente">
+                                Pendiente
+                            </option>
+
+                            <option value="En Proceso">
+                                En Proceso
+                            </option>
+
+                            <option value="Resuelto">
+                                Resuelto
+                            </option>
+
+                            <option value="Cancelado">
+                                Cancelado
+                            </option>
+
+                            <option value="Cerrado">
+                                Cerrado
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- PRIORIDAD -->
+
+                    <div class="reportes-field">
+
+                        <label for="reportePrioridad">
+                            Prioridad
+                        </label>
+
+                        <select id="reportePrioridad">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                            <option value="Crítica">
+                                Crítica
+                            </option>
+
+                            <option value="Alta">
+                                Alta
+                            </option>
+
+                            <option value="Media">
+                                Media
+                            </option>
+
+                            <option value="Baja">
+                                Baja
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- DIVISIÓN -->
+
+                    <div class="reportes-field">
+
+                        <label for="reporteDivision">
+                            División
+                        </label>
+
+                        <select id="reporteDivision">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- ÁREA -->
+
+                    <div class="reportes-field">
+
+                        <label for="reporteArea">
+                            Área
+                        </label>
+
+                        <select id="reporteArea">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- CATEGORÍA -->
+
+                    <div class="reportes-field">
+
+                        <label for="reporteCategoria">
+                            Categoría
+                        </label>
+
+                        <select id="reporteCategoria">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- TÉCNICO -->
+
+                    <div class="reportes-field">
+
+                        <label for="reporteTecnico">
+                            Técnico
+                        </label>
+
+                        <select id="reporteTecnico">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <!-- BÚSQUEDA -->
+
+                    <div class="reportes-field reportes-field-wide">
+
+                        <label for="reporteBusqueda">
+                            Búsqueda
+                        </label>
+
+                        <div class="reportes-search-wrapper">
+
+                            <i class="fa-solid fa-magnifying-glass"></i>
+
+                            <input
+                                type="search"
+                                id="reporteBusqueda"
+                                placeholder="Ticket, folio, título, usuario, correo, técnico..."
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="reportes-filter-actions">
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-primary"
+                        id="btnAplicarFiltros"
+                    >
+
+                        <i class="fa-solid fa-filter-circle-check"></i>
+
+                        Aplicar filtros
+
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-secondary"
+                        id="btnLimpiarFiltros"
+                    >
+
+                        <i class="fa-solid fa-eraser"></i>
+
+                        Limpiar
+
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 KPI
+            ================================================== -->
+
+            <div class="reportes-kpi-grid">
+
+
+                <div class="reportes-kpi-card">
+
+                    <div class="reportes-kpi-icon">
+                        <i class="fa-solid fa-ticket"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Tickets
+                        </span>
+
+                        <strong id="reporteKpiTotal">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="reportes-kpi-card">
+
+                    <div class="reportes-kpi-icon">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Resueltos
+                        </span>
+
+                        <strong id="reporteKpiResueltos">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="reportes-kpi-card">
+
+                    <div class="reportes-kpi-icon">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Cerrados
+                        </span>
+
+                        <strong id="reporteKpiCerrados">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="reportes-kpi-card">
+
+                    <div class="reportes-kpi-icon">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Pendientes
+                        </span>
+
+                        <strong id="reporteKpiPendientes">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="reportes-kpi-card">
+
+                    <div class="reportes-kpi-icon">
+                        <i class="fa-solid fa-user-clock"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Sin asignar
+                        </span>
+
+                        <strong id="reporteKpiSinAsignar">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="reportes-kpi-card">
+
+                    <div class="reportes-kpi-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Tasa de resolución
+                        </span>
+
+                        <strong id="reporteKpiResolucion">
+                            0%
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 REPORTES DISPONIBLES
+            ================================================== -->
+
+            <div class="reportes-section-title">
+
+                <div>
+
+                    <h3>
+                        Reportes disponibles
+                    </h3>
+
+                    <p>
+                        Exporta la información actualmente filtrada.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="reportes-grid">
+
+
+                <!-- TICKETS -->
+
+                <article class="reportes-report-card">
+
+
+                    <div class="reportes-report-icon">
+
+                        <i class="fa-solid fa-ticket"></i>
+
+                    </div>
+
+
+                    <div class="reportes-report-content">
+
+                        <h3>
+                            Historial de tickets
+                        </h3>
+
+                        <p>
+                            Exporta todos los tickets que cumplen
+                            los filtros seleccionados.
+                        </p>
+
+                        <span>
+                            Incluye información completa del ticket.
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-primary reportes-export-btn"
+                        data-report="tickets"
+                    >
+
+                        <i class="fa-solid fa-file-csv"></i>
+
+                        CSV
+
+                    </button>
+
+
+                </article>
+
+
+
+                <!-- TÉCNICOS -->
+
+                <article class="reportes-report-card">
+
+
+                    <div class="reportes-report-icon">
+
+                        <i class="fa-solid fa-user-gear"></i>
+
+                    </div>
+
+
+                    <div class="reportes-report-content">
+
+                        <h3>
+                            Rendimiento por técnico
+                        </h3>
+
+                        <p>
+                            Distribución de tickets y estados
+                            por técnico.
+                        </p>
+
+                        <span>
+                            Asignados, resueltos, cerrados y pendientes.
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-primary reportes-export-btn"
+                        data-report="tecnicos"
+                    >
+
+                        <i class="fa-solid fa-file-csv"></i>
+
+                        CSV
+
+                    </button>
+
+
+                </article>
+
+
+
+                <!-- USUARIOS -->
+
+                <article class="reportes-report-card">
+
+
+                    <div class="reportes-report-icon">
+
+                        <i class="fa-solid fa-users"></i>
+
+                    </div>
+
+
+                    <div class="reportes-report-content">
+
+                        <h3>
+                            Actividad por usuario
+                        </h3>
+
+                        <p>
+                            Resumen de tickets generados por usuario.
+                        </p>
+
+                        <span>
+                            Incluye correo, división, área y estados.
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-primary reportes-export-btn"
+                        data-report="usuarios"
+                    >
+
+                        <i class="fa-solid fa-file-csv"></i>
+
+                        CSV
+
+                    </button>
+
+
+                </article>
+
+
+
+                <!-- DIVISIONES -->
+
+                <article class="reportes-report-card">
+
+
+                    <div class="reportes-report-icon">
+
+                        <i class="fa-solid fa-building"></i>
+
+                    </div>
+
+
+                    <div class="reportes-report-content">
+
+                        <h3>
+                            Reporte por división
+                        </h3>
+
+                        <p>
+                            Distribución de la carga de soporte
+                            por división.
+                        </p>
+
+                        <span>
+                            Tickets, resueltos, cerrados y pendientes.
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-primary reportes-export-btn"
+                        data-report="divisiones"
+                    >
+
+                        <i class="fa-solid fa-file-csv"></i>
+
+                        CSV
+
+                    </button>
+
+
+                </article>
+
+
+
+                <!-- CATEGORÍAS -->
+
+                <article class="reportes-report-card">
+
+
+                    <div class="reportes-report-icon">
+
+                        <i class="fa-solid fa-tags"></i>
+
+                    </div>
+
+
+                    <div class="reportes-report-content">
+
+                        <h3>
+                            Reporte por categoría
+                        </h3>
+
+                        <p>
+                            Identifica las categorías con mayor
+                            demanda de soporte.
+                        </p>
+
+                        <span>
+                            Cantidad y porcentaje de tickets.
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-primary reportes-export-btn"
+                        data-report="categorias"
+                    >
+
+                        <i class="fa-solid fa-file-csv"></i>
+
+                        CSV
+
+                    </button>
+
+
+                </article>
+
+
+
+                <!-- ÁREAS -->
+
+                <article class="reportes-report-card">
+
+
+                    <div class="reportes-report-icon">
+
+                        <i class="fa-solid fa-sitemap"></i>
+
+                    </div>
+
+
+                    <div class="reportes-report-content">
+
+                        <h3>
+                            Reporte por área
+                        </h3>
+
+                        <p>
+                            Analiza la carga de trabajo por área
+                            dentro de cada división.
+                        </p>
+
+                        <span>
+                            Distribución y estados de tickets.
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-primary reportes-export-btn"
+                        data-report="areas"
+                    >
+
+                        <i class="fa-solid fa-file-csv"></i>
+
+                        CSV
+
+                    </button>
+
+
+                </article>
+
+
+
+                <!-- AUDITORÍA -->
+
+                <article class="reportes-report-card reportes-report-card-disabled">
+
+
+                    <div class="reportes-report-icon">
+
+                        <i class="fa-solid fa-list-check"></i>
+
+                    </div>
+
+
+                    <div class="reportes-report-content">
+
+                        <h3>
+                            Historial de movimientos
+                        </h3>
+
+                        <p>
+                            Bitácora de cambios y acciones realizadas
+                            sobre los tickets.
+                        </p>
+
+                        <span>
+                            Se habilitará con el módulo de auditoría.
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-disabled"
+                        disabled
+                    >
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        Próximamente
+
+                    </button>
+
+
+                </article>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 PREVISUALIZACIÓN
+            ================================================== -->
+
+            <div class="reportes-card">
+
+
+                <div class="reportes-card-header">
+
+
+                    <div>
+
+                        <h3>
+
+                            <i class="fa-solid fa-table"></i>
+
+                            Vista previa
+
+                        </h3>
+
+                        <p id="previewDescripcion">
+                            Mostrando los primeros registros del
+                            reporte filtrado.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="reportes-btn reportes-btn-secondary"
+                        id="btnExportarTicketsPreview"
+                    >
+
+                        <i class="fa-solid fa-download"></i>
+
+                        Exportar tickets
+
+                    </button>
+
+
+                </div>
+
+
+
+                <div class="reportes-table-wrapper">
+
+
+                    <table class="reportes-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Ticket
+                                </th>
+
+                                <th>
+                                    Título
+                                </th>
+
+                                <th>
+                                    Usuario
+                                </th>
+
+                                <th>
+                                    División
+                                </th>
+
+                                <th>
+                                    Área
+                                </th>
+
+                                <th>
+                                    Categoría
+                                </th>
+
+                                <th>
+                                    Prioridad
+                                </th>
+
+                                <th>
+                                    Estatus
+                                </th>
+
+                                <th>
+                                    Técnico
+                                </th>
+
+                                <th>
+                                    Fecha
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="reportesPreviewBody">
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- ==================================================
+                 EXPORTACIÓN TOTAL
+            ================================================== -->
+
+            <div class="reportes-export-all-card">
+
+
+                <div class="reportes-export-all-icon">
+
+                    <i class="fa-solid fa-box-archive"></i>
+
+                </div>
+
+
+                <div>
+
+                    <h3>
+                        Exportación completa
+                    </h3>
+
+                    <p>
+                        Genera un paquete ZIP con todos los reportes
+                        correspondientes a los filtros actuales.
+                    </p>
+
+                    <small>
+                        tickets.csv · tecnicos.csv · usuarios.csv ·
+                        divisiones.csv · areas.csv · categorias.csv
+                    </small>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="reportes-btn reportes-btn-primary"
+                    id="btnExportarTodoInferior"
+                >
+
+                    <i class="fa-solid fa-file-zipper"></i>
+
+                    Generar ZIP
+
+                </button>
+
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     FIREBASE SDK
+========================================================= -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+
+<!-- =========================================================
+     JSZIP
+========================================================= -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+
+<!-- =========================================================
+     FIREBASE CONFIG
+========================================================= -->
+
+<script src="../firebase/firebase-config.js"></script>
+
+
+<!-- =========================================================
+     JAVASCRIPT PORTAL
+========================================================= -->
+
+<script src="../js/data.js"></script>
+
+<script src="../js/auth.js"></script>
+
+<script src="../js/sidebar.js"></script>
+
+<script src="js/reportes.js"></script>
+
+
+</body>
+
+</html>

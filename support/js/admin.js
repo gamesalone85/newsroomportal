@@ -1,8 +1,7 @@
-
 /* =========================================================
    NEWSROOM PORTAL
    ADMINISTRACIÓN DE USUARIOS
-   FIREBASE / FIRESTORE
+   FIREBASE / FIRESTORE / AUTHENTICATION
 ========================================================= */
 
 
@@ -11,13 +10,6 @@
 ========================================================= */
 
 const NEWSROOM_USERS_COLLECTION = "usuarios";
-
-
-/* =========================================================
-   ESTADO LOCAL
-========================================================= */
-
-let newsroomUsuarios = [];
 
 
 /* =========================================================
@@ -35,6 +27,102 @@ const NEWSROOM_ROLES = {
     4: "Rooms Admin"
 
 };
+
+
+/* =========================================================
+   ESTADO LOCAL
+========================================================= */
+
+let newsroomUsuarios = [];
+
+
+/* =========================================================
+   FIREBASE AUTH SECUNDARIO
+========================================================= */
+
+let newsroomSecondaryAuth = null;
+
+
+/* =========================================================
+   INICIALIZAR AUTH SECUNDARIO
+========================================================= */
+
+function inicializarAuthSecundario() {
+
+    try {
+
+        if (
+            typeof firebase ===
+            "undefined"
+        ) {
+
+            console.error(
+                "Newsroom Portal: Firebase no está disponible."
+            );
+
+            return null;
+
+        }
+
+
+        /*
+         * Si ya existe la aplicación secundaria,
+         * la reutilizamos.
+         */
+
+        let secondaryApp;
+
+
+        try {
+
+            secondaryApp =
+                firebase.app(
+                    "NewsroomSecondaryAuth"
+                );
+
+        }
+        catch (error) {
+
+            /*
+             * Creamos una segunda aplicación Firebase
+             * utilizando exactamente la misma configuración
+             * de la aplicación principal.
+             */
+
+            secondaryApp =
+                firebase.initializeApp(
+                    firebase.app().options,
+                    "NewsroomSecondaryAuth"
+                );
+
+        }
+
+
+        newsroomSecondaryAuth =
+            secondaryApp.auth();
+
+
+        console.log(
+            "Newsroom Portal: Firebase Authentication secundario inicializado."
+        );
+
+
+        return newsroomSecondaryAuth;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Newsroom Portal: no fue posible inicializar Auth secundario:",
+            error
+        );
+
+
+        return null;
+
+    }
+
+}
 
 
 /* =========================================================
@@ -72,6 +160,37 @@ document.addEventListener(
             return;
 
         }
+
+
+        /* =====================================================
+           VERIFICAR FIREBASE AUTH
+        ===================================================== */
+
+        if (
+            typeof firebase ===
+            "undefined"
+        ) {
+
+            console.error(
+                "Newsroom Portal: Firebase SDK no está disponible."
+            );
+
+
+            mostrarErrorGeneral(
+                "Firebase no está disponible."
+            );
+
+
+            return;
+
+        }
+
+
+        /* =====================================================
+           INICIALIZAR AUTH SECUNDARIO
+        ===================================================== */
+
+        inicializarAuthSecundario();
 
 
         /* =====================================================
@@ -226,12 +345,6 @@ async function cargarUsuarios() {
 
     try {
 
-        /*
-         * No utilizamos orderBy("id")
-         * porque algunos documentos pueden
-         * no tener el campo id.
-         */
-
         const snapshot =
             await newsroomDB
                 .collection(
@@ -280,14 +393,7 @@ async function cargarUsuarios() {
 
 
                 /* =================================================
-                   NOMBRE DEL ROL
-                   
-                   Soporta:
-                   rol_nombre
-                   rol
-                   
-                   y finalmente calcula el nombre
-                   según rol_id.
+                   ROL
                 ================================================= */
 
                 const rolNombre =
@@ -300,56 +406,32 @@ async function cargarUsuarios() {
 
                 newsroomUsuarios.push({
 
-                    /* ID REAL DEL DOCUMENTO */
-
                     firestoreId:
                         doc.id,
-
-
-                    /* UID FIREBASE */
 
                     uid:
                         uid,
 
-
-                    /* ID NUMÉRICO SI EXISTE */
-
                     id:
                         id,
-
-
-                    /* USUARIO */
 
                     usuario:
                         data.usuario ||
                         "",
 
-
-                    /* NOMBRE */
-
                     nombre:
                         data.nombre ||
                         "",
-
-
-                    /* CORREO */
 
                     correo:
                         data.correo ||
                         "",
 
-
-                    /* ROL */
-
                     rol_id:
                         rolId,
 
-
                     rol:
                         rolNombre,
-
-
-                    /* ESTADO */
 
                     estado:
                         data.estado ||
@@ -362,10 +444,7 @@ async function cargarUsuarios() {
 
 
         /* =====================================================
-           ORDENAR USUARIOS
-           
-           Primero por ID numérico cuando existe.
-           Después por nombre.
+           ORDENAR
         ===================================================== */
 
         newsroomUsuarios.sort(
@@ -616,7 +695,7 @@ function renderizarUsuarios() {
 
 
             /* =================================================
-               CLASE DEL ROL
+               CLASE ROL
             ================================================= */
 
             const rolClase =
@@ -632,7 +711,7 @@ function renderizarUsuarios() {
 
 
             /* =================================================
-               CLASE DEL ESTADO
+               CLASE ESTADO
             ================================================= */
 
             const estadoClase =
@@ -654,11 +733,6 @@ function renderizarUsuarios() {
             let idVisual =
                 usuario.id;
 
-
-            /*
-             * Si no existe ID numérico,
-             * utilizamos el UID como respaldo.
-             */
 
             if (
                 idVisual ===
@@ -683,15 +757,11 @@ function renderizarUsuarios() {
                 "";
 
 
-            /*
-             * El Administrador principal
-             * no puede suspenderse.
-             */
-
             if (
                 Number(
                     usuario.rol_id
-                ) !== 1
+                ) !==
+                1
             ) {
 
                 if (
@@ -752,7 +822,8 @@ function renderizarUsuarios() {
             if (
                 Number(
                     usuario.rol_id
-                ) !== 1
+                ) !==
+                1
             ) {
 
                 botonEliminar = `
@@ -855,7 +926,6 @@ function renderizarUsuarios() {
 
                     <div class="action-group">
 
-
                         <button
                             type="button"
                             class="btn-admin btn-edit"
@@ -888,7 +958,6 @@ function renderizarUsuarios() {
 
 
                         ${botonEliminar}
-
 
                     </div>
 
@@ -1529,11 +1598,6 @@ function abrirModalUsuario(
             "";
 
 
-        /*
-         * Por defecto:
-         * Usuario = rol 3
-         */
-
         rol.value =
             "3";
 
@@ -1637,6 +1701,19 @@ async function guardarUsuario(
     event.preventDefault();
 
 
+    /* =====================================================
+       OCULTAR ERROR ANTERIOR
+    ===================================================== */
+
+    ocultarError(
+        "formError"
+    );
+
+
+    /* =====================================================
+       OBTENER CAMPOS
+    ===================================================== */
+
     const id =
         document.getElementById(
             "usuarioId"
@@ -1658,7 +1735,8 @@ async function guardarUsuario(
     const correo =
         document.getElementById(
             "correo"
-        ).value.trim();
+        ).value.trim()
+        .toLowerCase();
 
 
     const password =
@@ -1713,18 +1791,59 @@ async function guardarUsuario(
     }
 
 
-    /*
-     * La creación de usuarios mediante
-     * Firebase Authentication se implementará
-     * posteriormente mediante Cloud Functions.
-     */
+    /* =====================================================
+       VALIDAR CREACIÓN
+    ===================================================== */
 
     if (!id) {
 
-        mostrarError(
-            "formError",
-            "La creación de cuentas de acceso mediante Firebase Authentication se habilitará en la siguiente etapa."
-        );
+        if (!password) {
+
+            mostrarError(
+                "formError",
+                "La contraseña es obligatoria para crear un usuario."
+            );
+
+
+            return;
+
+        }
+
+
+        if (
+            password.length <
+            6
+        ) {
+
+            mostrarError(
+                "formError",
+                "La contraseña debe tener al menos 6 caracteres."
+            );
+
+
+            return;
+
+        }
+
+
+        await crearUsuarioNuevo({
+
+            nombre:
+                nombre,
+
+            usuario:
+                usuario,
+
+            correo:
+                correo,
+
+            password:
+                password,
+
+            rolId:
+                rolId
+
+        });
 
 
         return;
@@ -1733,7 +1852,7 @@ async function guardarUsuario(
 
 
     /* =====================================================
-       BUSCAR USUARIO EXISTENTE
+       EDITAR USUARIO EXISTENTE
     ===================================================== */
 
     const usuarioExistente =
@@ -1865,6 +1984,362 @@ async function guardarUsuario(
             error,
             "No fue posible actualizar el usuario."
         );
+
+    }
+
+}
+
+
+/* =========================================================
+   CREAR USUARIO NUEVO
+========================================================= */
+
+async function crearUsuarioNuevo(
+    datos
+) {
+
+    console.log(
+        "Newsroom Portal: iniciando creación de usuario..."
+    );
+
+
+    /* =====================================================
+       VERIFICAR AUTH SECUNDARIO
+    ===================================================== */
+
+    if (
+        !newsroomSecondaryAuth
+    ) {
+
+        newsroomSecondaryAuth =
+            inicializarAuthSecundario();
+
+    }
+
+
+    if (
+        !newsroomSecondaryAuth
+    ) {
+
+        mostrarError(
+            "formError",
+            "No fue posible inicializar Firebase Authentication."
+        );
+
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       VALIDAR USUARIO DUPLICADO
+    ===================================================== */
+
+    const usuarioNormalizado =
+        datos.usuario
+            .trim()
+            .toLowerCase();
+
+
+    const usuarioDuplicado =
+        newsroomUsuarios.find(
+            function (item) {
+
+                return (
+                    String(
+                        item.usuario ||
+                        ""
+                    )
+                        .trim()
+                        .toLowerCase() ===
+                    usuarioNormalizado
+                );
+
+            }
+        );
+
+
+    if (usuarioDuplicado) {
+
+        mostrarError(
+            "formError",
+            "El nombre de usuario ya existe."
+        );
+
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       DESHABILITAR BOTÓN SUBMIT
+    ===================================================== */
+
+    const form =
+        document.getElementById(
+            "usuarioForm"
+        );
+
+
+    const submitButton =
+        form
+            ? form.querySelector(
+                'button[type="submit"]'
+            )
+            : null;
+
+
+    const textoOriginal =
+        submitButton
+            ? submitButton.textContent
+            : "";
+
+
+    if (submitButton) {
+
+        submitButton.disabled =
+            true;
+
+
+        submitButton.textContent =
+            "Creando usuario...";
+
+    }
+
+
+    let authUser =
+        null;
+
+
+    try {
+
+        console.log(
+            "Newsroom Portal: creando cuenta en Firebase Authentication:",
+            datos.correo
+        );
+
+
+        /* =================================================
+           CREAR CUENTA EN FIREBASE AUTH
+        ================================================= */
+
+        const userCredential =
+            await newsroomSecondaryAuth
+                .createUserWithEmailAndPassword(
+                    datos.correo,
+                    datos.password
+                );
+
+
+        authUser =
+            userCredential.user;
+
+
+        console.log(
+            "Newsroom Portal: usuario creado en Authentication:",
+            authUser.uid
+        );
+
+
+        /* =================================================
+           CREAR PERFIL EN FIRESTORE
+        ================================================= */
+
+        await newsroomDB
+            .collection(
+                NEWSROOM_USERS_COLLECTION
+            )
+            .doc(
+                authUser.uid
+            )
+            .set({
+
+                uid:
+                    authUser.uid,
+
+                nombre:
+                    datos.nombre,
+
+                usuario:
+                    datos.usuario,
+
+                correo:
+                    datos.correo,
+
+                rol_id:
+                    datos.rolId,
+
+                rol_nombre:
+                    obtenerNombreRol(
+                        datos.rolId
+                    ),
+
+                estado:
+                    "Activo",
+
+                creado_por:
+                    "Administrador",
+
+                fecha_creacion:
+                    firebase.firestore.FieldValue.serverTimestamp()
+
+            });
+
+
+        console.log(
+            "Newsroom Portal: perfil creado en Firestore."
+        );
+
+
+        /* =================================================
+           CERRAR MODAL
+        ================================================= */
+
+        cerrarModalUsuario();
+
+
+        /* =================================================
+           LIMPIAR FORMULARIO
+        ================================================= */
+
+        if (form) {
+
+            form.reset();
+
+        }
+
+
+        /* =================================================
+           RECARGAR TABLA
+        ================================================= */
+
+        await cargarUsuarios();
+
+
+        /* =================================================
+           CONFIRMACIÓN
+        ================================================= */
+
+        alert(
+            "Usuario creado correctamente en Firebase Authentication y Firestore."
+        );
+
+
+    }
+    catch (error) {
+
+        console.error(
+            "Newsroom Portal: error creando usuario:",
+            error
+        );
+
+
+        /* =================================================
+           SI FIRESTORE FALLA DESPUÉS DE CREAR AUTH
+        ================================================= */
+
+        if (
+            authUser
+        ) {
+
+            console.warn(
+                "La cuenta de Authentication fue creada, pero hubo un problema creando el perfil de Firestore.",
+                authUser.uid
+            );
+
+        }
+
+
+        let mensaje =
+            "No fue posible crear el usuario.";
+
+
+        if (
+            error &&
+            error.code ===
+            "auth/email-already-in-use"
+        ) {
+
+            mensaje =
+                "El correo electrónico ya está registrado en Firebase Authentication.";
+
+        }
+        else if (
+            error &&
+            error.code ===
+            "auth/invalid-email"
+        ) {
+
+            mensaje =
+                "El correo electrónico no es válido.";
+
+        }
+        else if (
+            error &&
+            error.code ===
+            "auth/weak-password"
+        ) {
+
+            mensaje =
+                "La contraseña es demasiado débil. Utiliza al menos 6 caracteres.";
+
+        }
+        else if (
+            error &&
+            error.code ===
+            "permission-denied"
+        ) {
+
+            mensaje =
+                "Firebase Authentication creó la cuenta, pero Firestore rechazó la creación del perfil por permisos.";
+
+        }
+        else if (
+            error &&
+            error.code ===
+            "auth/operation-not-allowed"
+        ) {
+
+            mensaje =
+                "El método de acceso por correo y contraseña no está habilitado en Firebase Authentication.";
+
+        }
+        else if (
+            error &&
+            error.message
+        ) {
+
+            mensaje =
+                error.message;
+
+        }
+
+
+        mostrarError(
+            "formError",
+            mensaje
+        );
+
+    }
+    finally {
+
+        /* =================================================
+           RESTAURAR BOTÓN
+        ================================================= */
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                false;
+
+
+            submitButton.textContent =
+                textoOriginal ||
+                "Guardar";
+
+        }
 
     }
 
@@ -2226,23 +2701,15 @@ async function guardarPassword(
 
 
     /*
-     * IMPORTANTE:
+     * El reset administrativo de contraseña
+     * todavía no se realiza desde este archivo.
      *
-     * Las contraseñas NO se guardan
-     * en Firestore.
-     *
-     * Firebase Authentication será
-     * responsable de administrar
-     * las contraseñas.
-     *
-     * El reset administrativo se
-     * implementará posteriormente
-     * mediante Cloud Functions.
+     * No guardamos contraseñas en Firestore.
      */
 
     mostrarError(
         "passwordError",
-        "El restablecimiento administrativo de contraseñas se habilitará mediante Firebase Authentication en la siguiente etapa."
+        "El restablecimiento administrativo de contraseñas se habilitará mediante Firebase Authentication."
     );
 
 }
@@ -2449,4 +2916,3 @@ function manejarErrorFirebase(
     );
 
 }
-

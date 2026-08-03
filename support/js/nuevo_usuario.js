@@ -20,7 +20,7 @@ document.addEventListener(
 
         /* =================================================
            VALIDAR SESIÓN
-        ================================================== */
+        ================================================= */
 
         if (
             typeof verificarSesion !== "function"
@@ -48,7 +48,7 @@ document.addEventListener(
 
         /* =================================================
            OBTENER SESIÓN
-        ================================================== */
+        ================================================= */
 
         const session =
             typeof obtenerSesion === "function"
@@ -59,7 +59,7 @@ document.addEventListener(
         if (!session) {
 
             console.error(
-                "Newsroom Portal: no existe sesión."
+                "Newsroom Portal: no existe una sesión activa."
             );
 
             return;
@@ -72,7 +72,7 @@ document.addEventListener(
            
            1 = Administrador
            4 = Rooms Admin
-        ================================================== */
+        ================================================= */
 
         const rolActual =
             Number(
@@ -163,7 +163,7 @@ document.addEventListener(
             );
 
             console.error(
-                "newsroomAuth o newsroomDB no disponibles."
+                "Newsroom Portal: newsroomAuth o newsroomDB no disponibles."
             );
 
             return;
@@ -178,6 +178,10 @@ document.addEventListener(
 
             mostrarMensaje(
                 "No se pudo inicializar el servicio de creación de usuarios."
+            );
+
+            console.error(
+                "Newsroom Portal: newsroomSecondaryAuth no disponible."
             );
 
             return;
@@ -195,522 +199,536 @@ document.addEventListener(
 
 
         /* =================================================
-           FORMULARIO
+           EVENTO FORMULARIO
         ================================================= */
 
-        if (form) {
+        if (!form) {
 
-            form.addEventListener(
-                "submit",
-                async function (event) {
+            console.error(
+                "Newsroom Portal: no existe #nuevoUsuarioForm."
+            );
 
-                    event.preventDefault();
+            return;
+
+        }
 
 
-                    ocultarMensaje();
+        form.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                ocultarMensaje();
+
+
+                /* =========================================
+                   OBTENER DATOS
+                ========================================= */
+
+                const nombreElement =
+                    document.getElementById(
+                        "nombre"
+                    );
+
+
+                const usuarioElement =
+                    document.getElementById(
+                        "usuario"
+                    );
+
+
+                const correoElement =
+                    document.getElementById(
+                        "correo"
+                    );
+
+
+                const passwordElement =
+                    document.getElementById(
+                        "password"
+                    );
+
+
+                const rolElement =
+                    document.getElementById(
+                        "rol_id"
+                    );
+
+
+                const nombre =
+                    nombreElement
+                        ? nombreElement.value.trim()
+                        : "";
+
+
+                const usuario =
+                    usuarioElement
+                        ? usuarioElement.value.trim()
+                        : "";
+
+
+                const correo =
+                    correoElement
+                        ? correoElement.value.trim().toLowerCase()
+                        : "";
+
+
+                const password =
+                    passwordElement
+                        ? passwordElement.value
+                        : "";
+
+
+                const rol_id =
+                    rolElement
+                        ? Number(
+                            rolElement.value
+                        )
+                        : 0;
+
+
+                /* =========================================
+                   VALIDACIONES
+                ========================================= */
+
+                if (!nombre) {
+
+                    mostrarMensaje(
+                        "Escribe el nombre del usuario."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!usuario) {
+
+                    mostrarMensaje(
+                        "Escribe el nombre de usuario."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!correo) {
+
+                    mostrarMensaje(
+                        "Escribe el correo electrónico."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!password) {
+
+                    mostrarMensaje(
+                        "Escribe una contraseña."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    password.length < 6
+                ) {
+
+                    mostrarMensaje(
+                        "La contraseña debe tener al menos 6 caracteres."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!rol_id) {
+
+                    mostrarMensaje(
+                        "Selecciona un rol."
+                    );
+
+                    return;
+
+                }
+
+
+                /* =========================================
+                   VALIDAR CORREO
+                ========================================= */
+
+                const emailRegex =
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+                if (
+                    !emailRegex.test(
+                        correo
+                    )
+                ) {
+
+                    mostrarMensaje(
+                        "Escribe un correo electrónico válido."
+                    );
+
+                    return;
+
+                }
+
+
+                /* =========================================
+                   DESACTIVAR BOTÓN
+                ========================================= */
+
+                if (guardarButton) {
+
+                    guardarButton.disabled =
+                        true;
+
+
+                    guardarButton.innerHTML =
+                        '<i class="fa-solid fa-spinner fa-spin"></i> Creando usuario...';
+
+                }
+
+
+                try {
+
+                    console.log(
+                        "Newsroom Portal: verificando usuario..."
+                    );
 
 
                     /* =====================================
-                       DATOS
+                       VERIFICAR USUARIO DUPLICADO
                     ===================================== */
 
-                    const nombre =
-                        document
-                            .getElementById("nombre")
-                            ?.value
-                            .trim();
-
-
-                    const usuario =
-                        document
-                            .getElementById("usuario")
-                            ?.value
-                            .trim();
-
-
-                    const correo =
-                        document
-                            .getElementById("correo")
-                            ?.value
-                            .trim()
-                            .toLowerCase();
-
-
-                    const password =
-                        document
-                            .getElementById("password")
-                            ?.value;
-
-
-                    const rol_id =
-                        Number(
-                            document
-                                .getElementById("rol_id")
-                                ?.value
-                        );
-
-
-                    /* =====================================
-                       VALIDACIONES
-                    ===================================== */
-
-                    if (!nombre) {
-
-                        mostrarMensaje(
-                            "Escribe el nombre del usuario."
-                        );
-
-                        return;
-
-                    }
-
-
-                    if (!usuario) {
-
-                        mostrarMensaje(
-                            "Escribe el nombre de usuario."
-                        );
-
-                        return;
-
-                    }
-
-
-                    if (!correo) {
-
-                        mostrarMensaje(
-                            "Escribe el correo electrónico del usuario."
-                        );
-
-                        return;
-
-                    }
-
-
-                    if (!password) {
-
-                        mostrarMensaje(
-                            "Escribe una contraseña."
-                        );
-
-                        return;
-
-                    }
+                    const usuarioSnapshot =
+                        await newsroomDB
+                            .collection(
+                                "usuarios"
+                            )
+                            .where(
+                                "usuario",
+                                "==",
+                                usuario
+                            )
+                            .limit(1)
+                            .get();
 
 
                     if (
-                        password.length < 6
+                        !usuarioSnapshot.empty
                     ) {
 
-                        mostrarMensaje(
-                            "La contraseña debe tener al menos 6 caracteres."
+                        throw new Error(
+                            "Ya existe un usuario con ese nombre de usuario."
                         );
-
-                        return;
 
                     }
 
 
-                    if (!rol_id) {
-
-                        mostrarMensaje(
-                            "Selecciona un rol."
-                        );
-
-                        return;
-
-                    }
+                    console.log(
+                        "Newsroom Portal: usuario disponible."
+                    );
 
 
                     /* =====================================
-                       VALIDAR EMAIL
+                       CREAR AUTH
                     ===================================== */
 
-                    const emailValido =
-                        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    console.log(
+                        "Newsroom Portal: creando cuenta en Firebase Authentication..."
+                    );
+
+
+                    const userCredential =
+                        await newsroomSecondaryAuth
+                            .createUserWithEmailAndPassword(
+                                correo,
+                                password
+                            );
+
+
+                    const firebaseUser =
+                        userCredential.user;
+
+
+                    if (!firebaseUser) {
+
+                        throw new Error(
+                            "Firebase no devolvió el usuario creado."
+                        );
+
+                    }
+
+
+                    const uid =
+                        firebaseUser.uid;
+
+
+                    console.log(
+                        "Newsroom Portal: cuenta Authentication creada.",
+                        uid
+                    );
+
+
+                    /* =====================================
+                       OBTENER NOMBRE DEL ROL
+                    ===================================== */
+
+                    let nombreRol =
+                        "";
 
 
                     if (
-                        !emailValido.test(
-                            correo
+                        typeof NEWSROOM_ROLES !==
+                        "undefined" &&
+                        Array.isArray(
+                            NEWSROOM_ROLES
                         )
                     ) {
 
-                        mostrarMensaje(
-                            "Escribe un correo electrónico válido."
-                        );
+                        const rolEncontrado =
+                            NEWSROOM_ROLES.find(
+                                function (item) {
 
-                        return;
+                                    return Number(
+                                        item.id
+                                    ) ===
+                                    rol_id;
+
+                                }
+                            );
+
+
+                        if (
+                            rolEncontrado
+                        ) {
+
+                            nombreRol =
+                                rolEncontrado.nombre ||
+                                "";
+
+                        }
 
                     }
 
 
                     /* =====================================
-                       DESACTIVAR BOTÓN
+                       DATOS FIRESTORE
+                       
+                       IMPORTANTE:
+                       NO SE GUARDA PASSWORD.
+                    ===================================== */
+
+                    const usuarioData = {
+
+                        uid:
+                            uid,
+
+                        nombre:
+                            nombre,
+
+                        usuario:
+                            usuario,
+
+                        correo:
+                            correo,
+
+                        rol_id:
+                            rol_id,
+
+                        rol:
+                            nombreRol,
+
+                        activo:
+                            true,
+
+                        creado_en:
+                            firebase.firestore.FieldValue.serverTimestamp(),
+
+                        creado_por_uid:
+                            newsroomAuth.currentUser
+                                ? newsroomAuth.currentUser.uid
+                                : null,
+
+                        creado_por:
+                            session.nombre ||
+                            session.usuario ||
+                            session.email ||
+                            "Administrador"
+
+                    };
+
+
+                    console.log(
+                        "Newsroom Portal: guardando perfil en Firestore..."
+                    );
+
+
+                    /* =====================================
+                       CREAR DOCUMENTO
+                    ===================================== */
+
+                    await newsroomDB
+                        .collection(
+                            "usuarios"
+                        )
+                        .doc(
+                            uid
+                        )
+                        .set(
+                            usuarioData
+                        );
+
+
+                    console.log(
+                        "Newsroom Portal: perfil guardado correctamente."
+                    );
+
+
+                    /* =====================================
+                       LIMPIAR FORMULARIO
+                    ===================================== */
+
+                    form.reset();
+
+
+                    /* =====================================
+                       MENSAJE ÉXITO
+                    ===================================== */
+
+                    mostrarMensaje(
+
+                        "Usuario creado correctamente en Firebase Authentication y Firestore.",
+
+                        "success"
+
+                    );
+
+
+                    /* =====================================
+                       REGRESAR
+                    ===================================== */
+
+                    setTimeout(
+                        function () {
+
+                            window.location.href =
+                                "index.html";
+
+                        },
+                        1200
+                    );
+
+                }
+                catch (error) {
+
+                    console.error(
+                        "Newsroom Portal: error creando usuario.",
+                        error
+                    );
+
+
+                    /* =====================================
+                       MENSAJE
+                    ===================================== */
+
+                    let mensaje =
+                        "No fue posible crear el usuario.";
+
+
+                    switch (
+                        error.code
+                    ) {
+
+                        case "auth/email-already-in-use":
+
+                            mensaje =
+                                "El correo electrónico ya está registrado en Firebase Authentication.";
+
+                            break;
+
+
+                        case "auth/invalid-email":
+
+                            mensaje =
+                                "El correo electrónico no es válido.";
+
+                            break;
+
+
+                        case "auth/weak-password":
+
+                            mensaje =
+                                "La contraseña es demasiado débil. Utiliza al menos 6 caracteres.";
+
+                            break;
+
+
+                        case "auth/operation-not-allowed":
+
+                            mensaje =
+                                "El método Correo electrónico/Contraseña no está habilitado en Firebase Authentication.";
+
+                            break;
+
+
+                        case "permission-denied":
+
+                            mensaje =
+                                "Firebase rechazó la operación en Firestore. Revisa las reglas de seguridad.";
+
+                            break;
+
+
+                        default:
+
+                            if (
+                                error.message
+                            ) {
+
+                                mensaje =
+                                    error.message;
+
+                            }
+
+                    }
+
+
+                    mostrarMensaje(
+                        mensaje
+                    );
+
+
+                    /* =====================================
+                       RESTAURAR BOTÓN
                     ===================================== */
 
                     if (guardarButton) {
 
                         guardarButton.disabled =
-                            true;
+                            false;
 
 
                         guardarButton.innerHTML =
-
-                            '<i class="fa-solid fa-spinner fa-spin"></i> ' +
-                            'Creando usuario...';
-
-                    }
-
-
-                    try {
-
-                        /* =================================
-                           VERIFICAR DUPLICADO DE USUARIO
-                        ================================= */
-
-                        const usuarioSnapshot =
-                            await newsroomDB
-                                .collection(
-                                    "usuarios"
-                                )
-                                .where(
-                                    "usuario",
-                                    "==",
-                                    usuario
-                                )
-                                .limit(1)
-                                .get();
-
-
-                        if (
-                            !usuarioSnapshot.empty
-                        ) {
-
-                            throw new Error(
-                                "Ya existe un usuario con ese nombre de usuario."
-                            );
-
-                        }
-
-
-                        /* =================================
-                           CREAR CUENTA EN FIREBASE AUTH
-                           
-                           IMPORTANTE:
-                           Se usa la instancia secundaria.
-                           
-                           El administrador NO pierde
-                           su sesión actual.
-                        ================================= */
-
-                        console.log(
-                            "Newsroom Portal: creando cuenta Firebase Auth..."
-                        );
-
-
-                        const userCredential =
-                            await newsroomSecondaryAuth
-                                .createUserWithEmailAndPassword(
-                                    correo,
-                                    password
-                                );
-
-
-                        const firebaseUser =
-                            userCredential.user;
-
-
-                        if (!firebaseUser) {
-
-                            throw new Error(
-                                "Firebase no devolvió el usuario creado."
-                            );
-
-                        }
-
-
-                        const uid =
-                            firebaseUser.uid;
-
-
-                        console.log(
-                            "Newsroom Portal: usuario Auth creado:",
-                            uid
-                        );
-
-
-                        /* =================================
-                           DATOS DEL ROL
-                        ================================= */
-
-                        let nombreRol =
-                            "";
-
-
-                        if (
-                            typeof NEWSROOM_ROLES !==
-                            "undefined" &&
-                            Array.isArray(
-                                NEWSROOM_ROLES
-                            )
-                        {
-
-                            const rolEncontrado =
-                                NEWSROOM_ROLES.find(
-                                    item =>
-                                        Number(
-                                            item.id
-                                        ) ===
-                                        rol_id
-                                );
-
-
-                            if (
-                                rolEncontrado
-                            ) {
-
-                                nombreRol =
-                                    rolEncontrado.nombre ||
-                                    "";
-
-                            }
-
-                        }
-
-
-                        /* =================================
-                           CREAR PERFIL EN FIRESTORE
-                           
-                           NO se guarda password.
-                        ================================= */
-
-                        const usuarioData = {
-
-                            uid:
-                                uid,
-
-                            nombre:
-                                nombre,
-
-                            usuario:
-                                usuario,
-
-                            correo:
-                                correo,
-
-                            rol_id:
-                                rol_id,
-
-                            rol:
-                                nombreRol,
-
-                            activo:
-                                true,
-
-                            creado_en:
-                                firebase.firestore.FieldValue.serverTimestamp(),
-
-                            creado_por_uid:
-                                newsroomAuth.currentUser
-                                    ? newsroomAuth.currentUser.uid
-                                    : null,
-
-                            creado_por:
-                                session.nombre ||
-                                session.usuario ||
-                                session.email ||
-                                "Administrador"
-
-                        };
-
-
-                        console.log(
-                            "Newsroom Portal: guardando perfil en Firestore..."
-                        );
-
-
-                        await newsroomDB
-                            .collection(
-                                "usuarios"
-                            )
-                            .doc(
-                                uid
-                            )
-                            .set(
-                                usuarioData
-                            );
-
-
-                        console.log(
-                            "Newsroom Portal: usuario guardado correctamente en Firestore."
-                        );
-
-
-                        /* =================================
-                           LIMPIAR CONTRASEÑA DE FORMULARIO
-                        ================================= */
-
-                        const passwordInput =
-                            document.getElementById(
-                                "password"
-                            );
-
-
-                        if (passwordInput) {
-
-                            passwordInput.value =
-                                "";
-
-                        }
-
-
-                        /* =================================
-                           LIMPIAR FORMULARIO
-                        ================================= */
-
-                        form.reset();
-
-
-                        /* =================================
-                           MENSAJE
-                        ================================= */
-
-                        mostrarMensaje(
-
-                            "Usuario creado correctamente en Firebase Authentication y Firestore. Regresando a Administración...",
-
-                            "success"
-
-                        );
-
-
-                        /* =================================
-                           REGRESAR
-                        ================================= */
-
-                        setTimeout(
-                            function () {
-
-                                window.location.href =
-                                    "index.html";
-
-                            },
-                            1200
-                        );
-
-                    }
-                    catch (error) {
-
-                        console.error(
-                            "Newsroom Portal: error creando usuario.",
-                            error
-                        );
-
-
-                        /* =================================
-                           MENSAJES FIREBASE
-                        ================================= */
-
-                        let mensaje =
-                            "No fue posible crear el usuario.";
-
-
-                        switch (
-                            error.code
-                        ) {
-
-                            case "auth/email-already-in-use":
-
-                                mensaje =
-                                    "El correo electrónico ya está registrado en Firebase Authentication.";
-
-                                break;
-
-
-                            case "auth/invalid-email":
-
-                                mensaje =
-                                    "El correo electrónico no es válido.";
-
-                                break;
-
-
-                            case "auth/weak-password":
-
-                                mensaje =
-                                    "La contraseña es demasiado débil. Utiliza al menos 6 caracteres.";
-
-                                break;
-
-
-                            case "auth/operation-not-allowed":
-
-                                mensaje =
-                                    "El acceso mediante correo y contraseña no está habilitado en Firebase Authentication.";
-
-                                break;
-
-
-                            case "permission-denied":
-
-                                mensaje =
-                                    "Firebase rechazó la escritura en Firestore. Revisa las reglas de seguridad.";
-
-                                break;
-
-
-                            case "failed-precondition":
-
-                                mensaje =
-                                    "Firestore requiere una configuración adicional para realizar esta operación.";
-
-                                break;
-
-
-                            default:
-
-                                if (
-                                    error.message
-                                ) {
-
-                                    mensaje =
-                                        error.message;
-
-                                }
-
-                        }
-
-
-                        mostrarMensaje(
-                            mensaje
-                        );
-
-
-                        /* =================================
-                           RESTAURAR BOTÓN
-                        ================================= */
-
-                        if (guardarButton) {
-
-                            guardarButton.disabled =
-                                false;
-
-
-                            guardarButton.innerHTML =
-
-                                '<i class="fa-solid fa-user-plus"></i> ' +
-                                'Guardar Usuario';
-
-                        }
+                            '<i class="fa-solid fa-user-plus"></i> Guardar Usuario';
 
                     }
 
                 }
-            );
 
-        }
-
+            }
+        );
 
     }
 );
@@ -845,7 +863,7 @@ function cargarRoles(
 
 function mostrarMensaje(
     texto,
-    tipo = "error"
+    tipo
 ) {
 
     const message =
@@ -866,7 +884,9 @@ function mostrarMensaje(
 
 
     message.className =
-        `form-message ${tipo}`;
+        tipo
+            ? "form-message " + tipo
+            : "form-message error";
 
 
     message.style.display =

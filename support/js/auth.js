@@ -1,8 +1,9 @@
+
 /* =========================================================
    NEWSROOM PORTAL
    AUTHENTICATION CONTROLLER
    FIREBASE
-   ========================================================= */
+========================================================= */
 
 
 /* =========================================================
@@ -68,7 +69,8 @@ function obtenerSesion() {
             session
         );
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Newsroom Portal: sesión inválida.",
@@ -110,10 +112,12 @@ function guardarSesion(
     const session = {
 
         id:
-            usuario.id || null,
+            usuario.id ||
+            null,
 
         uid:
-            usuario.uid || null,
+            usuario.uid ||
+            null,
 
         user_id:
             usuario.uid ||
@@ -121,24 +125,30 @@ function guardarSesion(
             null,
 
         usuario:
-            usuario.usuario || "",
+            usuario.usuario ||
+            "",
 
         nombre:
-            usuario.nombre || "",
+            usuario.nombre ||
+            "",
 
         correo:
-            usuario.correo || "",
+            usuario.correo ||
+            "",
 
         rol_id:
             Number(
-                usuario.rol_id || 0
+                usuario.rol_id ||
+                0
             ),
 
         rol:
-            usuario.rol || "",
+            usuario.rol ||
+            "",
 
         estado:
-            usuario.estado || "Activo",
+            usuario.estado ||
+            "Activo",
 
         loginAt:
             new Date().toISOString()
@@ -176,7 +186,8 @@ async function cerrarSesion(
 
         }
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Newsroom Portal: error cerrando sesión Firebase.",
@@ -317,6 +328,144 @@ function redirigirSegunRol() {
 
 
 /* =========================================================
+   NORMALIZAR USUARIO
+========================================================= */
+
+function normalizarUsuario(
+    usuario
+) {
+
+    return String(
+        usuario ||
+        ""
+    )
+    .trim()
+    .toLowerCase();
+
+}
+
+
+/* =========================================================
+   DETERMINAR SI ES CORREO
+========================================================= */
+
+function esCorreo(
+    valor
+) {
+
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        .test(
+            String(valor || "")
+                .trim()
+        );
+
+}
+
+
+/* =========================================================
+   CORREOS TEMPORALES DEL SISTEMA
+=========================================================
+
+   Estos corresponden a cuentas administrativas
+   antiguas que ya tenían un correo definido.
+
+========================================================= */
+
+const NEWSROOM_CORREOS_SISTEMA = {
+
+    admin:
+        "admin@newsroomportal.com",
+
+    support:
+        "support@newsroomportal.com",
+
+    rooms:
+        "rooms@newsroomportal.com",
+
+    roomsadmin:
+        "roomsadmin@newsroomportal.com",
+
+    vehicular:
+        "vehicular@newsroomportal.com",
+
+    credencializacion:
+        "credencializacion@newsroomportal.com",
+
+    capitalhumano:
+        "capitalhumano@newsroomportal.com"
+
+};
+
+
+/* =========================================================
+   OBTENER CORREO DE ACCESO
+========================================================= */
+
+function obtenerCorreoDeAcceso(
+    usuario
+) {
+
+    const valor =
+        normalizarUsuario(
+            usuario
+        );
+
+
+    if (!valor) {
+
+        return null;
+
+    }
+
+
+    /*
+     * Si el usuario ya escribió un correo,
+     * utilizamos directamente ese correo.
+     */
+
+    if (
+        esCorreo(valor)
+    ) {
+
+        return valor;
+
+    }
+
+
+    /*
+     * Compatibilidad con cuentas administrativas
+     * antiguas.
+     */
+
+    if (
+        NEWSROOM_CORREOS_SISTEMA[
+            valor
+        ]
+    ) {
+
+        return NEWSROOM_CORREOS_SISTEMA[
+            valor
+        ];
+
+    }
+
+
+    /*
+     * IMPORTANTE:
+     *
+     * Un nombre de usuario normal no puede
+     * convertirse automáticamente en correo.
+     *
+     * Firebase Authentication necesita un correo
+     * real asociado a la cuenta.
+     */
+
+    return null;
+
+}
+
+
+/* =========================================================
    AUTENTICAR USUARIO
 ========================================================= */
 
@@ -330,26 +479,22 @@ async function autenticarUsuario(
         "undefined"
     ) {
 
-        throw new Error(
-            "Firebase Authentication no está disponible."
-        );
+        return {
+
+            success:
+                false,
+
+            message:
+                "Firebase Authentication no está disponible."
+
+        };
 
     }
 
 
-    const usuarioNormalizado =
-        String(usuario)
-            .trim()
-            .toLowerCase();
-
-
-    const passwordNormalizada =
-        String(password);
-
-
     if (
-        !usuarioNormalizado ||
-        !passwordNormalizada
+        typeof newsroomDB ===
+        "undefined"
     ) {
 
         return {
@@ -358,82 +503,102 @@ async function autenticarUsuario(
                 false,
 
             message:
-                "Ingresa tu usuario y contraseña."
+                "Firebase Firestore no está disponible."
 
         };
 
     }
 
 
-    /*
-     * -----------------------------------------------------
-     * ACTUALMENTE EL LOGIN UTILIZARÁ CORREO
-     * COMO IDENTIFICADOR DE FIREBASE.
-     *
-     * Posteriormente podemos recuperar el usuario
-     * mediante un alias/usuario de Firestore.
-     * -----------------------------------------------------
-     */
-
-    let correo =
-        usuarioNormalizado;
+    const usuarioNormalizado =
+        normalizarUsuario(
+            usuario
+        );
 
 
-    /*
-     * Si el usuario escribe solamente "admin",
-     * temporalmente lo convertimos al correo
-     * registrado en nuestro sistema.
-     *
-     * ESTO ES SOLO PARA LA MIGRACIÓN INICIAL.
-     */
-
-    const correosTemporales = {
-
-        admin:
-            "admin@newsroomportal.com",
-
-        support:
-            "support@newsroomportal.com",
-
-        rooms:
-            "rooms@newsroomportal.com",
-
-        roomsadmin:
-            "roomsadmin@newsroomportal.com",
-
-        vehicular:
-            "vehicular@newsroomportal.com",
-
-        credencializacion:
-            "credencializacion@newsroomportal.com",
-
-        capitalhumano:
-            "capitalhumano@newsroomportal.com"
-
-    };
+    const passwordNormalizada =
+        String(
+            password ||
+            ""
+        );
 
 
-    if (
-        correosTemporales[
-            usuarioNormalizado
-        ]
-    ) {
+    /* =====================================================
+       VALIDACIÓN
+    ===================================================== */
 
-        correo =
-            correosTemporales[
-                usuarioNormalizado
-            ];
+    if (!usuarioNormalizado) {
+
+        return {
+
+            success:
+                false,
+
+            message:
+                "Ingresa tu usuario o correo."
+
+        };
 
     }
 
 
+    if (!passwordNormalizada) {
+
+        return {
+
+            success:
+                false,
+
+            message:
+                "Ingresa tu contraseña."
+
+        };
+
+    }
+
+
+    /* =====================================================
+       OBTENER CORREO
+    ===================================================== */
+
+    const correo =
+        obtenerCorreoDeAcceso(
+            usuarioNormalizado
+        );
+
+
+    /*
+     * Si no es correo y tampoco pertenece a las
+     * cuentas administrativas antiguas, todavía
+     * no podemos enviarlo a Firebase Auth.
+     */
+
+    if (!correo) {
+
+        return {
+
+            success:
+                false,
+
+            message:
+                "Para esta cuenta debes ingresar el correo electrónico registrado."
+
+        };
+
+    }
+
+
+    console.log(
+        "Newsroom Portal: intentando autenticar:",
+        correo
+    );
+
+
     try {
 
-        /*
-         * -------------------------------------------------
-         * FIREBASE AUTHENTICATION
-         * -------------------------------------------------
-         */
+        /* =================================================
+           FIREBASE AUTHENTICATION
+        ================================================= */
 
         const resultado =
             await newsroomAuth
@@ -462,28 +627,28 @@ async function autenticarUsuario(
         }
 
 
-        /*
-         * -------------------------------------------------
-         * OBTENER PERFIL DE FIRESTORE
-         * -------------------------------------------------
-         */
+        console.log(
+            "Newsroom Portal: autenticación Firebase correcta.",
+            firebaseUser.uid
+        );
+
+
+        /* =================================================
+           OBTENER PERFIL
+        ================================================= */
 
         const perfilSnapshot =
             await newsroomDB
                 .collection("usuarios")
-                .doc(firebaseUser.uid)
+                .doc(
+                    firebaseUser.uid
+                )
                 .get();
 
 
         if (
             !perfilSnapshot.exists
         ) {
-
-            /*
-             * Si Authentication funciona pero
-             * todavía no existe el perfil,
-             * cerramos la sesión.
-             */
 
             await newsroomAuth.signOut();
 
@@ -494,7 +659,7 @@ async function autenticarUsuario(
                     false,
 
                 message:
-                    "La cuenta existe, pero todavía no tiene un perfil registrado en Newsroom."
+                    "La cuenta existe en Firebase, pero no tiene un perfil registrado en Newsroom."
 
             };
 
@@ -505,11 +670,9 @@ async function autenticarUsuario(
             perfilSnapshot.data();
 
 
-        /*
-         * -------------------------------------------------
-         * VERIFICAR ESTADO
-         * -------------------------------------------------
-         */
+        /* =================================================
+           VERIFICAR ESTADO
+        ================================================= */
 
         if (
             perfil.estado &&
@@ -532,11 +695,38 @@ async function autenticarUsuario(
         }
 
 
-        /*
-         * -------------------------------------------------
-         * CONSTRUIR PERFIL DE SESIÓN
-         * -------------------------------------------------
-         */
+        /* =================================================
+           VERIFICAR ROL
+        ================================================= */
+
+        const rolId =
+            Number(
+                perfil.rol_id ||
+                0
+            );
+
+
+        if (!rolId) {
+
+            await newsroomAuth.signOut();
+
+
+            return {
+
+                success:
+                    false,
+
+                message:
+                    "El usuario no tiene un rol asignado."
+
+            };
+
+        }
+
+
+        /* =================================================
+           CONSTRUIR PERFIL NEWSROOM
+        ================================================= */
 
         const usuarioNewsroom = {
 
@@ -549,7 +739,8 @@ async function autenticarUsuario(
 
             usuario:
                 perfil.usuario ||
-                firebaseUser.email,
+                firebaseUser.email ||
+                "",
 
             nombre:
                 perfil.nombre ||
@@ -562,9 +753,7 @@ async function autenticarUsuario(
                 "",
 
             rol_id:
-                Number(
-                    perfil.rol_id || 0
-                ),
+                rolId,
 
             rol:
                 perfil.rol ||
@@ -577,16 +766,38 @@ async function autenticarUsuario(
         };
 
 
-        /*
-         * -------------------------------------------------
-         * GUARDAR SESIÓN COMPATIBLE
-         * -------------------------------------------------
-         */
+        /* =================================================
+           GUARDAR SESIÓN
+        ================================================= */
 
         const session =
             guardarSesion(
                 usuarioNewsroom
             );
+
+
+        if (!session) {
+
+            await newsroomAuth.signOut();
+
+
+            return {
+
+                success:
+                    false,
+
+                message:
+                    "No fue posible crear la sesión del usuario."
+
+            };
+
+        }
+
+
+        console.log(
+            "Newsroom Portal: sesión creada correctamente.",
+            session
+        );
 
 
         return {
@@ -602,8 +813,8 @@ async function autenticarUsuario(
 
         };
 
-
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Newsroom Portal: error Firebase Authentication.",
@@ -618,6 +829,14 @@ async function autenticarUsuario(
         switch (
             error.code
         ) {
+
+            case "auth/invalid-email":
+
+                mensaje =
+                    "El correo electrónico no tiene un formato válido.";
+
+                break;
+
 
             case "auth/invalid-credential":
 
@@ -643,6 +862,14 @@ async function autenticarUsuario(
                 break;
 
 
+            case "auth/user-disabled":
+
+                mensaje =
+                    "Esta cuenta de Firebase está deshabilitada.";
+
+                break;
+
+
             case "auth/too-many-requests":
 
                 mensaje =
@@ -655,6 +882,14 @@ async function autenticarUsuario(
 
                 mensaje =
                     "No fue posible conectar con Firebase.";
+
+                break;
+
+
+            case "auth/operation-not-allowed":
+
+                mensaje =
+                    "El método de acceso por correo y contraseña no está habilitado en Firebase Authentication.";
 
                 break;
 
@@ -772,17 +1007,21 @@ document.addEventListener(
 
 
                 const usuario =
-                    usuarioInput.value.trim();
+                    usuarioInput
+                        ? usuarioInput.value.trim()
+                        : "";
 
 
                 const password =
-                    passwordInput.value;
+                    passwordInput
+                        ? passwordInput.value
+                        : "";
 
 
                 if (!usuario) {
 
                     mostrarError(
-                        "Escribe tu usuario."
+                        "Escribe tu usuario o correo."
                     );
 
                     return;
@@ -834,13 +1073,11 @@ document.addEventListener(
                     }
 
 
-                    /*
-                     * -------------------------------------------------
-                     * REDIRECCIÓN
-                     * -------------------------------------------------
-                     */
+                    /* =========================================
+                       REDIRECCIÓN POR ROL
+                    ========================================= */
 
-                    window.location.href =
+                    const ruta =
                         obtenerRutaPorRol(
                             resultado
                                 .session
@@ -848,7 +1085,17 @@ document.addEventListener(
                         );
 
 
-                } catch (errorLogin) {
+                    console.log(
+                        "Newsroom Portal: redirigiendo a:",
+                        ruta
+                    );
+
+
+                    window.location.href =
+                        ruta;
+
+                }
+                catch (errorLogin) {
 
                     console.error(
                         "Newsroom Portal: error durante el login.",
@@ -860,7 +1107,8 @@ document.addEventListener(
                         "No fue posible iniciar sesión."
                     );
 
-                } finally {
+                }
+                finally {
 
                     if (button) {
 

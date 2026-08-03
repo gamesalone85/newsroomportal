@@ -1,8 +1,10 @@
+
 /* =========================================================
    NEWSROOM PORTAL
    ADMINISTRACIÓN DE USUARIOS
    FIREBASE / FIRESTORE
 ========================================================= */
+
 
 /* =========================================================
    CONFIGURACIÓN
@@ -19,121 +21,168 @@ let newsroomUsuarios = [];
 
 
 /* =========================================================
+   ROLES DEL SISTEMA
+========================================================= */
+
+const NEWSROOM_ROLES = {
+
+    1: "Administrador",
+
+    2: "Soporte",
+
+    3: "Usuario",
+
+    4: "Rooms Admin"
+
+};
+
+
+/* =========================================================
    INICIALIZACIÓN
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
 
-    console.log(
-        "Newsroom Portal: admin.js Firebase cargado correctamente."
-    );
-
-
-    /* =====================================================
-       VERIFICAR FIRESTORE
-    ===================================================== */
-
-    if (typeof newsroomDB === "undefined") {
-
-        console.error(
-            "Newsroom Portal: Firestore no está disponible."
+        console.log(
+            "Newsroom Portal: admin.js Firebase cargado correctamente."
         );
 
-        mostrarErrorGeneral(
-            "No fue posible conectar con Firebase."
-        );
 
-        return;
-    }
+        /* =====================================================
+           VERIFICAR FIRESTORE
+        ===================================================== */
+
+        if (
+            typeof newsroomDB ===
+            "undefined"
+        ) {
+
+            console.error(
+                "Newsroom Portal: Firestore no está disponible."
+            );
 
 
-    /* =====================================================
-       VERIFICAR SESIÓN
-    ===================================================== */
+            mostrarErrorGeneral(
+                "No fue posible conectar con Firebase."
+            );
 
-    if (typeof verificarSesion === "function") {
 
-        const sesionValida = verificarSesion(
-            "../../login.html"
-        );
-
-        if (!sesionValida) {
             return;
+
         }
 
-    } else {
 
-        console.error(
-            "Newsroom Portal: auth.js no está disponible."
+        /* =====================================================
+           VERIFICAR SESIÓN
+        ===================================================== */
+
+        if (
+            typeof verificarSesion ===
+            "function"
+        ) {
+
+            const sesionValida =
+                verificarSesion(
+                    "../../login.html"
+                );
+
+
+            if (!sesionValida) {
+
+                return;
+
+            }
+
+        }
+        else {
+
+            console.error(
+                "Newsroom Portal: auth.js no está disponible."
+            );
+
+
+            return;
+
+        }
+
+
+        /* =====================================================
+           OBTENER SESIÓN
+        ===================================================== */
+
+        const session =
+            typeof obtenerSesion ===
+            "function"
+
+                ? obtenerSesion()
+
+                : null;
+
+
+        if (!session) {
+
+            console.error(
+                "Newsroom Portal: no existe sesión."
+            );
+
+
+            return;
+
+        }
+
+
+        /* =====================================================
+           VERIFICAR ADMINISTRADOR
+        ===================================================== */
+
+        if (
+            Number(session.rol_id) !==
+            1
+        ) {
+
+            alert(
+                "No tienes permisos para acceder a esta sección."
+            );
+
+
+            window.location.href =
+                "../dashboard/index.html";
+
+
+            return;
+
+        }
+
+
+        /* =====================================================
+           ACTUALIZAR INFORMACIÓN DEL USUARIO
+        ===================================================== */
+
+        actualizarUsuario();
+
+
+        /* =====================================================
+           CONFIGURAR EVENTOS
+        ===================================================== */
+
+        configurarEventos();
+
+
+        /* =====================================================
+           CARGAR USUARIOS
+        ===================================================== */
+
+        await cargarUsuarios();
+
+
+        console.log(
+            "Newsroom Portal: administración inicializada correctamente."
         );
 
-        return;
     }
-
-
-    /* =====================================================
-       OBTENER SESIÓN
-    ===================================================== */
-
-    const session =
-        typeof obtenerSesion === "function"
-            ? obtenerSesion()
-            : null;
-
-
-    if (!session) {
-
-        console.error(
-            "Newsroom Portal: no existe sesión."
-        );
-
-        return;
-    }
-
-
-    /* =====================================================
-       VERIFICAR ADMINISTRADOR
-    ===================================================== */
-
-    if (Number(session.rol_id) !== 1) {
-
-        alert(
-            "No tienes permisos para acceder a esta sección."
-        );
-
-        window.location.href =
-            "../dashboard/index.html";
-
-        return;
-    }
-
-
-    /* =====================================================
-       ACTUALIZAR INFORMACIÓN DEL USUARIO
-    ===================================================== */
-
-    actualizarUsuario();
-
-
-    /* =====================================================
-       CONFIGURAR EVENTOS
-    ===================================================== */
-
-    configurarEventos();
-
-
-    /* =====================================================
-       CARGAR USUARIOS
-    ===================================================== */
-
-    await cargarUsuarios();
-
-
-    console.log(
-        "Newsroom Portal: administración inicializada correctamente."
-    );
-
-});
+);
 
 
 /* =========================================================
@@ -156,14 +205,20 @@ async function cargarUsuarios() {
     if (tbody) {
 
         tbody.innerHTML = `
+
             <tr>
+
                 <td
                     colspan="7"
                     style="text-align:center;"
                 >
+
                     Cargando usuarios...
+
                 </td>
+
             </tr>
+
         `;
 
     }
@@ -172,14 +227,9 @@ async function cargarUsuarios() {
     try {
 
         /*
-         * IMPORTANTE:
-         *
-         * No utilizamos orderBy("id") porque
-         * los documentos actuales no tienen
-         * necesariamente un campo "id".
-         *
-         * El UID de Firebase es el ID real
-         * del documento.
+         * No utilizamos orderBy("id")
+         * porque algunos documentos pueden
+         * no tener el campo id.
          */
 
         const snapshot =
@@ -200,27 +250,27 @@ async function cargarUsuarios() {
                     doc.data();
 
 
-                /*
-                 * UID PRINCIPAL
-                 *
-                 * Primero intentamos utilizar
-                 * el campo uid.
-                 *
-                 * Si no existe, utilizamos
-                 * el ID del documento.
-                 */
+                /* =================================================
+                   UID
+                ================================================= */
 
                 const uid =
                     data.uid ||
                     doc.id;
 
 
-                /*
-                 * ROL
-                 *
-                 * La estructura actual de Firestore
-                 * utiliza "rol_nombre".
-                 */
+                /* =================================================
+                   ID VISUAL
+                ================================================= */
+
+                const id =
+                    data.id ||
+                    null;
+
+
+                /* =================================================
+                   ROL ID
+                ================================================= */
 
                 const rolId =
                     Number(
@@ -228,6 +278,17 @@ async function cargarUsuarios() {
                         0
                     );
 
+
+                /* =================================================
+                   NOMBRE DEL ROL
+                   
+                   Soporta:
+                   rol_nombre
+                   rol
+                   
+                   y finalmente calcula el nombre
+                   según rol_id.
+                ================================================= */
 
                 const rolNombre =
                     data.rol_nombre ||
@@ -239,45 +300,46 @@ async function cargarUsuarios() {
 
                 newsroomUsuarios.push({
 
-                    /*
-                     * ID REAL DEL DOCUMENTO
-                     */
+                    /* ID REAL DEL DOCUMENTO */
 
                     firestoreId:
                         doc.id,
 
 
-                    /*
-                     * UID DE FIREBASE
-                     */
+                    /* UID FIREBASE */
 
                     uid:
                         uid,
 
 
-                    /*
-                     * Para mostrar en la columna ID
-                     */
+                    /* ID NUMÉRICO SI EXISTE */
 
                     id:
-                        data.id ||
-                        uid,
+                        id,
 
+
+                    /* USUARIO */
 
                     usuario:
                         data.usuario ||
                         "",
 
 
+                    /* NOMBRE */
+
                     nombre:
                         data.nombre ||
                         "",
 
 
+                    /* CORREO */
+
                     correo:
                         data.correo ||
                         "",
 
+
+                    /* ROL */
 
                     rol_id:
                         rolId,
@@ -286,6 +348,8 @@ async function cargarUsuarios() {
                     rol:
                         rolNombre,
 
+
+                    /* ESTADO */
 
                     estado:
                         data.estado ||
@@ -297,22 +361,59 @@ async function cargarUsuarios() {
         );
 
 
-        /*
-         * ORDENAR USUARIOS
-         *
-         * Los usuarios se ordenan por nombre
-         * para evitar depender de un campo
-         * "id" que no existe en todos.
-         */
+        /* =====================================================
+           ORDENAR USUARIOS
+           
+           Primero por ID numérico cuando existe.
+           Después por nombre.
+        ===================================================== */
 
         newsroomUsuarios.sort(
             function (a, b) {
 
+                const idA =
+                    Number(a.id);
+
+
+                const idB =
+                    Number(b.id);
+
+
+                if (
+                    !isNaN(idA) &&
+                    !isNaN(idB)
+                ) {
+
+                    return idA - idB;
+
+                }
+
+
+                if (
+                    !isNaN(idA)
+                ) {
+
+                    return -1;
+
+                }
+
+
+                if (
+                    !isNaN(idB)
+                ) {
+
+                    return 1;
+
+                }
+
+
                 return String(
-                    a.nombre || ""
+                    a.nombre ||
+                    ""
                 ).localeCompare(
                     String(
-                        b.nombre || ""
+                        b.nombre ||
+                        ""
                     ),
                     "es",
                     {
@@ -342,7 +443,6 @@ async function cargarUsuarios() {
 
         actualizarKPIs();
 
-
     }
     catch (error) {
 
@@ -355,14 +455,20 @@ async function cargarUsuarios() {
         if (tbody) {
 
             tbody.innerHTML = `
+
                 <tr>
+
                     <td
                         colspan="7"
                         style="text-align:center;"
                     >
+
                         No fue posible cargar los usuarios.
+
                     </td>
+
                 </tr>
+
             `;
 
         }
@@ -384,17 +490,25 @@ async function cargarUsuarios() {
 
 function actualizarUsuario() {
 
-    let session = null;
+    let session =
+        null;
 
 
-    if (typeof obtenerSesion === "function") {
+    if (
+        typeof obtenerSesion ===
+        "function"
+    ) {
 
-        session = obtenerSesion();
+        session =
+            obtenerSesion();
+
     }
 
 
     if (!session) {
+
         return;
+
     }
 
 
@@ -405,17 +519,22 @@ function actualizarUsuario() {
 
 
     const userName =
-        document.getElementById("userName");
+        document.getElementById(
+            "userName"
+        );
 
 
     const userAvatar =
-        document.getElementById("userAvatar");
+        document.getElementById(
+            "userAvatar"
+        );
 
 
     if (userName) {
 
         userName.textContent =
             nombre;
+
     }
 
 
@@ -425,7 +544,9 @@ function actualizarUsuario() {
             nombre
                 .charAt(0)
                 .toUpperCase();
+
     }
+
 }
 
 
@@ -447,183 +568,342 @@ function renderizarUsuarios() {
             "Newsroom Portal: no se encontró usuariosTableBody."
         );
 
+
         return;
+
     }
 
 
-    tbody.innerHTML = "";
+    tbody.innerHTML =
+        "";
 
 
-    if (newsroomUsuarios.length === 0) {
+    if (
+        newsroomUsuarios.length ===
+        0
+    ) {
 
         tbody.innerHTML = `
+
             <tr>
-                <td colspan="7" style="text-align:center;">
+
+                <td
+                    colspan="7"
+                    style="text-align:center;"
+                >
+
                     No existen usuarios registrados.
+
                 </td>
+
             </tr>
+
         `;
 
+
         return;
+
     }
 
 
-    newsroomUsuarios.forEach(function (usuario) {
+    newsroomUsuarios.forEach(
+        function (usuario) {
 
-        const tr =
-            document.createElement("tr");
-
-
-        const rolClase =
-            String(usuario.rol || "")
-                .toLowerCase()
-                .replace(/\s+/g, "-");
+            const tr =
+                document.createElement(
+                    "tr"
+                );
 
 
-        const estadoClase =
-            String(usuario.estado || "")
-                .toLowerCase();
+            /* =================================================
+               CLASE DEL ROL
+            ================================================= */
+
+            const rolClase =
+                String(
+                    usuario.rol ||
+                    ""
+                )
+                    .toLowerCase()
+                    .replace(
+                        /\s+/g,
+                        "-"
+                    );
 
 
-        let botonesEstado = "";
+            /* =================================================
+               CLASE DEL ESTADO
+            ================================================= */
+
+            const estadoClase =
+                String(
+                    usuario.estado ||
+                    ""
+                )
+                    .toLowerCase()
+                    .replace(
+                        /\s+/g,
+                        "-"
+                    );
 
 
-        /* =================================================
-           SUSPENDER / ACTIVAR
-        ================================================= */
+            /* =================================================
+               ID VISUAL
+            ================================================= */
 
-        if (Number(usuario.rol_id) !== 1) {
+            let idVisual =
+                usuario.id;
 
-            if (usuario.estado === "Activo") {
 
-                botonesEstado = `
-                    <button
-                        type="button"
-                        class="btn-admin btn-suspend"
-                        data-action="suspend"
-                        data-id="${escapeHTML(usuario.firestoreId)}"
-                    >
-                        Suspender
-                    </button>
-                `;
+            /*
+             * Si no existe ID numérico,
+             * utilizamos el UID como respaldo.
+             */
 
-            } else {
+            if (
+                idVisual ===
+                null ||
+                idVisual ===
+                undefined ||
+                idVisual ===
+                ""
+            ) {
 
-                botonesEstado = `
-                    <button
-                        type="button"
-                        class="btn-admin btn-activate"
-                        data-action="activate"
-                        data-id="${escapeHTML(usuario.firestoreId)}"
-                    >
-                        Activar
-                    </button>
-                `;
+                idVisual =
+                    usuario.uid;
+
             }
-        }
 
 
-        /* =================================================
-           ELIMINAR
-        ================================================= */
+            /* =================================================
+               BOTÓN ESTADO
+            ================================================= */
 
-        let botonEliminar = "";
+            let botonesEstado =
+                "";
 
 
-        if (Number(usuario.rol_id) !== 1) {
+            /*
+             * El Administrador principal
+             * no puede suspenderse.
+             */
 
-            botonEliminar = `
-                <button
-                    type="button"
-                    class="btn-admin btn-delete"
-                    data-action="delete"
-                    data-id="${escapeHTML(usuario.firestoreId)}"
-                >
-                    Eliminar
-                </button>
+            if (
+                Number(
+                    usuario.rol_id
+                ) !== 1
+            ) {
+
+                if (
+                    usuario.estado ===
+                    "Activo"
+                ) {
+
+                    botonesEstado = `
+
+                        <button
+                            type="button"
+                            class="btn-admin btn-suspend"
+                            data-action="suspend"
+                            data-id="${escapeHTML(
+                                usuario.firestoreId
+                            )}"
+                        >
+
+                            Suspender
+
+                        </button>
+
+                    `;
+
+                }
+                else {
+
+                    botonesEstado = `
+
+                        <button
+                            type="button"
+                            class="btn-admin btn-activate"
+                            data-action="activate"
+                            data-id="${escapeHTML(
+                                usuario.firestoreId
+                            )}"
+                        >
+
+                            Activar
+
+                        </button>
+
+                    `;
+
+                }
+
+            }
+
+
+            /* =================================================
+               BOTÓN ELIMINAR
+            ================================================= */
+
+            let botonEliminar =
+                "";
+
+
+            if (
+                Number(
+                    usuario.rol_id
+                ) !== 1
+            ) {
+
+                botonEliminar = `
+
+                    <button
+                        type="button"
+                        class="btn-admin btn-delete"
+                        data-action="delete"
+                        data-id="${escapeHTML(
+                            usuario.firestoreId
+                        )}"
+                    >
+
+                        Eliminar
+
+                    </button>
+
+                `;
+
+            }
+
+
+            /* =================================================
+               FILA
+            ================================================= */
+
+            tr.innerHTML = `
+
+                <td>
+
+                    #${escapeHTML(
+                        idVisual
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        usuario.nombre
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        usuario.usuario
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${escapeHTML(
+                        usuario.correo
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="role-badge role-${escapeHTML(
+                            rolClase
+                        )}"
+                    >
+
+                        ${escapeHTML(
+                            usuario.rol
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span
+                        class="status-badge status-${escapeHTML(
+                            estadoClase
+                        )}"
+                    >
+
+                        ${escapeHTML(
+                            usuario.estado
+                        )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <div class="action-group">
+
+
+                        <button
+                            type="button"
+                            class="btn-admin btn-edit"
+                            data-action="edit"
+                            data-id="${escapeHTML(
+                                usuario.firestoreId
+                            )}"
+                        >
+
+                            Editar
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="btn-admin btn-reset"
+                            data-action="reset"
+                            data-id="${escapeHTML(
+                                usuario.firestoreId
+                            )}"
+                        >
+
+                            Reset Password
+
+                        </button>
+
+
+                        ${botonesEstado}
+
+
+                        ${botonEliminar}
+
+
+                    </div>
+
+                </td>
+
             `;
+
+
+            tbody.appendChild(
+                tr
+            );
+
         }
+    );
 
-
-        /* =================================================
-           FILA
-        ================================================= */
-
-        tr.innerHTML = `
-
-            <td>
-                #${escapeHTML(usuario.id)}
-            </td>
-
-            <td>
-                ${escapeHTML(usuario.nombre)}
-            </td>
-
-            <td>
-                ${escapeHTML(usuario.usuario)}
-            </td>
-
-            <td>
-                ${escapeHTML(usuario.correo)}
-            </td>
-
-            <td>
-
-                <span
-                    class="role-badge role-${escapeHTML(rolClase)}"
-                >
-                    ${escapeHTML(usuario.rol)}
-                </span>
-
-            </td>
-
-            <td>
-
-                <span
-                    class="status-badge status-${escapeHTML(estadoClase)}"
-                >
-                    ${escapeHTML(usuario.estado)}
-                </span>
-
-            </td>
-
-            <td>
-
-                <div class="action-group">
-
-                    <button
-                        type="button"
-                        class="btn-admin btn-edit"
-                        data-action="edit"
-                        data-id="${escapeHTML(usuario.firestoreId)}"
-                    >
-                        Editar
-                    </button>
-
-
-                    <button
-                        type="button"
-                        class="btn-admin btn-reset"
-                        data-action="reset"
-                        data-id="${escapeHTML(usuario.firestoreId)}"
-                    >
-                        Reset Password
-                    </button>
-
-
-                    ${botonesEstado}
-
-                    ${botonEliminar}
-
-                </div>
-
-            </td>
-        `;
-
-
-        tbody.appendChild(tr);
-
-    });
 }
 
 
@@ -639,15 +919,27 @@ function actualizarKPIs() {
 
     const activos =
         newsroomUsuarios.filter(
-            usuario =>
-                usuario.estado === "Activo"
+            function (usuario) {
+
+                return (
+                    usuario.estado ===
+                    "Activo"
+                );
+
+            }
         ).length;
 
 
     const suspendidos =
         newsroomUsuarios.filter(
-            usuario =>
-                usuario.estado === "Suspendido"
+            function (usuario) {
+
+                return (
+                    usuario.estado ===
+                    "Suspendido"
+                );
+
+            }
         ).length;
 
 
@@ -667,6 +959,7 @@ function actualizarKPIs() {
         "usuariosSuspendidos",
         suspendidos
     );
+
 }
 
 
@@ -674,17 +967,24 @@ function actualizarKPIs() {
    ACTUALIZAR TEXTO
 ========================================================= */
 
-function actualizarTexto(id, valor) {
+function actualizarTexto(
+    id,
+    valor
+) {
 
     const elemento =
-        document.getElementById(id);
+        document.getElementById(
+            id
+        );
 
 
     if (elemento) {
 
         elemento.textContent =
             valor;
+
     }
+
 }
 
 
@@ -717,9 +1017,12 @@ function configurarEventos() {
 
                 event.preventDefault();
 
+
                 abrirModalUsuario();
+
             }
         );
+
     }
 
 
@@ -746,7 +1049,9 @@ function configurarEventos() {
 
 
                 if (!button) {
+
                     return;
+
                 }
 
 
@@ -769,8 +1074,10 @@ function configurarEventos() {
                     action,
                     firestoreId
                 );
+
             }
         );
+
     }
 
 
@@ -790,6 +1097,7 @@ function configurarEventos() {
             "click",
             cerrarModalUsuario
         );
+
     }
 
 
@@ -805,6 +1113,7 @@ function configurarEventos() {
             "click",
             cerrarModalUsuario
         );
+
     }
 
 
@@ -824,6 +1133,7 @@ function configurarEventos() {
             "submit",
             guardarUsuario
         );
+
     }
 
 
@@ -843,6 +1153,7 @@ function configurarEventos() {
             "click",
             cerrarModalPassword
         );
+
     }
 
 
@@ -858,6 +1169,7 @@ function configurarEventos() {
             "click",
             cerrarModalPassword
         );
+
     }
 
 
@@ -873,11 +1185,12 @@ function configurarEventos() {
             "submit",
             guardarPassword
         );
+
     }
 
 
     /* =====================================================
-       CERRAR MODAL USUARIO AL HACER CLICK FUERA
+       CLICK FUERA MODAL USUARIO
     ===================================================== */
 
     const usuarioModal =
@@ -898,14 +1211,17 @@ function configurarEventos() {
                 ) {
 
                     cerrarModalUsuario();
+
                 }
+
             }
         );
+
     }
 
 
     /* =====================================================
-       CERRAR MODAL PASSWORD AL HACER CLICK FUERA
+       CLICK FUERA MODAL PASSWORD
     ===================================================== */
 
     const passwordModal =
@@ -926,10 +1242,14 @@ function configurarEventos() {
                 ) {
 
                     cerrarModalPassword();
+
                 }
+
             }
         );
+
     }
+
 }
 
 
@@ -954,11 +1274,15 @@ function manejarAccionUsuario(
             "Usuario no encontrado."
         );
 
+
         return;
+
     }
 
 
-    switch (action) {
+    switch (
+        action
+    ) {
 
         case "edit":
 
@@ -1013,7 +1337,9 @@ function manejarAccionUsuario(
                 "Acción desconocida:",
                 action
             );
+
     }
+
 }
 
 
@@ -1021,13 +1347,25 @@ function manejarAccionUsuario(
    BUSCAR USUARIO
 ========================================================= */
 
-function buscarUsuario(firestoreId) {
+function buscarUsuario(
+    firestoreId
+) {
 
     return newsroomUsuarios.find(
-        usuario =>
-            String(usuario.firestoreId) ===
-            String(firestoreId)
+        function (usuario) {
+
+            return (
+                String(
+                    usuario.firestoreId
+                ) ===
+                String(
+                    firestoreId
+                )
+            );
+
+        }
     );
+
 }
 
 
@@ -1035,7 +1373,9 @@ function buscarUsuario(firestoreId) {
    ABRIR MODAL USUARIO
 ========================================================= */
 
-function abrirModalUsuario(usuario = null) {
+function abrirModalUsuario(
+    usuario = null
+) {
 
     const modal =
         document.getElementById(
@@ -1049,7 +1389,9 @@ function abrirModalUsuario(usuario = null) {
             "No existe #usuarioModal."
         );
 
+
         return;
+
     }
 
 
@@ -1106,6 +1448,10 @@ function abrirModalUsuario(usuario = null) {
     );
 
 
+    /* =====================================================
+       EDITAR
+    ===================================================== */
+
     if (usuario) {
 
         title.textContent =
@@ -1117,19 +1463,25 @@ function abrirModalUsuario(usuario = null) {
 
 
         nombre.value =
-            usuario.nombre || "";
+            usuario.nombre ||
+            "";
 
 
         usuarioInput.value =
-            usuario.usuario || "";
+            usuario.usuario ||
+            "";
 
 
         correo.value =
-            usuario.correo || "";
+            usuario.correo ||
+            "";
 
 
         rol.value =
-            usuario.rol_id || "2";
+            String(
+                usuario.rol_id ||
+                "3"
+            );
 
 
         password.value =
@@ -1145,9 +1497,17 @@ function abrirModalUsuario(usuario = null) {
 
             passwordGroup.style.display =
                 "none";
+
         }
 
-    } else {
+    }
+
+
+    /* =====================================================
+       NUEVO
+    ===================================================== */
+
+    else {
 
         title.textContent =
             "Nuevo Usuario";
@@ -1169,8 +1529,13 @@ function abrirModalUsuario(usuario = null) {
             "";
 
 
+        /*
+         * Por defecto:
+         * Usuario = rol 3
+         */
+
         rol.value =
-            "2";
+            "3";
 
 
         password.value =
@@ -1187,9 +1552,15 @@ function abrirModalUsuario(usuario = null) {
 
             passwordGroup.style.display =
                 "";
+
         }
+
     }
 
+
+    /* =====================================================
+       MOSTRAR MODAL
+    ===================================================== */
 
     modal.style.display =
         "flex";
@@ -1229,6 +1600,7 @@ function abrirModalUsuario(usuario = null) {
 
     modal.style.backgroundColor =
         "rgba(0,0,0,0.75)";
+
 }
 
 
@@ -1248,7 +1620,9 @@ function cerrarModalUsuario() {
 
         modal.style.display =
             "none";
+
     }
+
 }
 
 
@@ -1256,7 +1630,9 @@ function cerrarModalUsuario() {
    GUARDAR USUARIO
 ========================================================= */
 
-async function guardarUsuario(event) {
+async function guardarUsuario(
+    event
+) {
 
     event.preventDefault();
 
@@ -1314,7 +1690,26 @@ async function guardarUsuario(event) {
             "Nombre, usuario y correo son obligatorios."
         );
 
+
         return;
+
+    }
+
+
+    if (
+        !NEWSROOM_ROLES[
+            rolId
+        ]
+    ) {
+
+        mostrarError(
+            "formError",
+            "El rol seleccionado no es válido."
+        );
+
+
+        return;
+
     }
 
 
@@ -1331,7 +1726,9 @@ async function guardarUsuario(event) {
             "La creación de cuentas de acceso mediante Firebase Authentication se habilitará en la siguiente etapa."
         );
 
+
         return;
+
     }
 
 
@@ -1340,7 +1737,9 @@ async function guardarUsuario(event) {
     ===================================================== */
 
     const usuarioExistente =
-        buscarUsuario(id);
+        buscarUsuario(
+            id
+        );
 
 
     if (!usuarioExistente) {
@@ -1350,7 +1749,9 @@ async function guardarUsuario(event) {
             "No se encontró el usuario."
         );
 
+
         return;
+
     }
 
 
@@ -1358,23 +1759,38 @@ async function guardarUsuario(event) {
        VALIDAR USUARIO DUPLICADO
     ===================================================== */
 
+    const usuarioNormalizado =
+        usuario
+            .trim()
+            .toLowerCase();
+
+
     const duplicado =
         newsroomUsuarios.find(
-            item =>
+            function (item) {
 
-                String(
-                    item.usuario || ""
-                )
-                    .trim()
-                    .toLowerCase() ===
-                usuario.toLowerCase()
+                return (
 
-                &&
+                    String(
+                        item.usuario ||
+                        ""
+                    )
+                        .trim()
+                        .toLowerCase() ===
+                    usuarioNormalizado
 
-                String(
-                    item.firestoreId
-                ) !==
-                String(id)
+                    &&
+
+                    String(
+                        item.firestoreId
+                    ) !==
+                    String(
+                        id
+                    )
+
+                );
+
+            }
         );
 
 
@@ -1385,7 +1801,9 @@ async function guardarUsuario(event) {
             "El nombre de usuario ya existe."
         );
 
+
         return;
+
     }
 
 
@@ -1399,7 +1817,9 @@ async function guardarUsuario(event) {
             .collection(
                 NEWSROOM_USERS_COLLECTION
             )
-            .doc(id)
+            .doc(
+                id
+            )
             .update({
 
                 nombre:
@@ -1414,10 +1834,11 @@ async function guardarUsuario(event) {
                 rol_id:
                     rolId,
 
-                rol:
+                rol_nombre:
                     obtenerNombreRol(
                         rolId
                     )
+
             });
 
 
@@ -1431,8 +1852,8 @@ async function guardarUsuario(event) {
             "Usuario actualizado correctamente."
         );
 
-
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Error actualizando usuario:",
@@ -1444,7 +1865,9 @@ async function guardarUsuario(event) {
             error,
             "No fue posible actualizar el usuario."
         );
+
     }
+
 }
 
 
@@ -1452,30 +1875,19 @@ async function guardarUsuario(event) {
    NOMBRE DEL ROL
 ========================================================= */
 
-function obtenerNombreRol(rolId) {
-
-    const roles = {
-
-        1: "Administrador",
-
-        2: "Support",
-
-        3: "Rooms",
-
-        4: "Rooms Admin",
-
-        5: "Vehicular",
-
-        7: "Credencialización",
-
-        8: "Capital Humano"
-    };
-
+function obtenerNombreRol(
+    rolId
+) {
 
     return (
-        roles[rolId] ||
+        NEWSROOM_ROLES[
+            Number(
+                rolId
+            )
+        ] ||
         "Usuario"
     );
+
 }
 
 
@@ -1489,20 +1901,28 @@ async function cambiarEstado(
 ) {
 
     if (
-        Number(usuario.rol_id) === 1
+        Number(
+            usuario.rol_id
+        ) ===
+        1
     ) {
 
         alert(
             "El administrador principal no puede ser suspendido."
         );
 
+
         return;
+
     }
 
 
     const accion =
-        nuevoEstado === "Activo"
+        nuevoEstado ===
+        "Activo"
+
             ? "activar"
+
             : "suspender";
 
 
@@ -1513,7 +1933,9 @@ async function cambiarEstado(
 
 
     if (!confirmar) {
+
         return;
+
     }
 
 
@@ -1530,6 +1952,7 @@ async function cambiarEstado(
 
                 estado:
                     nuevoEstado
+
             });
 
 
@@ -1537,13 +1960,16 @@ async function cambiarEstado(
 
 
         alert(
-            nuevoEstado === "Activo"
+            nuevoEstado ===
+            "Activo"
+
                 ? "Usuario activado correctamente."
+
                 : "Usuario suspendido correctamente."
         );
 
-
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Error cambiando estado:",
@@ -1555,7 +1981,9 @@ async function cambiarEstado(
             error,
             "No fue posible cambiar el estado del usuario."
         );
+
     }
+
 }
 
 
@@ -1563,17 +1991,24 @@ async function cambiarEstado(
    ELIMINAR USUARIO
 ========================================================= */
 
-async function eliminarUsuario(usuario) {
+async function eliminarUsuario(
+    usuario
+) {
 
     if (
-        Number(usuario.rol_id) === 1
+        Number(
+            usuario.rol_id
+        ) ===
+        1
     ) {
 
         alert(
             "El administrador principal no puede eliminarse."
         );
 
+
         return;
+
     }
 
 
@@ -1584,7 +2019,9 @@ async function eliminarUsuario(usuario) {
 
 
     if (!confirmar) {
+
         return;
+
     }
 
 
@@ -1607,8 +2044,8 @@ async function eliminarUsuario(usuario) {
             "Perfil eliminado correctamente de Firestore."
         );
 
-
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Error eliminando usuario:",
@@ -1620,7 +2057,9 @@ async function eliminarUsuario(usuario) {
             error,
             "No fue posible eliminar el perfil."
         );
+
     }
+
 }
 
 
@@ -1628,7 +2067,9 @@ async function eliminarUsuario(usuario) {
    ABRIR MODAL PASSWORD
 ========================================================= */
 
-function abrirModalPassword(usuario) {
+function abrirModalPassword(
+    usuario
+) {
 
     const modal =
         document.getElementById(
@@ -1642,7 +2083,9 @@ function abrirModalPassword(usuario) {
             "No existe #passwordModal."
         );
 
+
         return;
+
     }
 
 
@@ -1674,6 +2117,7 @@ function abrirModalPassword(usuario) {
 
         id.value =
             usuario.firestoreId;
+
     }
 
 
@@ -1681,6 +2125,7 @@ function abrirModalPassword(usuario) {
 
         nombre.textContent =
             usuario.nombre;
+
     }
 
 
@@ -1688,6 +2133,7 @@ function abrirModalPassword(usuario) {
 
         password.value =
             "";
+
     }
 
 
@@ -1695,6 +2141,7 @@ function abrirModalPassword(usuario) {
 
         confirmar.value =
             "";
+
     }
 
 
@@ -1741,6 +2188,7 @@ function abrirModalPassword(usuario) {
 
     modal.style.backgroundColor =
         "rgba(0,0,0,0.75)";
+
 }
 
 
@@ -1760,7 +2208,9 @@ function cerrarModalPassword() {
 
         modal.style.display =
             "none";
+
     }
+
 }
 
 
@@ -1768,7 +2218,9 @@ function cerrarModalPassword() {
    GUARDAR PASSWORD
 ========================================================= */
 
-async function guardarPassword(event) {
+async function guardarPassword(
+    event
+) {
 
     event.preventDefault();
 
@@ -1776,19 +2228,23 @@ async function guardarPassword(event) {
     /*
      * IMPORTANTE:
      *
-     * Las contraseñas NO se guardan en Firestore.
+     * Las contraseñas NO se guardan
+     * en Firestore.
      *
-     * Firebase Authentication será responsable
-     * de administrar las contraseñas.
+     * Firebase Authentication será
+     * responsable de administrar
+     * las contraseñas.
      *
-     * El reset administrativo se implementará
-     * posteriormente mediante Cloud Functions.
+     * El reset administrativo se
+     * implementará posteriormente
+     * mediante Cloud Functions.
      */
 
     mostrarError(
         "passwordError",
         "El restablecimiento administrativo de contraseñas se habilitará mediante Firebase Authentication en la siguiente etapa."
     );
+
 }
 
 
@@ -1796,9 +2252,14 @@ async function guardarPassword(event) {
    ESCAPE HTML
 ========================================================= */
 
-function escapeHTML(valor) {
+function escapeHTML(
+    valor
+) {
 
-    return String(valor ?? "")
+    return String(
+        valor ??
+        ""
+    )
 
         .replace(
             /&/g,
@@ -1824,6 +2285,7 @@ function escapeHTML(valor) {
             /'/g,
             "&#039;"
         );
+
 }
 
 
@@ -1837,14 +2299,20 @@ function mostrarError(
 ) {
 
     const elemento =
-        document.getElementById(id);
+        document.getElementById(
+            id
+        );
 
 
     if (!elemento) {
 
-        alert(mensaje);
+        alert(
+            mensaje
+        );
+
 
         return;
+
     }
 
 
@@ -1854,6 +2322,7 @@ function mostrarError(
 
     elemento.style.display =
         "block";
+
 }
 
 
@@ -1861,14 +2330,20 @@ function mostrarError(
    OCULTAR ERROR
 ========================================================= */
 
-function ocultarError(id) {
+function ocultarError(
+    id
+) {
 
     const elemento =
-        document.getElementById(id);
+        document.getElementById(
+            id
+        );
 
 
     if (!elemento) {
+
         return;
+
     }
 
 
@@ -1878,6 +2353,7 @@ function ocultarError(id) {
 
     elemento.style.display =
         "none";
+
 }
 
 
@@ -1885,7 +2361,9 @@ function ocultarError(id) {
    ERROR GENERAL
 ========================================================= */
 
-function mostrarErrorGeneral(mensaje) {
+function mostrarErrorGeneral(
+    mensaje
+) {
 
     const tbody =
         document.getElementById(
@@ -1904,14 +2382,18 @@ function mostrarErrorGeneral(mensaje) {
                     style="text-align:center;"
                 >
 
-                    ${escapeHTML(mensaje)}
+                    ${escapeHTML(
+                        mensaje
+                    )}
 
                 </td>
 
             </tr>
 
         `;
+
     }
+
 }
 
 
@@ -1932,31 +2414,39 @@ function manejarErrorFirebase(
 
     if (
         error &&
-        error.code === "permission-denied"
+        error.code ===
+        "permission-denied"
     ) {
 
         alert(
             "Firebase rechazó la operación por permisos insuficientes."
         );
 
+
         return;
+
     }
 
 
     if (
         error &&
-        error.code === "failed-precondition"
+        error.code ===
+        "failed-precondition"
     ) {
 
         alert(
             "Firestore necesita un índice para realizar esta consulta."
         );
 
+
         return;
+
     }
 
 
     alert(
         mensajeGenerico
     );
+
 }
+

@@ -624,8 +624,6 @@
                     class="dashboard-summary-list"
                 >
 
-                    <!-- JS -->
-
                 </div>
 
 
@@ -660,8 +658,6 @@
                     class="dashboard-summary-list"
                 >
 
-                    <!-- JS -->
-
                 </div>
 
 
@@ -695,8 +691,6 @@
                     id="tecnicosContainer"
                     class="dashboard-summary-list"
                 >
-
-                    <!-- JS -->
 
                 </div>
 
@@ -812,11 +806,6 @@
                         id="ticketsTableBody"
                     >
 
-                        <!--
-                            Generado por
-                            dashboard-admin.js
-                        -->
-
                     </tbody>
 
 
@@ -838,10 +827,27 @@
 </div>
 
 <!-- =========================================================
-     JAVASCRIPT
+     FIREBASE SDK
+     
+     IMPORTANTE:
+     Firebase debe cargarse ANTES de firebase-config.js
+========================================================= -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<!-- =========================================================
+     FIREBASE CONFIG
 ========================================================= -->
 
 <script src="../firebase/firebase-config.js"></script>
+
+<!-- =========================================================
+     JAVASCRIPT DEL PORTAL
+========================================================= -->
 
 <script src="../js/data.js"></script>
 

@@ -1,4 +1,3 @@
-
 /* =========================================================
    NEWSROOM PORTAL
    ADMINISTRACIÓN DE USUARIOS
@@ -2449,4 +2448,3 @@ function manejarErrorFirebase(
     );
 
 }
-

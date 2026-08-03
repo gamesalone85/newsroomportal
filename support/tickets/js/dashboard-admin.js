@@ -25,7 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     if (!verificarSesion("../../login.html")) {
+
         return;
+
     }
 
 
@@ -36,7 +38,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     if (!session) {
+
+        console.error(
+            "Newsroom Portal: no existe una sesión activa."
+        );
+
         return;
+
     }
 
 
@@ -54,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "../dashboard/index.html";
 
         return;
+
     }
 
 
@@ -61,7 +70,9 @@ document.addEventListener("DOMContentLoaded", function () {
        USUARIO
     ===================================================== */
 
-    actualizarUsuario(session);
+    actualizarUsuario(
+        session
+    );
 
 
     /* =====================================================
@@ -90,15 +101,20 @@ function actualizarUsuario(session) {
     const nombre =
         session.nombre ||
         session.usuario ||
+        session.email ||
         "Administrador";
 
 
     const userName =
-        document.getElementById("userName");
+        document.getElementById(
+            "userName"
+        );
 
 
     const userAvatar =
-        document.getElementById("userAvatar");
+        document.getElementById(
+            "userAvatar"
+        );
 
 
     if (userName) {
@@ -132,7 +148,7 @@ function obtenerTicketsAdmin() {
 
 
     /* =====================================================
-       ESTRUCTURA GLOBAL
+       1. ESTRUCTURA GLOBAL
     ===================================================== */
 
     if (
@@ -147,7 +163,7 @@ function obtenerTicketsAdmin() {
 
 
     /* =====================================================
-       LOCAL STORAGE
+       2. LOCAL STORAGE
     ===================================================== */
 
     try {
@@ -167,10 +183,11 @@ function obtenerTicketsAdmin() {
 
         }
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
-            "Error leyendo newsroomTickets:",
+            "Newsroom Portal: error leyendo newsroomTickets.",
             error
         );
 
@@ -196,25 +213,41 @@ function cargarDashboard() {
 
 
     console.log(
-        "Tickets encontrados:",
+        "Newsroom Portal: tickets encontrados:",
         tickets.length
     );
 
+
+    /* =====================================================
+       KPIs
+    ===================================================== */
 
     actualizarKPIs(
         tickets
     );
 
 
+    /* =====================================================
+       FILTROS
+    ===================================================== */
+
     cargarOpcionesFiltros(
         tickets
     );
 
 
+    /* =====================================================
+       RESÚMENES
+    ===================================================== */
+
     actualizarResumenes(
         tickets
     );
 
+
+    /* =====================================================
+       TABLA
+    ===================================================== */
 
     renderizarTickets(
         tickets
@@ -228,7 +261,9 @@ function cargarDashboard() {
    ACTUALIZAR KPIs
 ========================================================= */
 
-function actualizarKPIs(tickets) {
+function actualizarKPIs(
+    tickets
+) {
 
     const total =
         tickets.length;
@@ -291,7 +326,9 @@ function actualizarKPIs(tickets) {
     const sinAsignar =
         tickets.filter(
             ticket =>
-                !tieneTecnico(ticket)
+                !tieneTecnico(
+                    ticket
+                )
         ).length;
 
 
@@ -349,7 +386,7 @@ function actualizarKPIs(tickets) {
 
 
     console.log(
-        "KPIs actualizados:",
+        "Newsroom Portal: KPIs actualizados.",
         {
             total,
             registrados,
@@ -582,7 +619,9 @@ function cargarFiltroDivision(
 
 
     if (!select) {
+
         return;
+
     }
 
 
@@ -591,17 +630,22 @@ function cargarFiltroDivision(
 
 
     const divisiones =
-        [...new Set(
-            tickets
-                .map(
-                    ticket =>
-                        ticket.division
-                )
-                .filter(
-                    valor =>
-                        valor
-                )
-        )]
+        [
+            ...new Set(
+                tickets
+                    .map(
+                        ticket =>
+                            String(
+                                ticket.division ||
+                                ""
+                            ).trim()
+                    )
+                    .filter(
+                        valor =>
+                            valor !== ""
+                    )
+            )
+        ]
         .sort(
             function (a, b) {
 
@@ -679,7 +723,9 @@ function cargarFiltroTecnico(
 
 
     if (!select) {
+
         return;
+
     }
 
 
@@ -688,21 +734,23 @@ function cargarFiltroTecnico(
 
 
     const tecnicos =
-        [...new Set(
-            tickets
-                .map(
-                    ticket =>
-                        obtenerNombreTecnico(
-                            ticket
-                        )
-                )
-                .filter(
-                    tecnico =>
-                        tecnico &&
-                        tecnico !==
-                        "Sin asignar"
-                )
-        )]
+        [
+            ...new Set(
+                tickets
+                    .map(
+                        ticket =>
+                            obtenerNombreTecnico(
+                                ticket
+                            )
+                    )
+                    .filter(
+                        tecnico =>
+                            tecnico &&
+                            tecnico !==
+                            "Sin asignar"
+                    )
+            )
+        ]
         .sort(
             function (a, b) {
 
@@ -839,9 +887,8 @@ function aplicarFiltros() {
 
                 if (
                     prioridad &&
-                    String(
-                        ticket.prioridad ||
-                        ""
+                    normalizarPrioridad(
+                        ticket.prioridad
                     ) !==
                     prioridad
                 ) {
@@ -861,7 +908,7 @@ function aplicarFiltros() {
                     String(
                         ticket.division ||
                         ""
-                    ) !==
+                    ).trim() !==
                     division
                 ) {
 
@@ -919,7 +966,9 @@ function aplicarFiltros() {
 
                         ticket.categoria,
 
-                        ticket.tecnico
+                        ticket.tecnico,
+
+                        ticket.tecnico_nombre
 
                     ]
                     .join(" ")
@@ -943,6 +992,7 @@ function aplicarFiltros() {
 
             }
         );
+
 
 
     actualizarResumenes(
@@ -975,7 +1025,7 @@ function renderizarTickets(
     if (!tbody) {
 
         console.warn(
-            "No existe #ticketsTableBody en el HTML."
+            "Newsroom Portal: no existe #ticketsTableBody."
         );
 
         return;
@@ -987,6 +1037,10 @@ function renderizarTickets(
         "";
 
 
+
+    /* =====================================================
+       SIN RESULTADOS
+    ===================================================== */
 
     if (!tickets.length) {
 
@@ -1012,7 +1066,8 @@ function renderizarTickets(
                         "
                     ></i>
 
-                    No existen tickets registrados.
+                    No existen tickets que coincidan
+                    con los filtros seleccionados.
 
                 </td>
 
@@ -1033,7 +1088,7 @@ function renderizarTickets(
 
 
     /* =====================================================
-       ORDENAR
+       ORDENAR POR FECHA
     ===================================================== */
 
     const ordenados =
@@ -1064,7 +1119,7 @@ function renderizarTickets(
 
 
     /* =====================================================
-       FILAS
+       GENERAR FILAS
     ===================================================== */
 
     ordenados.forEach(
@@ -1083,14 +1138,21 @@ function renderizarTickets(
 
 
             const prioridad =
-                ticket.prioridad ||
-                "Media";
+                normalizarPrioridad(
+                    ticket.prioridad
+                );
 
 
             const tecnico =
                 obtenerNombreTecnico(
                     ticket
                 );
+
+
+            const ticketId =
+                ticket.id ||
+                ticket.folio ||
+                "";
 
 
 
@@ -1103,10 +1165,7 @@ function renderizarTickets(
                         ${escapeHTML(
                             ticket.folio ||
                             "#" +
-                            (
-                                ticket.id ||
-                                ""
-                            )
+                            ticketId
                         )}
 
                     </strong>
@@ -1135,6 +1194,7 @@ function renderizarTickets(
                     ${escapeHTML(
                         ticket.empleado ||
                         ticket.nombre_usuario ||
+                        ticket.usuario ||
                         "-"
                     )}
 
@@ -1233,8 +1293,7 @@ function renderizarTickets(
 
                     <a
                         href="detalle_ticket.html?id=${encodeURIComponent(
-                            ticket.id ||
-                            ""
+                            ticketId
                         )}"
                         class="btn-view"
                     >
@@ -1270,7 +1329,7 @@ function renderizarTickets(
 
 
 /* =========================================================
-   RESÚMENES
+   ACTUALIZAR RESÚMENES
 ========================================================= */
 
 function actualizarResumenes(
@@ -1310,7 +1369,9 @@ function actualizarResumenPrioridades(
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -1331,8 +1392,9 @@ function actualizarResumenPrioridades(
         function (ticket) {
 
             const prioridad =
-                ticket.prioridad ||
-                "Media";
+                normalizarPrioridad(
+                    ticket.prioridad
+                );
 
 
             if (
@@ -1397,6 +1459,7 @@ function actualizarResumenPrioridades(
 
                     </div>
 
+
                     <div
                         class="summary-value"
                     >
@@ -1431,7 +1494,9 @@ function actualizarResumenDivisiones(
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -1442,8 +1507,10 @@ function actualizarResumenDivisiones(
         function (ticket) {
 
             const division =
-                ticket.division ||
-                "Sin división";
+                String(
+                    ticket.division ||
+                    "Sin división"
+                ).trim();
 
 
             contador[
@@ -1525,6 +1592,7 @@ function actualizarResumenDivisiones(
 
                     </div>
 
+
                     <div
                         class="summary-value"
                     >
@@ -1559,7 +1627,9 @@ function actualizarResumenTecnicos(
 
 
     if (!container) {
+
         return;
+
     }
 
 
@@ -1654,6 +1724,7 @@ function actualizarResumenTecnicos(
 
                     </div>
 
+
                     <div
                         class="summary-value"
                     >
@@ -1688,7 +1759,9 @@ function actualizarResultado(
 
 
     if (!elemento) {
+
         return;
+
     }
 
 
@@ -1709,42 +1782,75 @@ function obtenerNombreTecnico(
     ticket
 ) {
 
+    /* =====================================================
+       TÉCNICO COMO STRING
+    ===================================================== */
+
+    if (
+        typeof ticket.tecnico === "string" &&
+        ticket.tecnico.trim() !== ""
+    ) {
+
+        return ticket.tecnico.trim();
+
+    }
+
+
+
+    /* =====================================================
+       TÉCNICO COMO OBJETO
+    ===================================================== */
+
     if (
         ticket.tecnico &&
-        typeof ticket.tecnico === "string"
+        typeof ticket.tecnico === "object" &&
+        ticket.tecnico.nombre
     ) {
 
-        return ticket.tecnico;
+        return String(
+            ticket.tecnico.nombre
+        );
 
     }
 
 
+
+    /* =====================================================
+       TÉCNICO_NOMBRE
+    ===================================================== */
+
     if (
-        ticket.tecnico_nombre
+        ticket.tecnico_nombre &&
+        String(
+            ticket.tecnico_nombre
+        ).trim() !== ""
     ) {
 
-        return ticket.tecnico_nombre;
+        return String(
+            ticket.tecnico_nombre
+        ).trim();
 
     }
 
 
-    if (
-        ticket.tecnico?.nombre
-    ) {
 
-        return ticket.tecnico.nombre;
-
-    }
-
+    /* =====================================================
+       TÉCNICO_ID
+    ===================================================== */
 
     if (
-        ticket.tecnico_id
+        ticket.tecnico_id !== null &&
+        ticket.tecnico_id !== undefined &&
+        String(
+            ticket.tecnico_id
+        ).trim() !== ""
     ) {
 
         return "Técnico #" +
             ticket.tecnico_id;
 
     }
+
 
 
     return "Sin asignar";
@@ -1803,6 +1909,9 @@ function normalizarEstatus(
         "en-proceso":
             "En Proceso",
 
+        "enproceso":
+            "En Proceso",
+
         "resuelto":
             "Resuelto",
 
@@ -1821,6 +1930,61 @@ function normalizarEstatus(
         ] ||
         estatus ||
         "Registrado"
+    );
+
+}
+
+
+
+/* =========================================================
+   NORMALIZAR PRIORIDAD
+========================================================= */
+
+function normalizarPrioridad(
+    prioridad
+) {
+
+    const valor =
+        String(
+            prioridad ||
+            "Media"
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const mapa = {
+
+        "crítica":
+            "Crítica",
+
+        "critica":
+            "Crítica",
+
+        "crítica ":
+            "Crítica",
+
+        "critica ":
+            "Crítica",
+
+        "alta":
+            "Alta",
+
+        "media":
+            "Media",
+
+        "baja":
+            "Baja"
+
+    };
+
+
+    return (
+        mapa[
+            valor
+        ] ||
+        prioridad ||
+        "Media"
     );
 
 }
@@ -1869,7 +2033,9 @@ function formatearFecha(
 ) {
 
     if (!fecha) {
+
         return "-";
+
     }
 
 
@@ -1897,6 +2063,7 @@ function formatearFecha(
     return fechaObj.toLocaleString(
         "es-MX",
         {
+
             day:
                 "2-digit",
 
@@ -1911,6 +2078,7 @@ function formatearFecha(
 
             minute:
                 "2-digit"
+
         }
     );
 
@@ -1931,6 +2099,15 @@ function obtenerFecha(
     ) {
 
         return fecha;
+
+    }
+
+
+    if (!fecha) {
+
+        return new Date(
+            0
+        );
 
     }
 

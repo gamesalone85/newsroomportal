@@ -1,6 +1,7 @@
 /* =========================================================
    NEWSROOM PORTAL
    DASHBOARD ADMINISTRATIVO DE TICKETS
+   FIRESTORE
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -11,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       VERIFICAR SESIÓN
+       VERIFICAR AUTH
     ===================================================== */
 
     if (typeof verificarSesion !== "function") {
@@ -21,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         return;
+
     }
 
 
@@ -30,6 +32,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
+
+    /* =====================================================
+       OBTENER SESIÓN
+    ===================================================== */
 
     const session =
         typeof obtenerSesion === "function"
@@ -76,17 +82,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       CARGAR DASHBOARD
-    ===================================================== */
-
-    cargarDashboard();
-
-
-    /* =====================================================
        EVENTOS
     ===================================================== */
 
     configurarEventos();
+
+
+    /* =====================================================
+       INICIAR FIRESTORE
+    ===================================================== */
+
+    iniciarDashboardFirestore();
 
 });
 
@@ -101,7 +107,7 @@ function actualizarUsuario(session) {
     const nombre =
         session.nombre ||
         session.usuario ||
-        session.email ||
+        session.correo ||
         "Administrador";
 
 
@@ -139,64 +145,164 @@ function actualizarUsuario(session) {
 
 
 /* =========================================================
-   OBTENER TICKETS
+   FIRESTORE
 ========================================================= */
 
-function obtenerTicketsAdmin() {
+let newsroomTicketsUnsubscribe = null;
 
-    let tickets = [];
+
+/* =========================================================
+   INICIAR DASHBOARD FIRESTORE
+========================================================= */
+
+function iniciarDashboardFirestore() {
+
+    console.log(
+        "Newsroom Portal: iniciando conexión con Firestore..."
+    );
 
 
     /* =====================================================
-       1. ESTRUCTURA GLOBAL
+       VERIFICAR FIREBASE
     ===================================================== */
 
     if (
-        typeof NEWSROOM_TICKETS !== "undefined" &&
-        Array.isArray(NEWSROOM_TICKETS)
+        typeof firebase === "undefined"
     ) {
 
-        tickets =
-            NEWSROOM_TICKETS;
+        console.error(
+            "Newsroom Portal: Firebase no está cargado."
+        );
+
+        mostrarErrorDashboard(
+            "Firebase no está cargado correctamente."
+        );
+
+        return;
 
     }
 
 
     /* =====================================================
-       2. LOCAL STORAGE
+       VERIFICAR FIRESTORE
     ===================================================== */
 
-    try {
-
-        const almacenados =
-            JSON.parse(
-                localStorage.getItem(
-                    "newsroomTickets"
-                )
-            );
-
-
-        if (Array.isArray(almacenados)) {
-
-            tickets =
-                almacenados;
-
-        }
-
-    }
-    catch (error) {
+    if (
+        typeof newsroomDB === "undefined" ||
+        !newsroomDB
+    ) {
 
         console.error(
-            "Newsroom Portal: error leyendo newsroomTickets.",
-            error
+            "Newsroom Portal: newsroomDB no está disponible."
         );
+
+        mostrarErrorDashboard(
+            "La conexión con Firestore no está disponible."
+        );
+
+        return;
 
     }
 
 
-    return Array.isArray(tickets)
-        ? tickets
-        : [];
+    console.log(
+        "Newsroom Portal: Firestore disponible."
+    );
+
+
+    /* =====================================================
+       CANCELAR LISTENER ANTERIOR
+    ===================================================== */
+
+    if (
+        typeof newsroomTicketsUnsubscribe === "function"
+    ) {
+
+        newsroomTicketsUnsubscribe();
+
+        newsroomTicketsUnsubscribe =
+            null;
+
+    }
+
+
+    /* =====================================================
+       ESCUCHAR COLECCIÓN TICKETS
+    ===================================================== */
+
+    newsroomTicketsUnsubscribe =
+        newsroomDB
+            .collection("tickets")
+            .onSnapshot(
+
+                function (snapshot) {
+
+                    console.log(
+                        "Newsroom Portal: actualización de tickets recibida.",
+                        snapshot.size
+                    );
+
+
+                    const tickets = [];
+
+
+                    snapshot.forEach(
+                        function (doc) {
+
+                            const data =
+                                doc.data() || {};
+
+
+                            /* =================================
+                               AGREGAR ID REAL DE FIRESTORE
+                            ================================= */
+
+                            const ticket = {
+
+                                id:
+                                    doc.id,
+
+                                ...data
+
+                            };
+
+
+                            tickets.push(
+                                ticket
+                            );
+
+                        }
+                    );
+
+
+                    console.log(
+                        "Newsroom Portal: tickets cargados desde Firestore:",
+                        tickets
+                    );
+
+
+                    cargarDashboard(
+                        tickets
+                    );
+
+                },
+
+
+                function (error) {
+
+                    console.error(
+                        "Newsroom Portal: error escuchando tickets de Firestore:",
+                        error
+                    );
+
+
+                    mostrarErrorDashboard(
+                        "No se pudieron cargar los tickets desde Firestore."
+                    );
+
+                }
+
+            );
 
 }
 
@@ -206,15 +312,22 @@ function obtenerTicketsAdmin() {
    CARGAR DASHBOARD
 ========================================================= */
 
-function cargarDashboard() {
+function cargarDashboard(
+    tickets
+) {
 
-    const tickets =
-        obtenerTicketsAdmin();
+    tickets =
+        Array.isArray(
+            tickets
+        )
+            ? tickets
+            : [];
 
 
     console.log(
-        "Newsroom Portal: tickets encontrados:",
-        tickets.length
+        "Newsroom Portal: cargando dashboard con",
+        tickets.length,
+        "tickets."
     );
 
 
@@ -249,7 +362,7 @@ function cargarDashboard() {
        TABLA
     ===================================================== */
 
-    renderizarTickets(
+    aplicarFiltrosConTickets(
         tickets
     );
 
@@ -331,11 +444,6 @@ function actualizarKPIs(
                 )
         ).length;
 
-
-
-    /* =====================================================
-       ACTUALIZAR HTML
-    ===================================================== */
 
     actualizarTexto(
         "kpiTotal",
@@ -471,11 +579,6 @@ function configurarEventos() {
         );
 
 
-
-    /* =====================================================
-       ESTATUS
-    ===================================================== */
-
     if (filtroEstatus) {
 
         filtroEstatus.addEventListener(
@@ -485,11 +588,6 @@ function configurarEventos() {
 
     }
 
-
-
-    /* =====================================================
-       PRIORIDAD
-    ===================================================== */
 
     if (filtroPrioridad) {
 
@@ -501,11 +599,6 @@ function configurarEventos() {
     }
 
 
-
-    /* =====================================================
-       DIVISIÓN
-    ===================================================== */
-
     if (filtroDivision) {
 
         filtroDivision.addEventListener(
@@ -515,11 +608,6 @@ function configurarEventos() {
 
     }
 
-
-
-    /* =====================================================
-       TÉCNICO
-    ===================================================== */
 
     if (filtroTecnico) {
 
@@ -531,11 +619,6 @@ function configurarEventos() {
     }
 
 
-
-    /* =====================================================
-       BÚSQUEDA
-    ===================================================== */
-
     if (filtroBusqueda) {
 
         filtroBusqueda.addEventListener(
@@ -545,11 +628,6 @@ function configurarEventos() {
 
     }
 
-
-
-    /* =====================================================
-       ACTUALIZAR
-    ===================================================== */
 
     if (btnActualizar) {
 
@@ -561,7 +639,11 @@ function configurarEventos() {
                     true;
 
 
-                cargarDashboard();
+                /* =========================================
+                   FORZAR RECARGA DE FIRESTORE
+                ========================================= */
+
+                recargarTicketsFirestore();
 
 
                 setTimeout(
@@ -571,13 +653,93 @@ function configurarEventos() {
                             false;
 
                     },
-                    300
+                    800
                 );
 
             }
         );
 
     }
+
+}
+
+
+
+/* =========================================================
+   RECARGAR TICKETS FIRESTORE
+========================================================= */
+
+function recargarTicketsFirestore() {
+
+    console.log(
+        "Newsroom Portal: solicitando actualización de tickets..."
+    );
+
+
+    if (
+        typeof newsroomDB === "undefined" ||
+        !newsroomDB
+    ) {
+
+        console.error(
+            "Newsroom Portal: newsroomDB no está disponible."
+        );
+
+        return;
+
+    }
+
+
+    newsroomDB
+        .collection("tickets")
+        .get()
+        .then(
+            function (snapshot) {
+
+                const tickets = [];
+
+
+                snapshot.forEach(
+                    function (doc) {
+
+                        tickets.push({
+
+                            id:
+                                doc.id,
+
+                            ...(
+                                doc.data() || {}
+                            )
+
+                        });
+
+                    }
+                );
+
+
+                console.log(
+                    "Newsroom Portal: actualización manual:",
+                    tickets.length,
+                    "tickets."
+                );
+
+
+                cargarDashboard(
+                    tickets
+                );
+
+            }
+        )
+        .catch(
+            function (error) {
+
+                console.error(
+                    "Newsroom Portal: error actualizando tickets:",
+                    error
+                );
+
+            }
+        );
 
 }
 
@@ -819,9 +981,75 @@ function cargarFiltroTecnico(
 
 function aplicarFiltros() {
 
-    const tickets =
-        obtenerTicketsAdmin();
+    /* =====================================================
+       OBTENER DATOS ACTUALES DE FIRESTORE
+    ===================================================== */
 
+    if (
+        typeof newsroomDB === "undefined" ||
+        !newsroomDB
+    ) {
+
+        return;
+
+    }
+
+
+    newsroomDB
+        .collection("tickets")
+        .get()
+        .then(
+            function (snapshot) {
+
+                const tickets = [];
+
+
+                snapshot.forEach(
+                    function (doc) {
+
+                        tickets.push({
+
+                            id:
+                                doc.id,
+
+                            ...(
+                                doc.data() || {}
+                            )
+
+                        });
+
+                    }
+                );
+
+
+                aplicarFiltrosConTickets(
+                    tickets
+                );
+
+            }
+        )
+        .catch(
+            function (error) {
+
+                console.error(
+                    "Newsroom Portal: error aplicando filtros:",
+                    error
+                );
+
+            }
+        );
+
+}
+
+
+
+/* =========================================================
+   APLICAR FILTROS CON DATOS
+========================================================= */
+
+function aplicarFiltrosConTickets(
+    tickets
+) {
 
     const estatus =
         document.getElementById(
@@ -857,7 +1085,6 @@ function aplicarFiltros() {
         .toLowerCase();
 
 
-
     const filtrados =
         tickets.filter(
             function (ticket) {
@@ -880,7 +1107,6 @@ function aplicarFiltros() {
                 }
 
 
-
                 /* =====================================
                    PRIORIDAD
                 ===================================== */
@@ -896,7 +1122,6 @@ function aplicarFiltros() {
                     return false;
 
                 }
-
 
 
                 /* =====================================
@@ -917,7 +1142,6 @@ function aplicarFiltros() {
                 }
 
 
-
                 /* =====================================
                    TÉCNICO
                 ===================================== */
@@ -933,7 +1157,6 @@ function aplicarFiltros() {
                     return false;
 
                 }
-
 
 
                 /* =====================================
@@ -959,6 +1182,10 @@ function aplicarFiltros() {
                         ticket.usuario,
 
                         ticket.nombre_usuario,
+
+                        ticket.correo,
+
+                        ticket.correo_usuario,
 
                         ticket.division,
 
@@ -992,7 +1219,6 @@ function aplicarFiltros() {
 
             }
         );
-
 
 
     actualizarResumenes(
@@ -1035,7 +1261,6 @@ function renderizarTickets(
 
     tbody.innerHTML =
         "";
-
 
 
     /* =====================================================
@@ -1086,9 +1311,8 @@ function renderizarTickets(
     }
 
 
-
     /* =====================================================
-       ORDENAR POR FECHA
+       ORDENAR
     ===================================================== */
 
     const ordenados =
@@ -1098,24 +1322,27 @@ function renderizarTickets(
 
                 const fechaA =
                     obtenerFecha(
-                        a.fecha_creacion
+                        a.fecha_creacion ||
+                        a.createdAt ||
+                        a.fecha
                     );
 
 
                 const fechaB =
                     obtenerFecha(
-                        b.fecha_creacion
+                        b.fecha_creacion ||
+                        b.createdAt ||
+                        b.fecha
                     );
 
 
                 return (
-                    fechaB -
-                    fechaA
+                    fechaB.getTime() -
+                    fechaA.getTime()
                 );
 
             }
         );
-
 
 
     /* =====================================================
@@ -1155,6 +1382,11 @@ function renderizarTickets(
                 "";
 
 
+            const folio =
+                ticket.folio ||
+                "#" +
+                ticketId;
+
 
             tr.innerHTML = `
 
@@ -1163,9 +1395,7 @@ function renderizarTickets(
                     <strong>
 
                         ${escapeHTML(
-                            ticket.folio ||
-                            "#" +
-                            ticketId
+                            folio
                         )}
 
                     </strong>
@@ -1181,6 +1411,7 @@ function renderizarTickets(
 
                         ${escapeHTML(
                             ticket.titulo ||
+                            ticket.asunto ||
                             "Sin título"
                         )}
 
@@ -1195,6 +1426,7 @@ function renderizarTickets(
                         ticket.empleado ||
                         ticket.nombre_usuario ||
                         ticket.usuario ||
+                        ticket.nombre ||
                         "-"
                     )}
 
@@ -1283,7 +1515,9 @@ function renderizarTickets(
                 <td>
 
                     ${formatearFecha(
-                        ticket.fecha_creacion
+                        ticket.fecha_creacion ||
+                        ticket.createdAt ||
+                        ticket.fecha
                     )}
 
                 </td>
@@ -1317,7 +1551,6 @@ function renderizarTickets(
 
         }
     );
-
 
 
     actualizarResultado(
@@ -1782,10 +2015,6 @@ function obtenerNombreTecnico(
     ticket
 ) {
 
-    /* =====================================================
-       TÉCNICO COMO STRING
-    ===================================================== */
-
     if (
         typeof ticket.tecnico === "string" &&
         ticket.tecnico.trim() !== ""
@@ -1795,11 +2024,6 @@ function obtenerNombreTecnico(
 
     }
 
-
-
-    /* =====================================================
-       TÉCNICO COMO OBJETO
-    ===================================================== */
 
     if (
         ticket.tecnico &&
@@ -1813,11 +2037,6 @@ function obtenerNombreTecnico(
 
     }
 
-
-
-    /* =====================================================
-       TÉCNICO_NOMBRE
-    ===================================================== */
 
     if (
         ticket.tecnico_nombre &&
@@ -1833,11 +2052,6 @@ function obtenerNombreTecnico(
     }
 
 
-
-    /* =====================================================
-       TÉCNICO_ID
-    ===================================================== */
-
     if (
         ticket.tecnico_id !== null &&
         ticket.tecnico_id !== undefined &&
@@ -1852,7 +2066,6 @@ function obtenerNombreTecnico(
     }
 
 
-
     return "Sin asignar";
 
 }
@@ -1860,7 +2073,7 @@ function obtenerNombreTecnico(
 
 
 /* =========================================================
-   VERIFICAR SI TIENE TÉCNICO
+   VERIFICAR TÉCNICO
 ========================================================= */
 
 function tieneTecnico(
@@ -1961,12 +2174,6 @@ function normalizarPrioridad(
         "critica":
             "Crítica",
 
-        "crítica ":
-            "Crítica",
-
-        "critica ":
-            "Crítica",
-
         "alta":
             "Alta",
 
@@ -2046,16 +2253,10 @@ function formatearFecha(
 
 
     if (
-        isNaN(
-            fechaObj.getTime()
-        )
+        fechaObj.getTime() === 0
     ) {
 
-        return escapeHTML(
-            String(
-                fecha
-            )
-        );
+        return "-";
 
     }
 
@@ -2088,6 +2289,7 @@ function formatearFecha(
 
 /* =========================================================
    OBTENER FECHA
+   COMPATIBLE CON FIRESTORE TIMESTAMP
 ========================================================= */
 
 function obtenerFecha(
@@ -2103,28 +2305,87 @@ function obtenerFecha(
     }
 
 
-    if (!fecha) {
+    /* =====================================================
+       FIRESTORE TIMESTAMP
+    ===================================================== */
 
-        return new Date(
-            0
-        );
+    if (
+        fecha &&
+        typeof fecha.toDate === "function"
+    ) {
+
+        const resultado =
+            fecha.toDate();
+
+
+        if (
+            resultado instanceof Date &&
+            !isNaN(
+                resultado.getTime()
+            )
+        ) {
+
+            return resultado;
+
+        }
 
     }
 
 
-    const resultado =
-        new Date(
-            fecha
-        );
-
+    /* =====================================================
+       FIRESTORE TIMESTAMP SERIALIZADO
+    ===================================================== */
 
     if (
-        !isNaN(
-            resultado.getTime()
-        )
+        fecha &&
+        typeof fecha === "object" &&
+        typeof fecha.seconds === "number"
     ) {
 
-        return resultado;
+        const resultado =
+            new Date(
+                fecha.seconds * 1000
+            );
+
+
+        if (
+            !isNaN(
+                resultado.getTime()
+            )
+        ) {
+
+            return resultado;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       STRING / NUMBER
+    ===================================================== */
+
+    if (
+        fecha !== null &&
+        fecha !== undefined &&
+        fecha !== ""
+    ) {
+
+        const resultado =
+            new Date(
+                fecha
+            );
+
+
+        if (
+            !isNaN(
+                resultado.getTime()
+            )
+        ) {
+
+            return resultado;
+
+        }
 
     }
 
@@ -2132,6 +2393,63 @@ function obtenerFecha(
     return new Date(
         0
     );
+
+}
+
+
+
+/* =========================================================
+   MOSTRAR ERROR
+========================================================= */
+
+function mostrarErrorDashboard(
+    mensaje
+) {
+
+    const tbody =
+        document.getElementById(
+            "ticketsTableBody"
+        );
+
+
+    if (!tbody) {
+
+        return;
+
+    }
+
+
+    tbody.innerHTML = `
+
+        <tr>
+
+            <td
+                colspan="11"
+                style="
+                    text-align:center;
+                    padding:40px;
+                    color:#b91c1c;
+                "
+            >
+
+                <i
+                    class="fa-solid fa-triangle-exclamation"
+                    style="
+                        font-size:30px;
+                        display:block;
+                        margin-bottom:12px;
+                    "
+                ></i>
+
+                ${escapeHTML(
+                    mensaje
+                )}
+
+            </td>
+
+        </tr>
+
+    `;
 
 }
 

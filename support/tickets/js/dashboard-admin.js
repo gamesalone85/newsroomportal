@@ -4,97 +4,134 @@
    FIRESTORE
 ========================================================= */
 
-document.addEventListener("DOMContentLoaded", function () {
 
-    console.log(
-        "Newsroom Portal: dashboard-admin.js cargado correctamente."
-    );
+let newsroomTicketsUnsubscribe = null;
+
+let newsroomTicketsActuales = [];
 
 
-    /* =====================================================
-       VERIFICAR AUTH
-    ===================================================== */
 
-    if (typeof verificarSesion !== "function") {
+/* =========================================================
+   INICIAR DASHBOARD
+========================================================= */
 
-        console.error(
-            "Newsroom Portal: auth.js no está disponible."
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        console.log(
+            "Newsroom Portal: dashboard-admin.js cargado correctamente."
         );
 
-        return;
 
-    }
+        /* =================================================
+           AUTH
+        ================================================= */
 
+        if (
+            typeof verificarSesion !==
+            "function"
+        ) {
 
-    if (!verificarSesion("../../login.html")) {
+            console.error(
+                "Newsroom Portal: auth.js no está disponible."
+            );
 
-        return;
+            return;
 
-    }
-
-
-    /* =====================================================
-       OBTENER SESIÓN
-    ===================================================== */
-
-    const session =
-        typeof obtenerSesion === "function"
-            ? obtenerSesion()
-            : null;
+        }
 
 
-    if (!session) {
+        if (
+            !verificarSesion(
+                "../../login.html"
+            )
+        ) {
 
-        console.error(
-            "Newsroom Portal: no existe una sesión activa."
+            return;
+
+        }
+
+
+        const session =
+            typeof obtenerSesion ===
+            "function"
+
+                ? obtenerSesion()
+
+                : null;
+
+
+        if (!session) {
+
+            console.error(
+                "Newsroom Portal: no existe una sesión activa."
+            );
+
+            return;
+
+        }
+
+
+
+        /* =================================================
+           VERIFICAR ADMIN
+        ================================================= */
+
+        if (
+            Number(session.rol_id) !==
+            1
+        ) {
+
+            alert(
+                "No tienes permisos para acceder a esta sección."
+            );
+
+
+            window.location.href =
+                "../dashboard/index.html";
+
+
+            return;
+
+        }
+
+
+
+        /* =================================================
+           USUARIO
+        ================================================= */
+
+        actualizarUsuario(
+            session
         );
 
-        return;
+
+
+        /* =================================================
+           EVENTOS
+        ================================================= */
+
+        configurarEventos();
+
+
+
+        /* =================================================
+           CATÁLOGOS
+        ================================================= */
+
+        cargarCatalogosDashboard();
+
+
+
+        /* =================================================
+           FIRESTORE
+        ================================================= */
+
+        iniciarDashboardFirestore();
 
     }
-
-
-    /* =====================================================
-       VERIFICAR ADMINISTRADOR
-    ===================================================== */
-
-    if (Number(session.rol_id) !== 1) {
-
-        alert(
-            "No tienes permisos para acceder a esta sección."
-        );
-
-        window.location.href =
-            "../dashboard/index.html";
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       USUARIO
-    ===================================================== */
-
-    actualizarUsuario(
-        session
-    );
-
-
-    /* =====================================================
-       EVENTOS
-    ===================================================== */
-
-    configurarEventos();
-
-
-    /* =====================================================
-       INICIAR FIRESTORE
-    ===================================================== */
-
-    iniciarDashboardFirestore();
-
-});
+);
 
 
 
@@ -102,7 +139,9 @@ document.addEventListener("DOMContentLoaded", function () {
    ACTUALIZAR USUARIO
 ========================================================= */
 
-function actualizarUsuario(session) {
+function actualizarUsuario(
+    session
+) {
 
     const nombre =
         session.nombre ||
@@ -145,14 +184,139 @@ function actualizarUsuario(session) {
 
 
 /* =========================================================
-   FIRESTORE
+   CARGAR CATÁLOGOS
 ========================================================= */
 
-let newsroomTicketsUnsubscribe = null;
+function cargarCatalogosDashboard() {
+
+    cargarFiltroDesdeCatalogo(
+        "filtroDivision",
+        typeof obtenerDivisiones ===
+            "function"
+            ? obtenerDivisiones()
+            : [],
+        "Todas"
+    );
+
+
+    cargarFiltroDesdeCatalogo(
+        "filtroArea",
+        typeof obtenerAreas ===
+            "function"
+            ? obtenerAreas()
+            : [],
+        "Todas"
+    );
+
+
+    cargarFiltroDesdeCatalogo(
+        "filtroCategoria",
+        typeof obtenerCategorias ===
+            "function"
+            ? obtenerCategorias()
+            : [],
+        "Todas"
+    );
+
+}
+
 
 
 /* =========================================================
-   INICIAR DASHBOARD FIRESTORE
+   CARGAR SELECT DESDE CATÁLOGO
+========================================================= */
+
+function cargarFiltroDesdeCatalogo(
+    id,
+    elementos,
+    textoTodos
+) {
+
+    const select =
+        document.getElementById(
+            id
+        );
+
+
+    if (!select) {
+
+        return;
+
+    }
+
+
+    const valorActual =
+        select.value;
+
+
+    select.innerHTML = "";
+
+
+    const optionTodos =
+        document.createElement(
+            "option"
+        );
+
+
+    optionTodos.value =
+        "";
+
+
+    optionTodos.textContent =
+        textoTodos;
+
+
+    select.appendChild(
+        optionTodos
+    );
+
+
+    elementos.forEach(
+        function (elemento) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                elemento.nombre;
+
+
+            option.textContent =
+                elemento.nombre;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if (
+        Array.from(
+            select.options
+        ).some(
+            option =>
+                option.value ===
+                valorActual
+        )
+    ) {
+
+        select.value =
+            valorActual;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   INICIAR FIRESTORE
 ========================================================= */
 
 function iniciarDashboardFirestore() {
@@ -162,17 +326,10 @@ function iniciarDashboardFirestore() {
     );
 
 
-    /* =====================================================
-       VERIFICAR FIREBASE
-    ===================================================== */
-
     if (
-        typeof firebase === "undefined"
+        typeof firebase ===
+        "undefined"
     ) {
-
-        console.error(
-            "Newsroom Portal: Firebase no está cargado."
-        );
 
         mostrarErrorDashboard(
             "Firebase no está cargado correctamente."
@@ -183,18 +340,11 @@ function iniciarDashboardFirestore() {
     }
 
 
-    /* =====================================================
-       VERIFICAR FIRESTORE
-    ===================================================== */
-
     if (
-        typeof newsroomDB === "undefined" ||
+        typeof newsroomDB ===
+        "undefined" ||
         !newsroomDB
     ) {
-
-        console.error(
-            "Newsroom Portal: newsroomDB no está disponible."
-        );
 
         mostrarErrorDashboard(
             "La conexión con Firestore no está disponible."
@@ -205,17 +355,9 @@ function iniciarDashboardFirestore() {
     }
 
 
-    console.log(
-        "Newsroom Portal: Firestore disponible."
-    );
-
-
-    /* =====================================================
-       CANCELAR LISTENER ANTERIOR
-    ===================================================== */
-
     if (
-        typeof newsroomTicketsUnsubscribe === "function"
+        typeof newsroomTicketsUnsubscribe ===
+        "function"
     ) {
 
         newsroomTicketsUnsubscribe();
@@ -226,58 +368,50 @@ function iniciarDashboardFirestore() {
     }
 
 
+
     /* =====================================================
-       ESCUCHAR COLECCIÓN TICKETS
+       LISTENER
     ===================================================== */
 
     newsroomTicketsUnsubscribe =
         newsroomDB
-            .collection("tickets")
+            .collection(
+                "tickets"
+            )
             .onSnapshot(
 
                 function (snapshot) {
 
-                    console.log(
-                        "Newsroom Portal: actualización de tickets recibida.",
-                        snapshot.size
-                    );
-
-
-                    const tickets = [];
+                    const tickets =
+                        [];
 
 
                     snapshot.forEach(
                         function (doc) {
 
-                            const data =
-                                doc.data() || {};
-
-
-                            /* =================================
-                               AGREGAR ID REAL DE FIRESTORE
-                            ================================= */
-
-                            const ticket = {
+                            tickets.push({
 
                                 id:
                                     doc.id,
 
-                                ...data
+                                ...(
+                                    doc.data() ||
+                                    {}
+                                )
 
-                            };
-
-
-                            tickets.push(
-                                ticket
-                            );
+                            });
 
                         }
                     );
 
 
+                    newsroomTicketsActuales =
+                        tickets;
+
+
                     console.log(
-                        "Newsroom Portal: tickets cargados desde Firestore:",
-                        tickets
+                        "Newsroom Portal: tickets cargados:",
+                        tickets.length
                     );
 
 
@@ -291,7 +425,7 @@ function iniciarDashboardFirestore() {
                 function (error) {
 
                     console.error(
-                        "Newsroom Portal: error escuchando tickets de Firestore:",
+                        "Newsroom Portal: error Firestore:",
                         error
                     );
 
@@ -324,43 +458,15 @@ function cargarDashboard(
             : [];
 
 
-    console.log(
-        "Newsroom Portal: cargando dashboard con",
-        tickets.length,
-        "tickets."
-    );
-
-
-    /* =====================================================
-       KPIs
-    ===================================================== */
-
     actualizarKPIs(
         tickets
     );
 
 
-    /* =====================================================
-       FILTROS
-    ===================================================== */
-
-    cargarOpcionesFiltros(
-        tickets
-    );
-
-
-    /* =====================================================
-       RESÚMENES
-    ===================================================== */
-
     actualizarResumenes(
         tickets
     );
 
-
-    /* =====================================================
-       TABLA
-    ===================================================== */
 
     aplicarFiltrosConTickets(
         tickets
@@ -371,7 +477,7 @@ function cargarDashboard(
 
 
 /* =========================================================
-   ACTUALIZAR KPIs
+   KPIs
 ========================================================= */
 
 function actualizarKPIs(
@@ -387,7 +493,8 @@ function actualizarKPIs(
             ticket =>
                 normalizarEstatus(
                     ticket.estatus
-                ) === "Registrado"
+                ) ===
+                "Registrado"
         ).length;
 
 
@@ -396,7 +503,8 @@ function actualizarKPIs(
             ticket =>
                 normalizarEstatus(
                     ticket.estatus
-                ) === "Pendiente"
+                ) ===
+                "Pendiente"
         ).length;
 
 
@@ -405,7 +513,8 @@ function actualizarKPIs(
             ticket =>
                 normalizarEstatus(
                     ticket.estatus
-                ) === "En Proceso"
+                ) ===
+                "En Proceso"
         ).length;
 
 
@@ -414,7 +523,8 @@ function actualizarKPIs(
             ticket =>
                 normalizarEstatus(
                     ticket.estatus
-                ) === "Resuelto"
+                ) ===
+                "Resuelto"
         ).length;
 
 
@@ -423,7 +533,8 @@ function actualizarKPIs(
             ticket =>
                 normalizarEstatus(
                     ticket.estatus
-                ) === "Cancelado"
+                ) ===
+                "Cancelado"
         ).length;
 
 
@@ -432,7 +543,8 @@ function actualizarKPIs(
             ticket =>
                 normalizarEstatus(
                     ticket.estatus
-                ) === "Cerrado"
+                ) ===
+                "Cerrado"
         ).length;
 
 
@@ -492,27 +604,12 @@ function actualizarKPIs(
         sinAsignar
     );
 
-
-    console.log(
-        "Newsroom Portal: KPIs actualizados.",
-        {
-            total,
-            registrados,
-            pendientes,
-            proceso,
-            resueltos,
-            cancelados,
-            cerrados,
-            sinAsignar
-        }
-    );
-
 }
 
 
 
 /* =========================================================
-   ACTUALIZAR TEXTO
+   TEXTO
 ========================================================= */
 
 function actualizarTexto(
@@ -538,95 +635,75 @@ function actualizarTexto(
 
 
 /* =========================================================
-   CONFIGURAR EVENTOS
+   EVENTOS
 ========================================================= */
 
 function configurarEventos() {
 
-    const filtroEstatus =
-        document.getElementById(
-            "filtroEstatus"
-        );
+    const filtros = [
+
+        "filtroEstatus",
+
+        "filtroPrioridad",
+
+        "filtroDivision",
+
+        "filtroArea",
+
+        "filtroCategoria",
+
+        "filtroTecnico",
+
+        "filtroEmpleado",
+
+        "filtroBusqueda"
+
+    ];
 
 
-    const filtroPrioridad =
-        document.getElementById(
-            "filtroPrioridad"
-        );
+    filtros.forEach(
+        function (id) {
+
+            const elemento =
+                document.getElementById(
+                    id
+                );
 
 
-    const filtroDivision =
-        document.getElementById(
-            "filtroDivision"
-        );
+            if (!elemento) {
+
+                return;
+
+            }
 
 
-    const filtroTecnico =
-        document.getElementById(
-            "filtroTecnico"
-        );
+            const evento =
+                elemento.tagName ===
+                "INPUT"
+
+                    ? "input"
+
+                    : "change";
 
 
-    const filtroBusqueda =
-        document.getElementById(
-            "filtroBusqueda"
-        );
+            elemento.addEventListener(
+                evento,
+                aplicarFiltros
+            );
 
+        }
+    );
+
+
+
+    /* =====================================================
+       BOTÓN ACTUALIZAR
+    ===================================================== */
 
     const btnActualizar =
         document.getElementById(
             "btnActualizar"
         );
-
-
-    if (filtroEstatus) {
-
-        filtroEstatus.addEventListener(
-            "change",
-            aplicarFiltros
-        );
-
-    }
-
-
-    if (filtroPrioridad) {
-
-        filtroPrioridad.addEventListener(
-            "change",
-            aplicarFiltros
-        );
-
-    }
-
-
-    if (filtroDivision) {
-
-        filtroDivision.addEventListener(
-            "change",
-            aplicarFiltros
-        );
-
-    }
-
-
-    if (filtroTecnico) {
-
-        filtroTecnico.addEventListener(
-            "change",
-            aplicarFiltros
-        );
-
-    }
-
-
-    if (filtroBusqueda) {
-
-        filtroBusqueda.addEventListener(
-            "input",
-            aplicarFiltros
-        );
-
-    }
 
 
     if (btnActualizar) {
@@ -638,10 +715,6 @@ function configurarEventos() {
                 btnActualizar.disabled =
                     true;
 
-
-                /* =========================================
-                   FORZAR RECARGA DE FIRESTORE
-                ========================================= */
 
                 recargarTicketsFirestore();
 
@@ -666,24 +739,16 @@ function configurarEventos() {
 
 
 /* =========================================================
-   RECARGAR TICKETS FIRESTORE
+   RECARGAR FIRESTORE
 ========================================================= */
 
 function recargarTicketsFirestore() {
 
-    console.log(
-        "Newsroom Portal: solicitando actualización de tickets..."
-    );
-
-
     if (
-        typeof newsroomDB === "undefined" ||
+        typeof newsroomDB ===
+        "undefined" ||
         !newsroomDB
     ) {
-
-        console.error(
-            "Newsroom Portal: newsroomDB no está disponible."
-        );
 
         return;
 
@@ -691,12 +756,15 @@ function recargarTicketsFirestore() {
 
 
     newsroomDB
-        .collection("tickets")
+        .collection(
+            "tickets"
+        )
         .get()
         .then(
             function (snapshot) {
 
-                const tickets = [];
+                const tickets =
+                    [];
 
 
                 snapshot.forEach(
@@ -708,7 +776,8 @@ function recargarTicketsFirestore() {
                                 doc.id,
 
                             ...(
-                                doc.data() || {}
+                                doc.data() ||
+                                {}
                             )
 
                         });
@@ -717,11 +786,8 @@ function recargarTicketsFirestore() {
                 );
 
 
-                console.log(
-                    "Newsroom Portal: actualización manual:",
-                    tickets.length,
-                    "tickets."
-                );
+                newsroomTicketsActuales =
+                    tickets;
 
 
                 cargarDashboard(
@@ -734,242 +800,12 @@ function recargarTicketsFirestore() {
             function (error) {
 
                 console.error(
-                    "Newsroom Portal: error actualizando tickets:",
+                    "Newsroom Portal: error actualizando:",
                     error
                 );
 
             }
         );
-
-}
-
-
-
-/* =========================================================
-   CARGAR OPCIONES DE FILTROS
-========================================================= */
-
-function cargarOpcionesFiltros(
-    tickets
-) {
-
-    cargarFiltroDivision(
-        tickets
-    );
-
-
-    cargarFiltroTecnico(
-        tickets
-    );
-
-}
-
-
-
-/* =========================================================
-   FILTRO DIVISIÓN
-========================================================= */
-
-function cargarFiltroDivision(
-    tickets
-) {
-
-    const select =
-        document.getElementById(
-            "filtroDivision"
-        );
-
-
-    if (!select) {
-
-        return;
-
-    }
-
-
-    const valorActual =
-        select.value;
-
-
-    const divisiones =
-        [
-            ...new Set(
-                tickets
-                    .map(
-                        ticket =>
-                            String(
-                                ticket.division ||
-                                ""
-                            ).trim()
-                    )
-                    .filter(
-                        valor =>
-                            valor !== ""
-                    )
-            )
-        ]
-        .sort(
-            function (a, b) {
-
-                return String(a)
-                    .localeCompare(
-                        String(b),
-                        "es"
-                    );
-
-            }
-        );
-
-
-    select.innerHTML = `
-
-        <option value="">
-            Todas
-        </option>
-
-    `;
-
-
-    divisiones.forEach(
-        function (division) {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                division;
-
-
-            option.textContent =
-                division;
-
-
-            select.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    if (
-        divisiones.includes(
-            valorActual
-        )
-    ) {
-
-        select.value =
-            valorActual;
-
-    }
-
-}
-
-
-
-/* =========================================================
-   FILTRO TÉCNICO
-========================================================= */
-
-function cargarFiltroTecnico(
-    tickets
-) {
-
-    const select =
-        document.getElementById(
-            "filtroTecnico"
-        );
-
-
-    if (!select) {
-
-        return;
-
-    }
-
-
-    const valorActual =
-        select.value;
-
-
-    const tecnicos =
-        [
-            ...new Set(
-                tickets
-                    .map(
-                        ticket =>
-                            obtenerNombreTecnico(
-                                ticket
-                            )
-                    )
-                    .filter(
-                        tecnico =>
-                            tecnico &&
-                            tecnico !==
-                            "Sin asignar"
-                    )
-            )
-        ]
-        .sort(
-            function (a, b) {
-
-                return String(a)
-                    .localeCompare(
-                        String(b),
-                        "es"
-                    );
-
-            }
-        );
-
-
-    select.innerHTML = `
-
-        <option value="">
-            Todos
-        </option>
-
-    `;
-
-
-    tecnicos.forEach(
-        function (tecnico) {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            option.value =
-                tecnico;
-
-
-            option.textContent =
-                tecnico;
-
-
-            select.appendChild(
-                option
-            );
-
-        }
-    );
-
-
-    if (
-        tecnicos.includes(
-            valorActual
-        )
-    ) {
-
-        select.value =
-            valorActual;
-
-    }
 
 }
 
@@ -981,70 +817,16 @@ function cargarFiltroTecnico(
 
 function aplicarFiltros() {
 
-    /* =====================================================
-       OBTENER DATOS ACTUALES DE FIRESTORE
-    ===================================================== */
-
-    if (
-        typeof newsroomDB === "undefined" ||
-        !newsroomDB
-    ) {
-
-        return;
-
-    }
-
-
-    newsroomDB
-        .collection("tickets")
-        .get()
-        .then(
-            function (snapshot) {
-
-                const tickets = [];
-
-
-                snapshot.forEach(
-                    function (doc) {
-
-                        tickets.push({
-
-                            id:
-                                doc.id,
-
-                            ...(
-                                doc.data() || {}
-                            )
-
-                        });
-
-                    }
-                );
-
-
-                aplicarFiltrosConTickets(
-                    tickets
-                );
-
-            }
-        )
-        .catch(
-            function (error) {
-
-                console.error(
-                    "Newsroom Portal: error aplicando filtros:",
-                    error
-                );
-
-            }
-        );
+    aplicarFiltrosConTickets(
+        newsroomTicketsActuales
+    );
 
 }
 
 
 
 /* =========================================================
-   APLICAR FILTROS CON DATOS
+   FILTRAR TICKETS
 ========================================================= */
 
 function aplicarFiltrosConTickets(
@@ -1069,10 +851,32 @@ function aplicarFiltrosConTickets(
         )?.value || "";
 
 
+    const area =
+        document.getElementById(
+            "filtroArea"
+        )?.value || "";
+
+
+    const categoria =
+        document.getElementById(
+            "filtroCategoria"
+        )?.value || "";
+
+
     const tecnico =
         document.getElementById(
             "filtroTecnico"
         )?.value || "";
+
+
+    const empleado =
+        (
+            document.getElementById(
+                "filtroEmpleado"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
 
 
     const busqueda =
@@ -1083,6 +887,7 @@ function aplicarFiltrosConTickets(
         )
         .trim()
         .toLowerCase();
+
 
 
     const filtrados =
@@ -1107,6 +912,7 @@ function aplicarFiltrosConTickets(
                 }
 
 
+
                 /* =====================================
                    PRIORIDAD
                 ===================================== */
@@ -1122,6 +928,7 @@ function aplicarFiltrosConTickets(
                     return false;
 
                 }
+
 
 
                 /* =====================================
@@ -1142,6 +949,45 @@ function aplicarFiltrosConTickets(
                 }
 
 
+
+                /* =====================================
+                   ÁREA
+                ===================================== */
+
+                if (
+                    area &&
+                    String(
+                        ticket.area ||
+                        ""
+                    ).trim() !==
+                    area
+                ) {
+
+                    return false;
+
+                }
+
+
+
+                /* =====================================
+                   CATEGORÍA
+                ===================================== */
+
+                if (
+                    categoria &&
+                    String(
+                        ticket.categoria ||
+                        ""
+                    ).trim() !==
+                    categoria
+                ) {
+
+                    return false;
+
+                }
+
+
+
                 /* =====================================
                    TÉCNICO
                 ===================================== */
@@ -1159,8 +1005,38 @@ function aplicarFiltrosConTickets(
                 }
 
 
+
                 /* =====================================
-                   BÚSQUEDA
+                   EMPLEADO
+                ===================================== */
+
+                if (empleado) {
+
+                    const nombreEmpleado =
+                        String(
+                            ticket.empleado ||
+                            ticket.nombre_usuario ||
+                            ""
+                        )
+                        .toLowerCase();
+
+
+                    if (
+                        !nombreEmpleado.includes(
+                            empleado
+                        )
+                    ) {
+
+                        return false;
+
+                    }
+
+                }
+
+
+
+                /* =====================================
+                   BÚSQUEDA GENERAL
                 ===================================== */
 
                 if (busqueda) {
@@ -1179,6 +1055,8 @@ function aplicarFiltrosConTickets(
 
                         ticket.contacto,
 
+                        ticket.equipo,
+
                         ticket.usuario,
 
                         ticket.nombre_usuario,
@@ -1192,6 +1070,10 @@ function aplicarFiltrosConTickets(
                         ticket.area,
 
                         ticket.categoria,
+
+                        ticket.prioridad,
+
+                        ticket.estatus,
 
                         ticket.tecnico,
 
@@ -1221,6 +1103,7 @@ function aplicarFiltrosConTickets(
         );
 
 
+
     actualizarResumenes(
         filtrados
     );
@@ -1228,6 +1111,527 @@ function aplicarFiltrosConTickets(
 
     renderizarTickets(
         filtrados
+    );
+
+}
+
+
+
+/* =========================================================
+   RESÚMENES
+========================================================= */
+
+function actualizarResumenes(
+    tickets
+) {
+
+    actualizarResumenPrioridades(
+        tickets
+    );
+
+
+    actualizarResumenEstatus(
+        tickets
+    );
+
+
+    actualizarResumenGenerico(
+        tickets,
+        "divisionesContainer",
+        "division",
+        "Sin división"
+    );
+
+
+    actualizarResumenGenerico(
+        tickets,
+        "areasContainer",
+        "area",
+        "Sin área"
+    );
+
+
+    actualizarResumenGenerico(
+        tickets,
+        "categoriasContainer",
+        "categoria",
+        "Sin categoría"
+    );
+
+
+    actualizarResumenTecnicos(
+        tickets
+    );
+
+}
+
+
+
+/* =========================================================
+   PRIORIDADES
+========================================================= */
+
+function actualizarResumenPrioridades(
+    tickets
+) {
+
+    const prioridades = {
+
+        "Crítica": 0,
+
+        "Alta": 0,
+
+        "Media": 0,
+
+        "Baja": 0
+
+    };
+
+
+    tickets.forEach(
+        function (ticket) {
+
+            const prioridad =
+                normalizarPrioridad(
+                    ticket.prioridad
+                );
+
+
+            if (
+                prioridades[
+                    prioridad
+                ] !== undefined
+            ) {
+
+                prioridades[
+                    prioridad
+                ]++;
+
+            }
+
+        }
+    );
+
+
+    const container =
+        document.getElementById(
+            "prioridadesContainer"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        "";
+
+
+    Object.keys(
+        prioridades
+    ).forEach(
+        function (prioridad) {
+
+            const cantidad =
+                prioridades[
+                    prioridad
+                ];
+
+
+            const porcentaje =
+                tickets.length
+                    ? Math.round(
+                        (
+                            cantidad /
+                            tickets.length
+                        ) *
+                        100
+                    )
+                    : 0;
+
+
+            container.innerHTML += `
+
+                <div class="summary-item">
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(
+                                prioridad
+                            )}
+                        </strong>
+
+                        <span>
+                            ${cantidad} tickets
+                        </span>
+
+                    </div>
+
+                    <div class="summary-value">
+
+                        ${porcentaje}%
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   ESTATUS
+========================================================= */
+
+function actualizarResumenEstatus(
+    tickets
+) {
+
+    const estatuses = {
+
+        "Registrado": 0,
+
+        "Pendiente": 0,
+
+        "En Proceso": 0,
+
+        "Resuelto": 0,
+
+        "Cancelado": 0,
+
+        "Cerrado": 0
+
+    };
+
+
+    tickets.forEach(
+        function (ticket) {
+
+            const estatus =
+                normalizarEstatus(
+                    ticket.estatus
+                );
+
+
+            if (
+                estatuses[
+                    estatus
+                ] !== undefined
+            ) {
+
+                estatuses[
+                    estatus
+                ]++;
+
+            }
+
+        }
+    );
+
+
+    const container =
+        document.getElementById(
+            "estatusContainer"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        "";
+
+
+    Object.entries(
+        estatuses
+    ).forEach(
+        function ([nombre, cantidad]) {
+
+            container.innerHTML += `
+
+                <div class="summary-item">
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(
+                                nombre
+                            )}
+                        </strong>
+
+                        <span>
+                            ${cantidad} tickets
+                        </span>
+
+                    </div>
+
+                    <div class="summary-value">
+
+                        ${cantidad}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   RESUMEN GENÉRICO
+========================================================= */
+
+function actualizarResumenGenerico(
+    tickets,
+    containerId,
+    campo,
+    valorVacio
+) {
+
+    const container =
+        document.getElementById(
+            containerId
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    const contador = {};
+
+
+    tickets.forEach(
+        function (ticket) {
+
+            const valor =
+                String(
+                    ticket[campo] ||
+                    valorVacio
+                )
+                .trim();
+
+
+            contador[
+                valor
+            ] =
+                (
+                    contador[
+                        valor
+                    ] ||
+                    0
+                ) + 1;
+
+        }
+    );
+
+
+    const lista =
+        Object.entries(
+            contador
+        )
+        .sort(
+            function (a, b) {
+
+                return b[1] - a[1];
+
+            }
+        );
+
+
+    container.innerHTML =
+        "";
+
+
+    if (!lista.length) {
+
+        container.innerHTML = `
+
+            <div class="summary-empty">
+
+                No hay información disponible.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    lista.forEach(
+        function ([nombre, cantidad]) {
+
+            container.innerHTML += `
+
+                <div class="summary-item">
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(
+                                nombre
+                            )}
+                        </strong>
+
+                        <span>
+                            ${cantidad} tickets
+                        </span>
+
+                    </div>
+
+                    <div class="summary-value">
+
+                        ${cantidad}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   TÉCNICOS
+========================================================= */
+
+function actualizarResumenTecnicos(
+    tickets
+) {
+
+    const container =
+        document.getElementById(
+            "tecnicosContainer"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    const contador = {};
+
+
+    tickets.forEach(
+        function (ticket) {
+
+            const tecnico =
+                obtenerNombreTecnico(
+                    ticket
+                );
+
+
+            contador[
+                tecnico
+            ] =
+                (
+                    contador[
+                        tecnico
+                    ] ||
+                    0
+                ) + 1;
+
+        }
+    );
+
+
+    const lista =
+        Object.entries(
+            contador
+        )
+        .sort(
+            function (a, b) {
+
+                return b[1] - a[1];
+
+            }
+        );
+
+
+    container.innerHTML =
+        "";
+
+
+    if (!lista.length) {
+
+        container.innerHTML = `
+
+            <div class="summary-empty">
+
+                No hay información disponible.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    lista.forEach(
+        function ([nombre, cantidad]) {
+
+            container.innerHTML += `
+
+                <div class="summary-item">
+
+                    <div>
+
+                        <strong>
+                            ${escapeHTML(
+                                nombre
+                            )}
+                        </strong>
+
+                        <span>
+                            ${cantidad} tickets
+                        </span>
+
+                    </div>
+
+                    <div class="summary-value">
+
+                        ${cantidad}
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
     );
 
 }
@@ -1250,10 +1654,6 @@ function renderizarTickets(
 
     if (!tbody) {
 
-        console.warn(
-            "Newsroom Portal: no existe #ticketsTableBody."
-        );
-
         return;
 
     }
@@ -1262,10 +1662,6 @@ function renderizarTickets(
     tbody.innerHTML =
         "";
 
-
-    /* =====================================================
-       SIN RESULTADOS
-    ===================================================== */
 
     if (!tickets.length) {
 
@@ -1311,10 +1707,6 @@ function renderizarTickets(
     }
 
 
-    /* =====================================================
-       ORDENAR
-    ===================================================== */
-
     const ordenados =
         [...tickets]
         .sort(
@@ -1344,10 +1736,6 @@ function renderizarTickets(
             }
         );
 
-
-    /* =====================================================
-       GENERAR FILAS
-    ===================================================== */
 
     ordenados.forEach(
         function (ticket) {
@@ -1405,9 +1793,7 @@ function renderizarTickets(
 
                 <td>
 
-                    <div
-                        class="ticket-title-cell"
-                    >
+                    <div class="ticket-title-cell">
 
                         ${escapeHTML(
                             ticket.titulo ||
@@ -1562,423 +1948,7 @@ function renderizarTickets(
 
 
 /* =========================================================
-   ACTUALIZAR RESÚMENES
-========================================================= */
-
-function actualizarResumenes(
-    tickets
-) {
-
-    actualizarResumenPrioridades(
-        tickets
-    );
-
-
-    actualizarResumenDivisiones(
-        tickets
-    );
-
-
-    actualizarResumenTecnicos(
-        tickets
-    );
-
-}
-
-
-
-/* =========================================================
-   RESUMEN PRIORIDADES
-========================================================= */
-
-function actualizarResumenPrioridades(
-    tickets
-) {
-
-    const container =
-        document.getElementById(
-            "prioridadesContainer"
-        );
-
-
-    if (!container) {
-
-        return;
-
-    }
-
-
-    const prioridades = {
-
-        "Crítica": 0,
-
-        "Alta": 0,
-
-        "Media": 0,
-
-        "Baja": 0
-
-    };
-
-
-    tickets.forEach(
-        function (ticket) {
-
-            const prioridad =
-                normalizarPrioridad(
-                    ticket.prioridad
-                );
-
-
-            if (
-                prioridades[
-                    prioridad
-                ] !== undefined
-            ) {
-
-                prioridades[
-                    prioridad
-                ]++;
-
-            }
-
-        }
-    );
-
-
-    container.innerHTML =
-        "";
-
-
-    Object.keys(
-        prioridades
-    ).forEach(
-        function (prioridad) {
-
-            const cantidad =
-                prioridades[
-                    prioridad
-                ];
-
-
-            const porcentaje =
-                tickets.length
-                    ? Math.round(
-                        (
-                            cantidad /
-                            tickets.length
-                        ) * 100
-                    )
-                    : 0;
-
-
-            container.innerHTML += `
-
-                <div
-                    class="summary-item"
-                >
-
-                    <div>
-
-                        <strong>
-                            ${escapeHTML(
-                                prioridad
-                            )}
-                        </strong>
-
-                        <span>
-                            ${cantidad} tickets
-                        </span>
-
-                    </div>
-
-
-                    <div
-                        class="summary-value"
-                    >
-
-                        ${porcentaje}%
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   RESUMEN DIVISIONES
-========================================================= */
-
-function actualizarResumenDivisiones(
-    tickets
-) {
-
-    const container =
-        document.getElementById(
-            "divisionesContainer"
-        );
-
-
-    if (!container) {
-
-        return;
-
-    }
-
-
-    const contador = {};
-
-
-    tickets.forEach(
-        function (ticket) {
-
-            const division =
-                String(
-                    ticket.division ||
-                    "Sin división"
-                ).trim();
-
-
-            contador[
-                division
-            ] =
-                (
-                    contador[
-                        division
-                    ] ||
-                    0
-                ) + 1;
-
-        }
-    );
-
-
-    const lista =
-        Object.entries(
-            contador
-        )
-        .sort(
-            function (a, b) {
-
-                return b[1] - a[1];
-
-            }
-        );
-
-
-    container.innerHTML =
-        "";
-
-
-    if (!lista.length) {
-
-        container.innerHTML = `
-
-            <div class="summary-empty">
-
-                No hay información disponible.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    lista.forEach(
-        function (item) {
-
-            const nombre =
-                item[0];
-
-
-            const cantidad =
-                item[1];
-
-
-            container.innerHTML += `
-
-                <div
-                    class="summary-item"
-                >
-
-                    <div>
-
-                        <strong>
-                            ${escapeHTML(
-                                nombre
-                            )}
-                        </strong>
-
-                        <span>
-                            ${cantidad} tickets
-                        </span>
-
-                    </div>
-
-
-                    <div
-                        class="summary-value"
-                    >
-
-                        ${cantidad}
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   RESUMEN TÉCNICOS
-========================================================= */
-
-function actualizarResumenTecnicos(
-    tickets
-) {
-
-    const container =
-        document.getElementById(
-            "tecnicosContainer"
-        );
-
-
-    if (!container) {
-
-        return;
-
-    }
-
-
-    const contador = {};
-
-
-    tickets.forEach(
-        function (ticket) {
-
-            const tecnico =
-                obtenerNombreTecnico(
-                    ticket
-                );
-
-
-            contador[
-                tecnico
-            ] =
-                (
-                    contador[
-                        tecnico
-                    ] ||
-                    0
-                ) + 1;
-
-        }
-    );
-
-
-    const lista =
-        Object.entries(
-            contador
-        )
-        .sort(
-            function (a, b) {
-
-                return b[1] - a[1];
-
-            }
-        );
-
-
-    container.innerHTML =
-        "";
-
-
-    if (!lista.length) {
-
-        container.innerHTML = `
-
-            <div class="summary-empty">
-
-                No hay información disponible.
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    lista.forEach(
-        function (item) {
-
-            const nombre =
-                item[0];
-
-
-            const cantidad =
-                item[1];
-
-
-            container.innerHTML += `
-
-                <div
-                    class="summary-item"
-                >
-
-                    <div>
-
-                        <strong>
-                            ${escapeHTML(
-                                nombre
-                            )}
-                        </strong>
-
-                        <span>
-                            ${cantidad} tickets
-                        </span>
-
-                    </div>
-
-
-                    <div
-                        class="summary-value"
-                    >
-
-                        ${cantidad}
-
-                    </div>
-
-                </div>
-
-            `;
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   ACTUALIZAR RESULTADO
+   RESULTADOS
 ========================================================= */
 
 function actualizarResultado(
@@ -2008,7 +1978,7 @@ function actualizarResultado(
 
 
 /* =========================================================
-   OBTENER NOMBRE DEL TÉCNICO
+   TÉCNICO
 ========================================================= */
 
 function obtenerNombreTecnico(
@@ -2016,8 +1986,10 @@ function obtenerNombreTecnico(
 ) {
 
     if (
-        typeof ticket.tecnico === "string" &&
-        ticket.tecnico.trim() !== ""
+        typeof ticket.tecnico ===
+        "string" &&
+        ticket.tecnico.trim() !==
+        ""
     ) {
 
         return ticket.tecnico.trim();
@@ -2027,7 +1999,8 @@ function obtenerNombreTecnico(
 
     if (
         ticket.tecnico &&
-        typeof ticket.tecnico === "object" &&
+        typeof ticket.tecnico ===
+        "object" &&
         ticket.tecnico.nombre
     ) {
 
@@ -2042,7 +2015,8 @@ function obtenerNombreTecnico(
         ticket.tecnico_nombre &&
         String(
             ticket.tecnico_nombre
-        ).trim() !== ""
+        ).trim() !==
+        ""
     ) {
 
         return String(
@@ -2053,15 +2027,20 @@ function obtenerNombreTecnico(
 
 
     if (
-        ticket.tecnico_id !== null &&
-        ticket.tecnico_id !== undefined &&
+        ticket.tecnico_id !==
+        null &&
+        ticket.tecnico_id !==
+        undefined &&
         String(
             ticket.tecnico_id
-        ).trim() !== ""
+        ).trim() !==
+        ""
     ) {
 
-        return "Técnico #" +
-            ticket.tecnico_id;
+        return (
+            "Técnico #" +
+            ticket.tecnico_id
+        );
 
     }
 
@@ -2073,7 +2052,7 @@ function obtenerNombreTecnico(
 
 
 /* =========================================================
-   VERIFICAR TÉCNICO
+   TIENE TÉCNICO
 ========================================================= */
 
 function tieneTecnico(
@@ -2092,7 +2071,7 @@ function tieneTecnico(
 
 
 /* =========================================================
-   NORMALIZAR ESTATUS
+   ESTATUS
 ========================================================= */
 
 function normalizarEstatus(
@@ -2150,7 +2129,7 @@ function normalizarEstatus(
 
 
 /* =========================================================
-   NORMALIZAR PRIORIDAD
+   PRIORIDAD
 ========================================================= */
 
 function normalizarPrioridad(
@@ -2199,7 +2178,7 @@ function normalizarPrioridad(
 
 
 /* =========================================================
-   NORMALIZAR CLASE CSS
+   CLASE CSS
 ========================================================= */
 
 function normalizarClase(
@@ -2232,64 +2211,7 @@ function normalizarClase(
 
 
 /* =========================================================
-   FORMATEAR FECHA
-========================================================= */
-
-function formatearFecha(
-    fecha
-) {
-
-    if (!fecha) {
-
-        return "-";
-
-    }
-
-
-    const fechaObj =
-        obtenerFecha(
-            fecha
-        );
-
-
-    if (
-        fechaObj.getTime() === 0
-    ) {
-
-        return "-";
-
-    }
-
-
-    return fechaObj.toLocaleString(
-        "es-MX",
-        {
-
-            day:
-                "2-digit",
-
-            month:
-                "2-digit",
-
-            year:
-                "numeric",
-
-            hour:
-                "2-digit",
-
-            minute:
-                "2-digit"
-
-        }
-    );
-
-}
-
-
-
-/* =========================================================
-   OBTENER FECHA
-   COMPATIBLE CON FIRESTORE TIMESTAMP
+   FECHA
 ========================================================= */
 
 function obtenerFecha(
@@ -2305,13 +2227,10 @@ function obtenerFecha(
     }
 
 
-    /* =====================================================
-       FIRESTORE TIMESTAMP
-    ===================================================== */
-
     if (
         fecha &&
-        typeof fecha.toDate === "function"
+        typeof fecha.toDate ===
+        "function"
     ) {
 
         const resultado =
@@ -2332,19 +2251,18 @@ function obtenerFecha(
     }
 
 
-    /* =====================================================
-       FIRESTORE TIMESTAMP SERIALIZADO
-    ===================================================== */
-
     if (
         fecha &&
-        typeof fecha === "object" &&
-        typeof fecha.seconds === "number"
+        typeof fecha ===
+        "object" &&
+        typeof fecha.seconds ===
+        "number"
     ) {
 
         const resultado =
             new Date(
-                fecha.seconds * 1000
+                fecha.seconds *
+                1000
             );
 
 
@@ -2360,10 +2278,6 @@ function obtenerFecha(
 
     }
 
-
-    /* =====================================================
-       STRING / NUMBER
-    ===================================================== */
 
     if (
         fecha !== null &&
@@ -2399,7 +2313,64 @@ function obtenerFecha(
 
 
 /* =========================================================
-   MOSTRAR ERROR
+   FORMATEAR FECHA
+========================================================= */
+
+function formatearFecha(
+    fecha
+) {
+
+    if (!fecha) {
+
+        return "-";
+
+    }
+
+
+    const fechaObj =
+        obtenerFecha(
+            fecha
+        );
+
+
+    if (
+        fechaObj.getTime() ===
+        0
+    ) {
+
+        return "-";
+
+    }
+
+
+    return fechaObj.toLocaleString(
+        "es-MX",
+        {
+
+            day:
+                "2-digit",
+
+            month:
+                "2-digit",
+
+            year:
+                "numeric",
+
+            hour:
+                "2-digit",
+
+            minute:
+                "2-digit"
+
+        }
+    );
+
+}
+
+
+
+/* =========================================================
+   ERROR
 ========================================================= */
 
 function mostrarErrorDashboard(

@@ -1,21 +1,22 @@
 /* =========================================================
    NEWSROOM PORTAL
-   TEMPORARY DATA STORE
+   DATA / CATÁLOGOS
    =========================================================
 
-   ESTE ARCHIVO ES TEMPORAL.
+   ESTE ARCHIVO CONTIENE CATÁLOGOS GENERALES DEL SISTEMA.
 
-   Actualmente sustituye la información que antes
-   obteníamos desde MySQL.
+   IMPORTANTE:
 
-   Posteriormente esta información podrá venir desde:
+   Estos catálogos NO dependen de que existan tickets.
 
-       Firebase
-       Supabase
-       API propia
-       Base de datos externa
+   Por ejemplo:
 
-   NO almacenar contraseñas reales aquí.
+   Aunque actualmente no exista ningún ticket
+   del área "Capital Humano", el área seguirá
+   disponible en los filtros.
+
+   Posteriormente estos catálogos podrán migrarse
+   también a Firebase / Firestore.
 
    ========================================================= */
 
@@ -100,7 +101,7 @@ const NEWSROOM_USERS = [
 
 
 /* =========================================================
-   OBTENER TODOS LOS USUARIOS
+   USUARIOS
 ========================================================= */
 
 function obtenerUsuarios() {
@@ -109,10 +110,6 @@ function obtenerUsuarios() {
 
 }
 
-
-/* =========================================================
-   OBTENER USUARIO POR ID
-========================================================= */
 
 function obtenerUsuarioPorId(id) {
 
@@ -125,10 +122,6 @@ function obtenerUsuarioPorId(id) {
 }
 
 
-/* =========================================================
-   OBTENER USUARIO POR NOMBRE
-========================================================= */
-
 function obtenerUsuarioPorNombre(usuario) {
 
     if (!usuario) {
@@ -136,6 +129,7 @@ function obtenerUsuarioPorNombre(usuario) {
         return null;
 
     }
+
 
     return NEWSROOM_USERS.find(
         item =>
@@ -149,10 +143,6 @@ function obtenerUsuarioPorNombre(usuario) {
 }
 
 
-/* =========================================================
-   OBTENER USUARIOS ACTIVOS
-========================================================= */
-
 function obtenerUsuariosActivos() {
 
     return NEWSROOM_USERS.filter(
@@ -163,10 +153,6 @@ function obtenerUsuariosActivos() {
 
 }
 
-
-/* =========================================================
-   OBTENER USUARIOS SUSPENDIDOS
-========================================================= */
 
 function obtenerUsuariosSuspendidos() {
 
@@ -179,14 +165,11 @@ function obtenerUsuariosSuspendidos() {
 }
 
 
-/* =========================================================
-   CONTADORES
-========================================================= */
-
 function obtenerEstadisticasUsuarios() {
 
     const total =
         NEWSROOM_USERS.length;
+
 
     const activos =
         NEWSROOM_USERS.filter(
@@ -195,12 +178,14 @@ function obtenerEstadisticasUsuarios() {
                 "Activo"
         ).length;
 
+
     const suspendidos =
         NEWSROOM_USERS.filter(
             usuario =>
                 usuario.estado ===
                 "Suspendido"
         ).length;
+
 
     return {
 
@@ -218,430 +203,285 @@ function obtenerEstadisticasUsuarios() {
 }
 
 
+
 /* =========================================================
-   CATÁLOGO DE DIVISIONES
-=========================================================
-
-   ESTRUCTURA ORGANIZACIONAL
-
-   DNI
-   DUCTER
-   FSN
-
+   DIVISIONES
 ========================================================= */
 
 const NEWSROOM_DIVISIONES = [
 
     {
-        id: "DNI",
-        nombre: "DNI"
+        id: 1,
+        nombre: "Administración"
     },
 
     {
-        id: "DUCTER",
-        nombre: "DUCTER"
+        id: 2,
+        nombre: "Noticias"
     },
 
     {
-        id: "FSN",
-        nombre: "FSN"
+        id: 3,
+        nombre: "Producción"
+    },
+
+    {
+        id: 4,
+        nombre: "Editorial"
+    },
+
+    {
+        id: 5,
+        nombre: "Operaciones"
+    },
+
+    {
+        id: 6,
+        nombre: "Recursos Humanos"
+    },
+
+    {
+        id: 7,
+        nombre: "Tecnología"
+    },
+
+    {
+        id: 8,
+        nombre: "Dirección"
     }
 
 ];
 
 
+
 /* =========================================================
-   CATÁLOGO DE ÁREAS
-=========================================================
-
-   La propiedad division_id permitirá posteriormente
-   relacionar cada área con una división específica.
-
-   Actualmente se utiliza:
-
-       "TODAS"
-
-   cuando el área puede pertenecer a cualquier división.
-
+   ÁREAS
 ========================================================= */
 
 const NEWSROOM_AREAS = [
 
     {
-        id: "CONT",
-        nombre: "Contabilidad",
-        division_id: "TODAS"
+        id: 1,
+        nombre: "Sistemas"
     },
 
     {
-        id: "TES",
-        nombre: "Tesorería",
-        division_id: "TODAS"
+        id: 2,
+        nombre: "Recursos Humanos"
     },
 
     {
-        id: "SIST",
-        nombre: "Sistemas",
-        division_id: "TODAS"
+        id: 3,
+        nombre: "Producción"
     },
 
     {
-        id: "ACT",
-        nombre: "Activo Fijo",
-        division_id: "TODAS"
+        id: 4,
+        nombre: "Redacción"
     },
 
     {
-        id: "ARCH",
-        nombre: "Archivo",
-        division_id: "TODAS"
+        id: 5,
+        nombre: "Administración"
     },
 
     {
-        id: "COMP",
-        nombre: "Compras",
-        division_id: "TODAS"
+        id: 6,
+        nombre: "Contabilidad"
     },
 
     {
-        id: "CXP",
-        nombre: "Cuentas por Pagar",
-        division_id: "TODAS"
+        id: 7,
+        nombre: "Finanzas"
     },
 
     {
-        id: "CXC",
-        nombre: "Cuentas por Cobrar",
-        division_id: "TODAS"
+        id: 8,
+        nombre: "Compras"
     },
 
     {
-        id: "REG",
-        nombre: "Regulación",
-        division_id: "TODAS"
+        id: 9,
+        nombre: "Operaciones"
     },
 
     {
-        id: "DIR",
-        nombre: "Dirección",
-        division_id: "TODAS"
+        id: 10,
+        nombre: "Noticias"
     },
 
     {
-        id: "RH",
-        nombre: "Recursos Humanos",
-        division_id: "TODAS"
+        id: 11,
+        nombre: "Editorial"
     },
 
     {
-        id: "JUR",
-        nombre: "Jurídico",
-        division_id: "TODAS"
+        id: 12,
+        nombre: "Video"
     },
 
     {
-        id: "ADM",
-        nombre: "Administración",
-        division_id: "TODAS"
+        id: 13,
+        nombre: "Audio"
     },
 
     {
-        id: "FIN",
-        nombre: "Finanzas",
-        division_id: "TODAS"
+        id: 14,
+        nombre: "Fotografía"
     },
 
     {
-        id: "AUD",
-        nombre: "Auditoría",
-        division_id: "TODAS"
+        id: 15,
+        nombre: "Diseño"
     },
 
     {
-        id: "CONTR",
-        nombre: "Contraloría",
-        division_id: "TODAS"
+        id: 16,
+        nombre: "Investigación"
     },
 
     {
-        id: "OPER",
-        nombre: "Operaciones",
-        division_id: "TODAS"
+        id: 17,
+        nombre: "Digital"
     },
 
     {
-        id: "LOG",
-        nombre: "Logística",
-        division_id: "TODAS"
+        id: 18,
+        nombre: "Marketing"
     },
 
     {
-        id: "ALM",
-        nombre: "Almacén",
-        division_id: "TODAS"
+        id: 19,
+        nombre: "Comunicación"
     },
 
     {
-        id: "MANT",
-        nombre: "Mantenimiento",
-        division_id: "TODAS"
+        id: 20,
+        nombre: "Logística"
     },
 
     {
-        id: "CAL",
-        nombre: "Calidad",
-        division_id: "TODAS"
+        id: 21,
+        nombre: "Seguridad"
     },
 
     {
-        id: "PROY",
-        nombre: "Proyectos",
-        division_id: "TODAS"
+        id: 22,
+        nombre: "Mantenimiento"
     },
 
     {
-        id: "PLANE",
-        nombre: "Planeación",
-        division_id: "TODAS"
+        id: 23,
+        nombre: "Recepción"
     },
 
     {
-        id: "PROC",
-        nombre: "Procesos",
-        division_id: "TODAS"
+        id: 24,
+        nombre: "Credencialización"
     },
 
     {
-        id: "CUM",
-        nombre: "Cumplimiento",
-        division_id: "TODAS"
+        id: 25,
+        nombre: "Administración Vehicular"
     },
 
     {
-        id: "SEG",
-        nombre: "Seguridad",
-        division_id: "TODAS"
+        id: 26,
+        nombre: "Capital Humano"
     },
 
     {
-        id: "COMEX",
-        nombre: "Comercio Exterior",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "IMP",
-        nombre: "Impuestos",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "NOM",
-        nombre: "Nómina",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "CAP",
-        nombre: "Capacitación",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "DES",
-        nombre: "Desarrollo Organizacional",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "RECEP",
-        nombre: "Recepción",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "ATC",
-        nombre: "Atención a Clientes",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "DOC",
-        nombre: "Documentación",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "INFRA",
-        nombre: "Infraestructura",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "DAT",
-        nombre: "Datos / BI",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "SOP",
-        nombre: "Soporte",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "PRES",
-        nombre: "Presupuesto",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "RIES",
-        nombre: "Riesgos",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "CONTROL",
-        nombre: "Control Interno",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "COMERCIAL",
-        nombre: "Comercial / Ventas",
-        division_id: "TODAS"
-    },
-
-    {
-        id: "MKT",
-        nombre: "Marketing",
-        division_id: "TODAS"
+        id: 27,
+        nombre: "Dirección"
     }
 
 ];
 
 
+
 /* =========================================================
-   CATÁLOGO DE CATEGORÍAS
-=========================================================
-
-   Estas categorías corresponden al servicio de TI.
-
-   Se mantienen los conceptos que ya existían y se
-   amplía el catálogo para cubrir las incidencias y
-   solicitudes más comunes.
-
+   CATEGORÍAS
 ========================================================= */
 
 const NEWSROOM_CATEGORIAS = [
 
     {
-        id: "HARDWARE",
+        id: 1,
         nombre: "Hardware"
     },
 
     {
-        id: "SOFTWARE",
+        id: 2,
         nombre: "Software"
     },
 
     {
-        id: "RED",
-        nombre: "Red / Conectividad"
+        id: 3,
+        nombre: "Red"
     },
 
     {
-        id: "IMPRESORAS",
+        id: 4,
         nombre: "Impresoras"
     },
 
     {
-        id: "CORREO",
-        nombre: "Correo Electrónico"
+        id: 5,
+        nombre: "Correo"
     },
 
     {
-        id: "ACCESOS",
-        nombre: "Accesos y Permisos"
+        id: 6,
+        nombre: "Accesos"
     },
 
     {
-        id: "CUENTAS",
-        nombre: "Cuentas de Usuario"
-    },
-
-    {
-        id: "INTERNET",
-        nombre: "Internet"
-    },
-
-    {
-        id: "TELEFONIA",
+        id: 7,
         nombre: "Telefonía"
     },
 
     {
-        id: "SERVIDORES",
-        nombre: "Servidores"
+        id: 8,
+        nombre: "Internet"
     },
 
     {
-        id: "SISTEMAS",
-        nombre: "Sistemas / Aplicaciones"
+        id: 9,
+        nombre: "Sistemas"
     },
 
     {
-        id: "SEGURIDAD",
-        nombre: "Seguridad Informática"
+        id: 10,
+        nombre: "Seguridad"
     },
 
     {
-        id: "BACKUP",
-        nombre: "Respaldos"
+        id: 11,
+        nombre: "Cuentas"
     },
 
     {
-        id: "DATOS",
-        nombre: "Datos / Información"
+        id: 12,
+        nombre: "Equipos"
     },
 
     {
-        id: "PERIFERICOS",
-        nombre: "Periféricos"
+        id: 13,
+        nombre: "Aplicaciones"
     },
 
     {
-        id: "EQUIPOS",
-        nombre: "Equipos de Cómputo"
+        id: 14,
+        nombre: "Permisos"
     },
 
     {
-        id: "MANTENIMIENTO",
-        nombre: "Mantenimiento"
-    },
-
-    {
-        id: "INSTALACION",
-        nombre: "Instalación / Configuración"
-    },
-
-    {
-        id: "ACTUALIZACION",
-        nombre: "Actualización"
-    },
-
-    {
-        id: "SOLICITUD",
-        nombre: "Solicitud de Servicio"
-    },
-
-    {
-        id: "OTRO",
+        id: 15,
         nombre: "Otro"
     }
 
 ];
+
 
 
 /* =========================================================
@@ -651,8 +491,9 @@ const NEWSROOM_CATEGORIAS = [
 const NEWSROOM_TICKETS = [];
 
 
+
 /* =========================================================
-   FUNCIONES DE ACCESO
+   ACCESO A CATÁLOGOS
 ========================================================= */
 
 function obtenerDivisiones() {

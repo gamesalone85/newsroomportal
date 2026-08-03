@@ -319,91 +319,127 @@ document.addEventListener(
 
 
 
-        /* =================================================
-           CERRAR SESIÓN
-        ================================================== */
+      
+/* =================================================
+   CERRAR SESIÓN
+================================================= */
 
-        if (logoutLink) {
+if (logoutLink) {
 
-            logoutLink.addEventListener(
-                "click",
-                event => {
+    logoutLink.addEventListener(
+        "click",
+        async event => {
 
-                    event.preventDefault();
-
-
-                    const confirmar =
-                        confirm(
-                            "¿Deseas cerrar la sesión?"
-                        );
+            event.preventDefault();
 
 
-                    if (!confirmar) {
-                        return;
-                    }
+            /* =========================================
+               CONFIRMACIÓN
+            ========================================= */
+
+            const confirmar =
+                confirm(
+                    "¿Deseas cerrar la sesión?"
+                );
 
 
-                    /*
-                     * login.html está en la raíz.
-                     *
-                     * Calculamos automáticamente
-                     * cuántos niveles debemos subir.
-                     */
+            if (!confirmar) {
 
-                    const path =
-                        window.location.pathname;
+                return;
+
+            }
 
 
-                    const segmentos =
-                        path
-                            .split("/")
-                            .filter(Boolean);
+            /* =========================================
+               DETERMINAR LOGIN PRINCIPAL
+            ========================================= */
+
+            const path =
+                window.location.pathname;
 
 
-                    /*
-                     * Eliminamos el archivo actual.
-                     */
-
-                    if (
-                        segmentos.length >
-                        0
-                    ) {
-
-                        segmentos.pop();
-
-                    }
+            const segmentos =
+                path
+                    .split("/")
+                    .filter(Boolean);
 
 
-                    /*
-                     * Desde la carpeta actual
-                     * regresamos a la raíz.
-                     */
+            /*
+             * Eliminamos el archivo actual.
+             */
 
-                    const niveles =
-                        segmentos.length;
+            if (
+                segmentos.length > 0
+            ) {
 
+                segmentos.pop();
 
-                    const loginUrl =
-                        "../"
-                            .repeat(
-                                niveles
-                            ) +
-                        "login.html";
+            }
 
 
-                    if (
-                        typeof cerrarSesion ===
-                        "function"
-                    ) {
+            /*
+             * Calculamos los niveles necesarios
+             * para regresar a la raíz del proyecto.
+             */
 
-                        cerrarSesion(
-                            loginUrl
-                        );
+            const niveles =
+                segmentos.length;
 
-                    }
 
-                }
+            const loginUrl =
+                "../"
+                    .repeat(
+                        niveles
+                    ) +
+                "login.html";
+
+
+            console.log(
+                "Newsroom Portal: cerrando sesión."
             );
+
+
+            console.log(
+                "Newsroom Portal: destino:",
+                loginUrl
+            );
+
+
+            /* =========================================
+               CERRAR SESIÓN FIREBASE + LOCAL
+            ========================================= */
+
+            if (
+                typeof cerrarSesion ===
+                "function"
+            ) {
+
+                await cerrarSesion(
+                    loginUrl
+                );
+
+            }
+            else {
+
+                console.error(
+                    "Newsroom Portal: cerrarSesion() no está disponible."
+                );
+
+
+                localStorage.removeItem(
+                    "newsroomSession"
+                );
+
+
+                window.location.href =
+                    loginUrl;
+
+            }
+
+        }
+    );
+
+}
 
         }
 

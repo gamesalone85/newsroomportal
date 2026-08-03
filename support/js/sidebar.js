@@ -316,10 +316,8 @@ document.addEventListener(
 
                 }
             );
+ 
 
-
-
-      
 /* =================================================
    CERRAR SESIÓN
 ================================================= */
@@ -332,10 +330,6 @@ if (logoutLink) {
 
             event.preventDefault();
 
-
-            /* =========================================
-               CONFIRMACIÓN
-            ========================================= */
 
             const confirmar =
                 confirm(
@@ -350,64 +344,27 @@ if (logoutLink) {
             }
 
 
-            /* =========================================
-               DETERMINAR LOGIN PRINCIPAL
-            ========================================= */
-
-            const path =
-                window.location.pathname;
-
-
-            const segmentos =
-                path
-                    .split("/")
-                    .filter(Boolean);
+            console.log(
+                "Newsroom Portal: cerrando sesión..."
+            );
 
 
             /*
-             * Eliminamos el archivo actual.
+             * login.html se encuentra en la raíz
+             * del proyecto.
+             *
+             * Las páginas de Support están
+             * normalmente a dos niveles:
+             *
+             * support/dashboard/
+             * support/tickets/
+             * support/inventory/
+             * support/admin/
              */
-
-            if (
-                segmentos.length > 0
-            ) {
-
-                segmentos.pop();
-
-            }
-
-
-            /*
-             * Calculamos los niveles necesarios
-             * para regresar a la raíz del proyecto.
-             */
-
-            const niveles =
-                segmentos.length;
-
 
             const loginUrl =
-                "../"
-                    .repeat(
-                        niveles
-                    ) +
-                "login.html";
+                "../../login.html";
 
-
-            console.log(
-                "Newsroom Portal: cerrando sesión."
-            );
-
-
-            console.log(
-                "Newsroom Portal: destino:",
-                loginUrl
-            );
-
-
-            /* =========================================
-               CERRAR SESIÓN FIREBASE + LOCAL
-            ========================================= */
 
             if (
                 typeof cerrarSesion ===

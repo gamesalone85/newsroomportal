@@ -19,11 +19,8 @@ const NEWSROOM_USERS_COLLECTION = "usuarios";
 const NEWSROOM_ROLES = {
 
     1: "Administrador",
-
     2: "Soporte",
-
     3: "Usuario",
-
     4: "Rooms Admin"
 
 };
@@ -36,93 +33,21 @@ const NEWSROOM_ROLES = {
 let newsroomUsuarios = [];
 
 
-/* =========================================================
-   FIREBASE AUTH SECUNDARIO
-========================================================= */
-
-let newsroomSecondaryAuth = null;
-
-
-/* =========================================================
-   INICIALIZAR AUTH SECUNDARIO
-========================================================= */
-
-function inicializarAuthSecundario() {
-
-    try {
-
-        if (
-            typeof firebase ===
-            "undefined"
-        ) {
-
-            console.error(
-                "Newsroom Portal: Firebase no está disponible."
-            );
-
-            return null;
-
-        }
-
-
-        /*
-         * Si ya existe la aplicación secundaria,
-         * la reutilizamos.
-         */
-
-        let secondaryApp;
-
-
-        try {
-
-            secondaryApp =
-                firebase.app(
-                    "NewsroomSecondaryAuth"
-                );
-
-        }
-        catch (error) {
-
-            /*
-             * Creamos una segunda aplicación Firebase
-             * utilizando exactamente la misma configuración
-             * de la aplicación principal.
-             */
-
-            secondaryApp =
-                firebase.initializeApp(
-                    firebase.app().options,
-                    "NewsroomSecondaryAuth"
-                );
-
-        }
-
-
-        newsroomSecondaryAuth =
-            secondaryApp.auth();
-
-
-        console.log(
-            "Newsroom Portal: Firebase Authentication secundario inicializado."
-        );
-
-
-        return newsroomSecondaryAuth;
-
-    }
-    catch (error) {
-
-        console.error(
-            "Newsroom Portal: no fue posible inicializar Auth secundario:",
-            error
-        );
-
-
-        return null;
-
-    }
-
-}
+/*
+ * IMPORTANTE:
+ *
+ * NO declarar newsroomSecondaryAuth aquí.
+ *
+ * firebase-config.js ya crea:
+ *
+ * let newsroomSecondaryAuth = null;
+ *
+ * y la inicializa utilizando la app:
+ *
+ * "NewsroomUserCreation"
+ *
+ * Este archivo solamente utiliza esa variable.
+ */
 
 
 /* =========================================================
@@ -139,31 +64,7 @@ document.addEventListener(
 
 
         /* =====================================================
-           VERIFICAR FIRESTORE
-        ===================================================== */
-
-        if (
-            typeof newsroomDB ===
-            "undefined"
-        ) {
-
-            console.error(
-                "Newsroom Portal: Firestore no está disponible."
-            );
-
-
-            mostrarErrorGeneral(
-                "No fue posible conectar con Firebase."
-            );
-
-
-            return;
-
-        }
-
-
-        /* =====================================================
-           VERIFICAR FIREBASE AUTH
+           VERIFICAR FIREBASE SDK
         ===================================================== */
 
         if (
@@ -175,11 +76,9 @@ document.addEventListener(
                 "Newsroom Portal: Firebase SDK no está disponible."
             );
 
-
             mostrarErrorGeneral(
                 "Firebase no está disponible."
             );
-
 
             return;
 
@@ -187,10 +86,54 @@ document.addEventListener(
 
 
         /* =====================================================
-           INICIALIZAR AUTH SECUNDARIO
+           VERIFICAR FIRESTORE
         ===================================================== */
 
-        inicializarAuthSecundario();
+        if (
+            typeof newsroomDB ===
+            "undefined" ||
+            !newsroomDB
+        ) {
+
+            console.error(
+                "Newsroom Portal: Firestore no está disponible."
+            );
+
+            mostrarErrorGeneral(
+                "No fue posible conectar con Firestore."
+            );
+
+            return;
+
+        }
+
+
+        /* =====================================================
+           VERIFICAR AUTH SECUNDARIO
+        ===================================================== */
+
+        if (
+            typeof newsroomSecondaryAuth ===
+            "undefined" ||
+            !newsroomSecondaryAuth
+        ) {
+
+            console.error(
+                "Newsroom Portal: Firebase Authentication secundaria no está disponible."
+            );
+
+            mostrarErrorGeneral(
+                "Firebase Authentication no está disponible."
+            );
+
+            return;
+
+        }
+
+
+        console.log(
+            "Newsroom Portal: Auth secundaria disponible."
+        );
 
 
         /* =====================================================
@@ -221,6 +164,9 @@ document.addEventListener(
                 "Newsroom Portal: auth.js no está disponible."
             );
 
+            mostrarErrorGeneral(
+                "No fue posible verificar la sesión."
+            );
 
             return;
 
@@ -245,7 +191,6 @@ document.addEventListener(
             console.error(
                 "Newsroom Portal: no existe sesión."
             );
-
 
             return;
 
@@ -363,27 +308,15 @@ async function cargarUsuarios() {
                     doc.data();
 
 
-                /* =================================================
-                   UID
-                ================================================= */
-
                 const uid =
                     data.uid ||
                     doc.id;
 
 
-                /* =================================================
-                   ID VISUAL
-                ================================================= */
-
                 const id =
                     data.id ||
                     null;
 
-
-                /* =================================================
-                   ROL ID
-                ================================================= */
 
                 const rolId =
                     Number(
@@ -391,10 +324,6 @@ async function cargarUsuarios() {
                         0
                     );
 
-
-                /* =================================================
-                   ROL
-                ================================================= */
 
                 const rolNombre =
                     data.rol_nombre ||
@@ -647,7 +576,6 @@ function renderizarUsuarios() {
             "Newsroom Portal: no se encontró usuariosTableBody."
         );
 
-
         return;
 
     }
@@ -679,7 +607,6 @@ function renderizarUsuarios() {
 
         `;
 
-
         return;
 
     }
@@ -694,10 +621,6 @@ function renderizarUsuarios() {
                 );
 
 
-            /* =================================================
-               CLASE ROL
-            ================================================= */
-
             const rolClase =
                 String(
                     usuario.rol ||
@@ -710,10 +633,6 @@ function renderizarUsuarios() {
                     );
 
 
-            /* =================================================
-               CLASE ESTADO
-            ================================================= */
-
             const estadoClase =
                 String(
                     usuario.estado ||
@@ -725,10 +644,6 @@ function renderizarUsuarios() {
                         "-"
                     );
 
-
-            /* =================================================
-               ID VISUAL
-            ================================================= */
 
             let idVisual =
                 usuario.id;
@@ -748,10 +663,6 @@ function renderizarUsuarios() {
 
             }
 
-
-            /* =================================================
-               BOTÓN ESTADO
-            ================================================= */
 
             let botonesEstado =
                 "";
@@ -779,9 +690,7 @@ function renderizarUsuarios() {
                                 usuario.firestoreId
                             )}"
                         >
-
                             Suspender
-
                         </button>
 
                     `;
@@ -799,9 +708,7 @@ function renderizarUsuarios() {
                                 usuario.firestoreId
                             )}"
                         >
-
                             Activar
-
                         </button>
 
                     `;
@@ -810,10 +717,6 @@ function renderizarUsuarios() {
 
             }
 
-
-            /* =================================================
-               BOTÓN ELIMINAR
-            ================================================= */
 
             let botonEliminar =
                 "";
@@ -836,9 +739,7 @@ function renderizarUsuarios() {
                             usuario.firestoreId
                         )}"
                     >
-
                         Eliminar
-
                     </button>
 
                 `;
@@ -846,47 +747,23 @@ function renderizarUsuarios() {
             }
 
 
-            /* =================================================
-               FILA
-            ================================================= */
-
             tr.innerHTML = `
 
                 <td>
-
-                    #${escapeHTML(
-                        idVisual
-                    )}
-
+                    #${escapeHTML(idVisual)}
                 </td>
-
 
                 <td>
-
-                    ${escapeHTML(
-                        usuario.nombre
-                    )}
-
+                    ${escapeHTML(usuario.nombre)}
                 </td>
-
 
                 <td>
-
-                    ${escapeHTML(
-                        usuario.usuario
-                    )}
-
+                    ${escapeHTML(usuario.usuario)}
                 </td>
-
 
                 <td>
-
-                    ${escapeHTML(
-                        usuario.correo
-                    )}
-
+                    ${escapeHTML(usuario.correo)}
                 </td>
-
 
                 <td>
 
@@ -895,15 +772,10 @@ function renderizarUsuarios() {
                             rolClase
                         )}"
                     >
-
-                        ${escapeHTML(
-                            usuario.rol
-                        )}
-
+                        ${escapeHTML(usuario.rol)}
                     </span>
 
                 </td>
-
 
                 <td>
 
@@ -912,15 +784,10 @@ function renderizarUsuarios() {
                             estadoClase
                         )}"
                     >
-
-                        ${escapeHTML(
-                            usuario.estado
-                        )}
-
+                        ${escapeHTML(usuario.estado)}
                     </span>
 
                 </td>
-
 
                 <td>
 
@@ -934,9 +801,7 @@ function renderizarUsuarios() {
                                 usuario.firestoreId
                             )}"
                         >
-
                             Editar
-
                         </button>
 
 
@@ -948,9 +813,7 @@ function renderizarUsuarios() {
                                 usuario.firestoreId
                             )}"
                         >
-
                             Reset Password
-
                         </button>
 
 
@@ -1068,10 +931,6 @@ function configurarEventos() {
     );
 
 
-    /* =====================================================
-       NUEVO USUARIO
-    ===================================================== */
-
     const nuevoUsuarioBtn =
         document.getElementById(
             "nuevoUsuarioBtn"
@@ -1086,7 +945,6 @@ function configurarEventos() {
 
                 event.preventDefault();
 
-
                 abrirModalUsuario();
 
             }
@@ -1094,10 +952,6 @@ function configurarEventos() {
 
     }
 
-
-    /* =====================================================
-       TABLA
-    ===================================================== */
 
     const tbody =
         document.getElementById(
@@ -1150,10 +1004,6 @@ function configurarEventos() {
     }
 
 
-    /* =====================================================
-       CERRAR MODAL USUARIO
-    ===================================================== */
-
     const cerrarModal =
         document.getElementById(
             "cerrarModal"
@@ -1186,10 +1036,6 @@ function configurarEventos() {
     }
 
 
-    /* =====================================================
-       FORMULARIO USUARIO
-    ===================================================== */
-
     const usuarioForm =
         document.getElementById(
             "usuarioForm"
@@ -1205,10 +1051,6 @@ function configurarEventos() {
 
     }
 
-
-    /* =====================================================
-       PASSWORD MODAL
-    ===================================================== */
 
     const cerrarPasswordModal =
         document.getElementById(
@@ -1258,10 +1100,6 @@ function configurarEventos() {
     }
 
 
-    /* =====================================================
-       CLICK FUERA MODAL USUARIO
-    ===================================================== */
-
     const usuarioModal =
         document.getElementById(
             "usuarioModal"
@@ -1288,10 +1126,6 @@ function configurarEventos() {
 
     }
 
-
-    /* =====================================================
-       CLICK FUERA MODAL PASSWORD
-    ===================================================== */
 
     const passwordModal =
         document.getElementById(
@@ -1343,15 +1177,12 @@ function manejarAccionUsuario(
             "Usuario no encontrado."
         );
 
-
         return;
 
     }
 
 
-    switch (
-        action
-    ) {
+    switch (action) {
 
         case "edit":
 
@@ -1458,7 +1289,6 @@ function abrirModalUsuario(
             "No existe #usuarioModal."
         );
 
-
         return;
 
     }
@@ -1517,10 +1347,6 @@ function abrirModalUsuario(
     );
 
 
-    /* =====================================================
-       EDITAR
-    ===================================================== */
-
     if (usuario) {
 
         title.textContent =
@@ -1570,12 +1396,6 @@ function abrirModalUsuario(
         }
 
     }
-
-
-    /* =====================================================
-       NUEVO
-    ===================================================== */
-
     else {
 
         title.textContent =
@@ -1621,10 +1441,6 @@ function abrirModalUsuario(
 
     }
 
-
-    /* =====================================================
-       MOSTRAR MODAL
-    ===================================================== */
 
     modal.style.display =
         "flex";
@@ -1701,18 +1517,10 @@ async function guardarUsuario(
     event.preventDefault();
 
 
-    /* =====================================================
-       OCULTAR ERROR ANTERIOR
-    ===================================================== */
-
     ocultarError(
         "formError"
     );
 
-
-    /* =====================================================
-       OBTENER CAMPOS
-    ===================================================== */
 
     const id =
         document.getElementById(
@@ -1753,10 +1561,6 @@ async function guardarUsuario(
         );
 
 
-    /* =====================================================
-       VALIDACIÓN
-    ===================================================== */
-
     if (
         !nombre ||
         !usuario ||
@@ -1767,7 +1571,6 @@ async function guardarUsuario(
             "formError",
             "Nombre, usuario y correo son obligatorios."
         );
-
 
         return;
 
@@ -1785,15 +1588,10 @@ async function guardarUsuario(
             "El rol seleccionado no es válido."
         );
 
-
         return;
 
     }
 
-
-    /* =====================================================
-       VALIDAR CREACIÓN
-    ===================================================== */
 
     if (!id) {
 
@@ -1803,7 +1601,6 @@ async function guardarUsuario(
                 "formError",
                 "La contraseña es obligatoria para crear un usuario."
             );
-
 
             return;
 
@@ -1819,7 +1616,6 @@ async function guardarUsuario(
                 "formError",
                 "La contraseña debe tener al menos 6 caracteres."
             );
-
 
             return;
 
@@ -1851,10 +1647,6 @@ async function guardarUsuario(
     }
 
 
-    /* =====================================================
-       EDITAR USUARIO EXISTENTE
-    ===================================================== */
-
     const usuarioExistente =
         buscarUsuario(
             id
@@ -1868,15 +1660,10 @@ async function guardarUsuario(
             "No se encontró el usuario."
         );
 
-
         return;
 
     }
 
-
-    /* =====================================================
-       VALIDAR USUARIO DUPLICADO
-    ===================================================== */
 
     const usuarioNormalizado =
         usuario
@@ -1920,15 +1707,10 @@ async function guardarUsuario(
             "El nombre de usuario ya existe."
         );
 
-
         return;
 
     }
 
-
-    /* =====================================================
-       ACTUALIZAR FIRESTORE
-    ===================================================== */
 
     try {
 
@@ -2003,38 +1785,25 @@ async function crearUsuarioNuevo(
     );
 
 
-    /* =====================================================
-       VERIFICAR AUTH SECUNDARIO
-    ===================================================== */
+    /*
+     * newsroomSecondaryAuth viene de firebase-config.js.
+     */
 
     if (
-        !newsroomSecondaryAuth
-    ) {
-
-        newsroomSecondaryAuth =
-            inicializarAuthSecundario();
-
-    }
-
-
-    if (
+        typeof newsroomSecondaryAuth ===
+        "undefined" ||
         !newsroomSecondaryAuth
     ) {
 
         mostrarError(
             "formError",
-            "No fue posible inicializar Firebase Authentication."
+            "Firebase Authentication secundaria no está disponible."
         );
-
 
         return;
 
     }
 
-
-    /* =====================================================
-       VALIDAR USUARIO DUPLICADO
-    ===================================================== */
 
     const usuarioNormalizado =
         datos.usuario
@@ -2067,15 +1836,10 @@ async function crearUsuarioNuevo(
             "El nombre de usuario ya existe."
         );
 
-
         return;
 
     }
 
-
-    /* =====================================================
-       DESHABILITAR BOTÓN SUBMIT
-    ===================================================== */
 
     const form =
         document.getElementById(
@@ -2102,7 +1866,6 @@ async function crearUsuarioNuevo(
         submitButton.disabled =
             true;
 
-
         submitButton.textContent =
             "Creando usuario...";
 
@@ -2122,7 +1885,7 @@ async function crearUsuarioNuevo(
 
 
         /* =================================================
-           CREAR CUENTA EN FIREBASE AUTH
+           CREAR CUENTA EN AUTH SECUNDARIA
         ================================================= */
 
         const userCredential =
@@ -2144,7 +1907,7 @@ async function crearUsuarioNuevo(
 
 
         /* =================================================
-           CREAR PERFIL EN FIRESTORE
+           CREAR PERFIL FIRESTORE
         ================================================= */
 
         await newsroomDB
@@ -2189,20 +1952,12 @@ async function crearUsuarioNuevo(
 
 
         console.log(
-            "Newsroom Portal: perfil creado en Firestore."
+            "Newsroom Portal: perfil creado correctamente en Firestore."
         );
 
 
-        /* =================================================
-           CERRAR MODAL
-        ================================================= */
-
         cerrarModalUsuario();
 
-
-        /* =================================================
-           LIMPIAR FORMULARIO
-        ================================================= */
 
         if (form) {
 
@@ -2211,21 +1966,12 @@ async function crearUsuarioNuevo(
         }
 
 
-        /* =================================================
-           RECARGAR TABLA
-        ================================================= */
-
         await cargarUsuarios();
 
-
-        /* =================================================
-           CONFIRMACIÓN
-        ================================================= */
 
         alert(
             "Usuario creado correctamente en Firebase Authentication y Firestore."
         );
-
 
     }
     catch (error) {
@@ -2236,16 +1982,10 @@ async function crearUsuarioNuevo(
         );
 
 
-        /* =================================================
-           SI FIRESTORE FALLA DESPUÉS DE CREAR AUTH
-        ================================================= */
-
-        if (
-            authUser
-        ) {
+        if (authUser) {
 
             console.warn(
-                "La cuenta de Authentication fue creada, pero hubo un problema creando el perfil de Firestore.",
+                "Authentication creó la cuenta, pero ocurrió un problema creando el perfil Firestore.",
                 authUser.uid
             );
 
@@ -2256,63 +1996,64 @@ async function crearUsuarioNuevo(
             "No fue posible crear el usuario.";
 
 
-        if (
+        switch (
             error &&
-            error.code ===
-            "auth/email-already-in-use"
+            error.code
         ) {
 
-            mensaje =
-                "El correo electrónico ya está registrado en Firebase Authentication.";
+            case "auth/email-already-in-use":
 
-        }
-        else if (
-            error &&
-            error.code ===
-            "auth/invalid-email"
-        ) {
+                mensaje =
+                    "El correo electrónico ya está registrado en Firebase Authentication.";
 
-            mensaje =
-                "El correo electrónico no es válido.";
+                break;
 
-        }
-        else if (
-            error &&
-            error.code ===
-            "auth/weak-password"
-        ) {
 
-            mensaje =
-                "La contraseña es demasiado débil. Utiliza al menos 6 caracteres.";
+            case "auth/invalid-email":
 
-        }
-        else if (
-            error &&
-            error.code ===
-            "permission-denied"
-        ) {
+                mensaje =
+                    "El correo electrónico no es válido.";
 
-            mensaje =
-                "Firebase Authentication creó la cuenta, pero Firestore rechazó la creación del perfil por permisos.";
+                break;
 
-        }
-        else if (
-            error &&
-            error.code ===
-            "auth/operation-not-allowed"
-        ) {
 
-            mensaje =
-                "El método de acceso por correo y contraseña no está habilitado en Firebase Authentication.";
+            case "auth/weak-password":
 
-        }
-        else if (
-            error &&
-            error.message
-        ) {
+                mensaje =
+                    "La contraseña es demasiado débil. Utiliza al menos 6 caracteres.";
 
-            mensaje =
-                error.message;
+                break;
+
+
+            case "auth/operation-not-allowed":
+
+                mensaje =
+                    "El acceso mediante correo y contraseña no está habilitado en Firebase Authentication.";
+
+                break;
+
+
+            case "permission-denied":
+
+                mensaje =
+                    "Firebase Authentication creó la cuenta, pero Firestore rechazó la creación del perfil por permisos.";
+
+                break;
+
+
+            default:
+
+                if (
+                    error &&
+                    error.message
+                ) {
+
+                    mensaje =
+                        error.message;
+
+                }
+
+                break;
 
         }
 
@@ -2325,15 +2066,10 @@ async function crearUsuarioNuevo(
     }
     finally {
 
-        /* =================================================
-           RESTAURAR BOTÓN
-        ================================================= */
-
         if (submitButton) {
 
             submitButton.disabled =
                 false;
-
 
             submitButton.textContent =
                 textoOriginal ||
@@ -2385,7 +2121,6 @@ async function cambiarEstado(
         alert(
             "El administrador principal no puede ser suspendido."
         );
-
 
         return;
 
@@ -2481,7 +2216,6 @@ async function eliminarUsuario(
             "El administrador principal no puede eliminarse."
         );
 
-
         return;
 
     }
@@ -2557,7 +2291,6 @@ function abrirModalPassword(
         console.error(
             "No existe #passwordModal."
         );
-
 
         return;
 
@@ -2700,16 +2433,9 @@ async function guardarPassword(
     event.preventDefault();
 
 
-    /*
-     * El reset administrativo de contraseña
-     * todavía no se realiza desde este archivo.
-     *
-     * No guardamos contraseñas en Firestore.
-     */
-
     mostrarError(
         "passwordError",
-        "El restablecimiento administrativo de contraseñas se habilitará mediante Firebase Authentication."
+        "El restablecimiento administrativo de contraseñas requiere Firebase Admin SDK o una función backend segura."
     );
 
 }
@@ -2776,7 +2502,6 @@ function mostrarError(
         alert(
             mensaje
         );
-
 
         return;
 
@@ -2889,7 +2614,6 @@ function manejarErrorFirebase(
             "Firebase rechazó la operación por permisos insuficientes."
         );
 
-
         return;
 
     }
@@ -2905,6 +2629,20 @@ function manejarErrorFirebase(
             "Firestore necesita un índice para realizar esta consulta."
         );
 
+        return;
+
+    }
+
+
+    if (
+        error &&
+        error.code ===
+        "unauthenticated"
+    ) {
+
+        alert(
+            "La sesión de Firebase no es válida o ha expirado."
+        );
 
         return;
 

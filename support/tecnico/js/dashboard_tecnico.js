@@ -1,2563 +1,1938 @@
 /* =========================================================
-   NEWSROOM PORTAL
-   DASHBOARD TÉCNICO
-   FIRESTORE
-========================================================= */
-
-
-/* =========================================================
-   VARIABLES
-========================================================= */
-
-let tecnicoActual = null;
-
-let ticketsTecnico = [];
-
-let graficaRendimiento = null;
-
-let graficaCategorias = null;
-
-let listenerTickets = null;
-
-
-/* =========================================================
-   INICIO
+NEWSROOM PORTAL
+DASHBOARD TÉCNICO
+FIRESTORE
 ========================================================= */
 
 document.addEventListener(
-    "DOMContentLoaded",
-    iniciarDashboardTecnico
-);
-
-
-/* =========================================================
-   INICIAR
-========================================================= */
-
-function iniciarDashboardTecnico(){
+"DOMContentLoaded",
+function () {
 
     console.log(
-        "Newsroom Portal: Dashboard Técnico iniciado."
+        "Newsroom Portal: dashboard técnico cargado."
     );
-
-
-    mostrarFecha();
-
-
-    const periodo =
-        document.getElementById(
-            "periodoGrafica"
-        );
-
-
-    if(periodo){
-
-        periodo.addEventListener(
-            "change",
-            actualizarGraficaRendimiento
-        );
-
-    }
-
-
-    esperarFirebase();
-
-}
-
-
-/* =========================================================
-   ESPERAR FIREBASE
-========================================================= */
-
-function esperarFirebase(){
-
-    if(
-        window.newsroomAuth &&
-        window.newsroomDB
-    ){
-
-        iniciarAutenticacion();
-
-        return;
-
-    }
-
-
-    let intentos = 0;
-
-
-    const intervalo =
-        setInterval(
-            () => {
-
-                intentos++;
-
-
-                if(
-                    window.newsroomAuth &&
-                    window.newsroomDB
-                ){
-
-                    clearInterval(
-                        intervalo
-                    );
-
-
-                    iniciarAutenticacion();
-
-                }
-
-
-                if(
-                    intentos >= 50
-                ){
-
-                    clearInterval(
-                        intervalo
-                    );
-
-
-                    mostrarErrorFirebase();
-
-                }
-
-            },
-            200
-        );
-
-}
-
-
-/* =========================================================
-   AUTENTICACIÓN
-========================================================= */
-
-function iniciarAutenticacion(){
-
-    console.log(
-        "Newsroom Portal: Firebase disponible."
-    );
-
-
-    window.newsroomAuth.onAuthStateChanged(
-        async usuario => {
-
-            if(!usuario){
-
-                console.warn(
-                    "No existe una sesión autenticada."
-                );
-
-
-                window.location.href =
-                    "../../login.html";
-
-                return;
-
-            }
-
-
-            tecnicoActual =
-                usuario;
-
-
-            console.log(
-                "Usuario autenticado:",
-                usuario.uid,
-                usuario.email
-            );
-
-
-            mostrarNombreTecnico(
-                usuario
-            );
-
-
-            comenzarEscuchaTickets();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   ESCUCHAR TICKETS
-========================================================= */
-
-function comenzarEscuchaTickets(){
-
-    try{
-
-        const db =
-            window.newsroomDB;
-
-
-        /*
-         * Se utiliza la API modular de Firestore
-         * expuesta por la instancia existente.
-         */
-
-
-        const ticketsRef =
-            window.newsroomTicketsCollection ||
-            null;
-
-
-        if(
-            typeof window.newsroomListenTickets ===
-            "function"
-        ){
-
-            listenerTickets =
-                window.newsroomListenTickets(
-                    actualizarTickets
-                );
-
-
-            return;
-
-        }
-
-
-        /*
-         * Compatibilidad con Firestore modular.
-         */
-
-        if(
-            typeof window.newsroomFirestoreCollection ===
-            "function"
-        ){
-
-            const ref =
-                window.newsroomFirestoreCollection(
-                    db,
-                    "tickets"
-                );
-
-
-            listenerTickets =
-                window.newsroomFirestoreOnSnapshot(
-                    ref,
-                    snapshot => {
-
-                        const tickets =
-                            snapshot.docs.map(
-                                doc => ({
-                                    id:doc.id,
-                                    ...doc.data()
-                                })
-                            );
-
-
-                        actualizarTickets(
-                            tickets
-                        );
-
-                    }
-                );
-
-
-            return;
-
-        }
-
-
-        /*
-         * Si el proyecto ya expone
-         * firebase.firestore() en window.firebase.
-         */
-
-        if(
-            window.firebase &&
-            typeof window.firebase.firestore ===
-            "function"
-        ){
-
-            const firestore =
-                window.firebase.firestore();
-
-
-            listenerTickets =
-                firestore
-                    .collection("tickets")
-                    .onSnapshot(
-                        snapshot => {
-
-                            const tickets =
-                                snapshot.docs.map(
-                                    doc => ({
-                                        id:doc.id,
-                                        ...doc.data()
-                                    })
-                                );
-
-
-                            actualizarTickets(
-                                tickets
-                            );
-
-                        },
-                        error => {
-
-                            console.error(
-                                "Error Firestore:",
-                                error
-                            );
-
-                        }
-                    );
-
-
-            return;
-
-        }
-
-
-        /*
-         * No encontramos una API Firestore
-         * disponible.
-         */
-
-        console.error(
-            "No se encontró una instancia Firestore compatible."
-        );
-
-
-        mostrarErrorFirestore();
-
-
-    }catch(error){
-
-        console.error(
-            "Error iniciando Firestore:",
-            error
-        );
-
-
-        mostrarErrorFirestore();
-
-    }
-
-}
-
-
-/* =========================================================
-   ACTUALIZAR TICKETS
-========================================================= */
-
-function actualizarTickets(
-    todosLosTickets
-){
-
-    ticketsTecnico =
-        todosLosTickets.filter(
-            ticket =>
-                perteneceAlTecnico(
-                    ticket,
-                    tecnicoActual
-                )
-        );
-
-
-    console.log(
-        "Tickets del técnico:",
-        ticketsTecnico.length
-    );
-
-
-    mostrarDashboard();
-
-
-}
-
-
-/* =========================================================
-   VALIDAR TÉCNICO
-========================================================= */
-
-function perteneceAlTecnico(
-    ticket,
-    usuario
-){
-
-    if(
-        !ticket ||
-        !usuario
-    ){
-
-        return false;
-
-    }
-
-
-    const uid =
-        normalizar(
-            usuario.uid
-        );
-
-
-    const email =
-        normalizar(
-            usuario.email
-        );
-
-
-    const displayName =
-        normalizar(
-            usuario.displayName
-        );
 
 
     /* =====================================================
-       TECNICO_ID
-    ====================================================== */
+       VARIABLES
+    ===================================================== */
 
-    if(
-        ticket.tecnico_id
-    ){
+    let db = null;
 
-        if(
-            normalizar(
-                ticket.tecnico_id
-            ) === uid
-        ){
+    let currentUser = null;
 
-            return true;
+    let technicianData = null;
+
+    let tickets = [];
+
+    let dailyChart = null;
+
+    let categoriesChart = null;
+
+
+    /* =====================================================
+       INICIAR FIREBASE
+    ===================================================== */
+
+    function iniciarFirebase() {
+
+        if (
+            typeof firebase === "undefined"
+        ) {
+
+            console.error(
+                "Firebase no está cargado."
+            );
+
+            mostrarError(
+                "Firebase no está disponible."
+            );
+
+            return false;
 
         }
+
+
+        if (
+            typeof firebase.apps === "undefined" ||
+            firebase.apps.length === 0
+        ) {
+
+            console.error(
+                "Firebase no está inicializado."
+            );
+
+            mostrarError(
+                "Firebase no está inicializado."
+            );
+
+            return false;
+
+        }
+
+
+        db = firebase.firestore();
+
+        return true;
 
     }
 
 
     /* =====================================================
-       TECNICO COMO STRING
-    ====================================================== */
+       OBTENER USUARIO AUTH
+    ===================================================== */
 
-    if(
-        typeof ticket.tecnico ===
-        "string"
-    ){
+    function esperarUsuario() {
 
-        const tecnico =
-            normalizar(
-                ticket.tecnico
-            );
+        return new Promise(
+            function (resolve) {
+
+                if (
+                    typeof firebase === "undefined" ||
+                    !firebase.auth
+                ) {
+
+                    resolve(null);
+
+                    return;
+
+                }
 
 
-        if(
-            tecnico === uid ||
-            tecnico === email
-        ){
+                const unsubscribe =
+                    firebase.auth().onAuthStateChanged(
+                        function (user) {
 
-            return true;
+                            unsubscribe();
 
-        }
+                            resolve(user);
+
+                        }
+                    );
+
+            }
+        );
 
     }
 
 
     /* =====================================================
-       TECNICO COMO OBJETO
-    ====================================================== */
+       CARGAR DATOS DEL TÉCNICO
+    ===================================================== */
 
-    if(
-        ticket.tecnico &&
-        typeof ticket.tecnico ===
-        "object"
-    ){
+    async function cargarTecnico() {
 
-        const tecnicoUid =
-            normalizar(
-                ticket.tecnico.uid ||
-                ticket.tecnico.id
-            );
+        if (!currentUser) {
 
-
-        const tecnicoEmail =
-            normalizar(
-                ticket.tecnico.email
-            );
-
-
-        if(
-            tecnicoUid === uid ||
-            tecnicoEmail === email
-        ){
-
-            return true;
+            return null;
 
         }
+
+
+        let tecnico = null;
+
+
+        try {
+
+            const doc =
+                await db
+                    .collection("usuarios")
+                    .doc(currentUser.uid)
+                    .get();
+
+
+            if (doc.exists) {
+
+                tecnico = {
+                    id: doc.id,
+                    ...doc.data()
+                };
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "No se pudo obtener el usuario:",
+                error
+            );
+
+        }
+
+
+        /*
+         * Si no existe documento en usuarios,
+         * utilizamos los datos de Authentication.
+         */
+
+        if (!tecnico) {
+
+            tecnico = {
+
+                id: currentUser.uid,
+
+                uid: currentUser.uid,
+
+                correo:
+                    currentUser.email || "",
+
+                email:
+                    currentUser.email || "",
+
+                nombre:
+                    currentUser.displayName ||
+                    currentUser.email ||
+                    "Técnico"
+
+            };
+
+        }
+
+
+        return tecnico;
 
     }
 
 
     /* =====================================================
-       TECNICO_NOMBRE
-    ====================================================== */
+       NOMBRE TÉCNICO
+    ===================================================== */
 
-    if(
-        ticket.tecnico_nombre &&
-        displayName
-    ){
+    function obtenerNombreTecnico() {
 
-        if(
-            normalizar(
-                ticket.tecnico_nombre
-            ) === displayName
-        ){
+        if (!technicianData) {
 
-            return true;
+            return "Técnico";
 
         }
 
-    }
-
-
-    return false;
-
-}
-
-
-/* =========================================================
-   DASHBOARD
-========================================================= */
-
-function mostrarDashboard(){
-
-    document
-        .getElementById(
-            "dashboardLoading"
-        )
-        .style.display =
-        "none";
-
-
-    document
-        .getElementById(
-            "dashboardContent"
-        )
-        .style.display =
-        "block";
-
-
-    actualizarKPIs();
-
-    actualizarEstados();
-
-    actualizarGraficaRendimiento();
-
-    actualizarGraficaCategorias();
-
-    actualizarAlertas();
-
-    actualizarUltimosTickets();
-
-}
-
-
-/* =========================================================
-   KPIs
-========================================================= */
-
-function actualizarKPIs(){
-
-    const asignados =
-        ticketsTecnico.length;
-
-
-    const proceso =
-        ticketsTecnico.filter(
-            ticket =>
-                normalizarEstatus(
-                    ticket.estatus
-                ) ===
-                "en proceso"
-        ).length;
-
-
-    const cerrados =
-        ticketsTecnico.filter(
-            ticket =>
-                esCerrado(
-                    ticket.estatus
-                )
-        ).length;
-
-
-    const alertas =
-        obtenerAlertas().length;
-
-
-    ponerTexto(
-        "kpiAsignados",
-        asignados
-    );
-
-
-    ponerTexto(
-        "kpiProceso",
-        proceso
-    );
-
-
-    ponerTexto(
-        "kpiCerrados",
-        cerrados
-    );
-
-
-    ponerTexto(
-        "kpiAlertas",
-        alertas
-    );
-
-
-    ponerTexto(
-        "totalHistorico",
-        asignados
-    );
-
-
-    ponerTexto(
-        "totalPendientes",
-        ticketsTecnico.filter(
-            ticket =>
-                !esCerrado(
-                    ticket.estatus
-                )
-        ).length
-    );
-
-}
-
-
-/* =========================================================
-   ESTADOS
-========================================================= */
-
-function actualizarEstados(){
-
-    const estados = {
-
-        registrados:0,
-
-        proceso:0,
-
-        espera:0,
-
-        resueltos:0,
-
-        cerrados:0
-
-    };
-
-
-    ticketsTecnico.forEach(
-        ticket => {
-
-            const estado =
-                normalizarEstatus(
-                    ticket.estatus
-                );
-
-
-            switch(estado){
-
-                case "registrado":
-
-                    estados.registrados++;
-
-                    break;
-
-
-                case "en proceso":
-
-                    estados.proceso++;
-
-                    break;
-
-
-                case "en espera":
-
-                    estados.espera++;
-
-                    break;
-
-
-                case "resuelto":
-
-                    estados.resueltos++;
-
-                    break;
-
-
-                case "cerrado":
-
-                    estados.cerrados++;
-
-                    break;
-
-            }
-
-        }
-    );
-
-
-    ponerTexto(
-        "estadoRegistrados",
-        estados.registrados
-    );
-
-
-    ponerTexto(
-        "estadoProceso",
-        estados.proceso
-    );
-
-
-    ponerTexto(
-        "estadoEspera",
-        estados.espera
-    );
-
-
-    ponerTexto(
-        "estadoResueltos",
-        estados.resueltos
-    );
-
-
-    ponerTexto(
-        "estadoCerrados",
-        estados.cerrados
-    );
-
-}
-
-
-/* =========================================================
-   RENDIMIENTO
-========================================================= */
-
-function actualizarGraficaRendimiento(){
-
-    if(
-        typeof Chart ===
-        "undefined"
-    ){
-
-        return;
-
-    }
-
-
-    const selector =
-        document.getElementById(
-            "periodoGrafica"
-        );
-
-
-    const periodo =
-        selector
-            ? selector.value
-            : "30";
-
-
-    const dias =
-        obtenerDias(
-            periodo
-        );
-
-
-    const cantidades =
-        dias.map(
-            dia => {
-
-                return ticketsTecnico.filter(
-                    ticket => {
-
-                        /*
-                         * Para rendimiento contamos
-                         * tickets que hayan sido atendidos,
-                         * resueltos o cerrados.
-                         */
-
-                        if(
-                            !esTicketAtendido(
-                                ticket
-                            )
-                        ){
-
-                            return false;
-
-                        }
-
-
-                        const fecha =
-                            obtenerFechaAtencion(
-                                ticket
-                            );
-
-
-                        if(!fecha){
-
-                            return false;
-
-                        }
-
-
-                        return mismoDia(
-                            fecha,
-                            dia
-                        );
-
-                    }
-                ).length;
-
-            }
-        );
-
-
-    const labels =
-        dias.map(
-            dia =>
-                dia.toLocaleDateString(
-                    "es-MX",
-                    {
-                        day:"2-digit",
-                        month:"short"
-                    }
-                )
-        );
-
-
-    const canvas =
-        document.getElementById(
-            "graficaRendimiento"
-        );
-
-
-    if(!canvas){
-
-        return;
-
-    }
-
-
-    if(graficaRendimiento){
-
-        graficaRendimiento.destroy();
-
-    }
-
-
-    graficaRendimiento =
-        new Chart(
-            canvas,
-            {
-
-                type:"line",
-
-                data:{
-
-                    labels,
-
-                    datasets:[
-
-                        {
-
-                            label:
-                                "Tickets atendidos",
-
-                            data:
-                                cantidades,
-
-                            borderColor:
-                                "#c8102e",
-
-                            backgroundColor:
-                                "rgba(200,16,46,.10)",
-
-                            borderWidth:3,
-
-                            pointRadius:3,
-
-                            pointHoverRadius:6,
-
-                            fill:true,
-
-                            tension:.35
-
-                        }
-
-                    ]
-
-                },
-
-                options:{
-
-                    responsive:true,
-
-                    maintainAspectRatio:false,
-
-                    interaction:{
-
-                        intersect:false,
-
-                        mode:"index"
-
-                    },
-
-                    plugins:{
-
-                        legend:{
-
-                            display:true
-
-                        },
-
-                        tooltip:{
-
-                            callbacks:{
-
-                                label:
-                                    context =>
-                                        ` ${context.parsed.y} ticket${
-                                            context.parsed.y === 1
-                                                ? ""
-                                                : "s"
-                                        }`
-
-                            }
-
-                        }
-
-                    },
-
-                    scales:{
-
-                        y:{
-
-                            beginAtZero:true,
-
-                            ticks:{
-
-                                precision:0
-
-                            },
-
-                            grid:{
-
-                                color:
-                                    "rgba(0,0,0,.06)"
-
-                            }
-
-                        },
-
-                        x:{
-
-                            grid:{
-
-                                display:false
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   OBTENER DÍAS
-========================================================= */
-
-function obtenerDias(
-    periodo
-){
-
-    const hoy =
-        new Date();
-
-
-    hoy.setHours(
-        0,
-        0,
-        0,
-        0
-    );
-
-
-    const dias = [];
-
-
-    if(
-        periodo ===
-        "year"
-    ){
-
-        const inicio =
-            new Date(
-                hoy.getFullYear(),
-                0,
-                1
-            );
-
-
-        for(
-            let fecha =
-                new Date(inicio);
-
-            fecha <= hoy;
-
-            fecha.setDate(
-                fecha.getDate() + 1
-            )
-
-        ){
-
-            dias.push(
-                new Date(fecha)
-            );
-
-        }
-
-
-        return dias;
-
-    }
-
-
-    if(
-        periodo ===
-        "month"
-    ){
-
-        const inicio =
-            new Date(
-                hoy.getFullYear(),
-                hoy.getMonth(),
-                1
-            );
-
-
-        for(
-            let fecha =
-                new Date(inicio);
-
-            fecha <= hoy;
-
-            fecha.setDate(
-                fecha.getDate() + 1
-            )
-
-        ){
-
-            dias.push(
-                new Date(fecha)
-            );
-
-        }
-
-
-        return dias;
-
-    }
-
-
-    const cantidad =
-        Number(periodo);
-
-
-    for(
-        let i =
-            cantidad - 1;
-
-        i >= 0;
-
-        i--
-    ){
-
-        const fecha =
-            new Date(hoy);
-
-
-        fecha.setDate(
-            hoy.getDate() - i
-        );
-
-
-        dias.push(
-            fecha
-        );
-
-    }
-
-
-    return dias;
-
-}
-
-
-/* =========================================================
-   CATEGORÍAS
-========================================================= */
-
-function actualizarGraficaCategorias(){
-
-    if(
-        typeof Chart ===
-        "undefined"
-    ){
-
-        return;
-
-    }
-
-
-    const categorias = {};
-
-
-    ticketsTecnico.forEach(
-        ticket => {
-
-            const categoria =
-                obtenerCategoria(
-                    ticket
-                );
-
-
-            categorias[categoria] =
-                (
-                    categorias[categoria] ||
-                    0
-                ) + 1;
-
-        }
-    );
-
-
-    const nombres =
-        Object.keys(
-            categorias
-        );
-
-
-    const valores =
-        Object.values(
-            categorias
-        );
-
-
-    const canvas =
-        document.getElementById(
-            "graficaCategorias"
-        );
-
-
-    if(!canvas){
-
-        return;
-
-    }
-
-
-    if(graficaCategorias){
-
-        graficaCategorias.destroy();
-
-    }
-
-
-    if(
-        nombres.length ===
-        0
-    ){
-
-        nombres.push(
-            "Sin datos"
-        );
-
-        valores.push(
-            1
-        );
-
-    }
-
-
-    graficaCategorias =
-        new Chart(
-            canvas,
-            {
-
-                type:"doughnut",
-
-                data:{
-
-                    labels:nombres,
-
-                    datasets:[
-
-                        {
-
-                            data:valores,
-
-                            backgroundColor:[
-
-                                "#c8102e",
-
-                                "#1570ef",
-
-                                "#00ae42",
-
-                                "#f79009",
-
-                                "#7f56d9",
-
-                                "#667085",
-
-                                "#12b76a",
-
-                                "#98a2b3"
-
-                            ],
-
-                            borderWidth:3,
-
-                            borderColor:"#ffffff"
-
-                        }
-
-                    ]
-
-                },
-
-                options:{
-
-                    responsive:true,
-
-                    maintainAspectRatio:false,
-
-                    cutout:"64%",
-
-                    plugins:{
-
-                        legend:{
-
-                            display:false
-
-                        }
-
-                    }
-
-                }
-
-            }
-        );
-
-
-    actualizarLeyenda(
-        categorias
-    );
-
-}
-
-
-/* =========================================================
-   LEYENDA
-========================================================= */
-
-function actualizarLeyenda(
-    categorias
-){
-
-    const contenedor =
-        document.getElementById(
-            "leyendaCategorias"
-        );
-
-
-    if(!contenedor){
-
-        return;
-
-    }
-
-
-    contenedor.innerHTML =
-        "";
-
-
-    const total =
-        Object.values(
-            categorias
-        )
-            .reduce(
-                (
-                    suma,
-                    valor
-                ) =>
-                    suma + valor,
-                0
-            );
-
-
-    Object.entries(
-        categorias
-    )
-        .sort(
-            (
-                a,
-                b
-            ) =>
-                b[1] - a[1]
-        )
-        .forEach(
-            (
-                [
-                    categoria,
-                    cantidad
-                ]
-            ) => {
-
-                const porcentaje =
-                    total
-                        ? Math.round(
-                            (
-                                cantidad /
-                                total
-                            ) * 100
-                        )
-                        : 0;
-
-
-                const item =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                item.className =
-                    "category-item";
-
-
-                item.innerHTML = `
-
-                    <span>
-                        ${escapeHTML(
-                            categoria
-                        )}
-                    </span>
-
-                    <strong>
-                        ${porcentaje}%
-                    </strong>
-
-                `;
-
-
-                contenedor.appendChild(
-                    item
-                );
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   ALERTAS
-========================================================= */
-
-function obtenerAlertas(){
-
-    const ahora =
-        Date.now();
-
-
-    return ticketsTecnico.filter(
-        ticket => {
-
-            if(
-                esCerrado(
-                    ticket.estatus
-                )
-            ){
-
-                return false;
-
-            }
-
-
-            const fecha =
-                obtenerFechaActualizacion(
-                    ticket
-                );
-
-
-            if(!fecha){
-
-                return false;
-
-            }
-
-
-            const horas =
-                (
-                    ahora -
-                    fecha.getTime()
-                ) /
-                3600000;
-
-
-            const prioridad =
-                normalizar(
-                    ticket.prioridad
-                );
-
-
-            /*
-             * CRÍTICA
-             */
-
-            if(
-                prioridad ===
-                "critica"
-            ){
-
-                return horas >= 2;
-
-            }
-
-
-            /*
-             * ALTA
-             */
-
-            if(
-                prioridad ===
-                "alta"
-            ){
-
-                return horas >= 4;
-
-            }
-
-
-            /*
-             * MEDIA
-             */
-
-            if(
-                prioridad ===
-                "media"
-            ){
-
-                return horas >= 8;
-
-            }
-
-
-            /*
-             * NORMAL / BAJA
-             */
-
-            return horas >= 24;
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   MOSTRAR ALERTAS
-========================================================= */
-
-function actualizarAlertas(){
-
-    const alertas =
-        obtenerAlertas();
-
-
-    ponerTexto(
-        "contadorAlertas",
-        alertas.length
-    );
-
-
-    const contenedor =
-        document.getElementById(
-            "ticketsAlertados"
-        );
-
-
-    if(!contenedor){
-
-        return;
-
-    }
-
-
-    if(
-        alertas.length ===
-        0
-    ){
-
-        contenedor.innerHTML = `
-
-            <div class="empty-state">
-
-                <i class="fa-solid fa-circle-check"></i>
-
-                <strong>
-                    Todo está bajo control
-                </strong>
-
-                <span>
-                    No tienes tickets que requieran atención.
-                </span>
-
-            </div>
-
-        `;
-
-        return;
-
-    }
-
-
-    contenedor.innerHTML =
-        "";
-
-
-    alertas
-        .sort(
-            (
-                a,
-                b
-            ) =>
-                obtenerFechaActualizacion(b) -
-                obtenerFechaActualizacion(a)
-        )
-        .forEach(
-            ticket => {
-
-                const item =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                item.className =
-                    "alert-ticket";
-
-
-                const fecha =
-                    obtenerFechaActualizacion(
-                        ticket
-                    );
-
-
-                const prioridad =
-                    normalizar(
-                        ticket.prioridad ||
-                        "normal"
-                    );
-
-
-                item.innerHTML = `
-
-                    <div class="alert-ticket-main">
-
-                        <strong>
-                            ${escapeHTML(
-                                ticket.folio ||
-                                ticket.id
-                            )}
-                        </strong>
-
-                        <span>
-                            ${escapeHTML(
-                                ticket.titulo ||
-                                ticket.asunto ||
-                                ticket.descripcion ||
-                                "Sin título"
-                            )}
-                        </span>
-
-                    </div>
-
-
-                    <div class="alert-ticket-meta">
-
-                        <span class="alert-priority priority-${prioridad}">
-
-                            ${escapeHTML(
-                                ticket.prioridad ||
-                                "Normal"
-                            )}
-
-                        </span>
-
-
-                        <small>
-
-                            ${tiempoTranscurrido(
-                                fecha
-                            )}
-
-                        </small>
-
-                    </div>
-
-                `;
-
-
-                item.addEventListener(
-                    "click",
-                    () =>
-                        abrirTicket(
-                            ticket
-                        )
-                );
-
-
-                contenedor.appendChild(
-                    item
-                );
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   ÚLTIMOS TICKETS
-========================================================= */
-
-function actualizarUltimosTickets(){
-
-    const cuerpo =
-        document.getElementById(
-            "ultimosTickets"
-        );
-
-
-    if(!cuerpo){
-
-        return;
-
-    }
-
-
-    const tickets =
-        [...ticketsTecnico]
-            .sort(
-                (
-                    a,
-                    b
-                ) =>
-                    obtenerFechaActualizacion(b) -
-                    obtenerFechaActualizacion(a)
-            )
-            .slice(
-                0,
-                10
-            );
-
-
-    if(
-        tickets.length ===
-        0
-    ){
-
-        cuerpo.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="6"
-                    class="table-empty"
-                >
-
-                    No tienes tickets registrados.
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
-    }
-
-
-    cuerpo.innerHTML =
-        "";
-
-
-    tickets.forEach(
-        ticket => {
-
-            const fila =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const estado =
-                normalizarEstatus(
-                    ticket.estatus
-                );
-
-
-            const fecha =
-                obtenerFechaActualizacion(
-                    ticket
-                );
-
-
-            const prioridad =
-                normalizar(
-                    ticket.prioridad ||
-                    "normal"
-                );
-
-
-            fila.innerHTML = `
-
-                <td>
-
-                    <span class="ticket-folio">
-
-                        ${escapeHTML(
-                            ticket.folio ||
-                            ticket.id
-                        )}
-
-                    </span>
-
-                </td>
-
-
-                <td>
-
-                    ${escapeHTML(
-                        ticket.titulo ||
-                        ticket.asunto ||
-                        ticket.descripcion ||
-                        "Sin título"
-                    )}
-
-                </td>
-
-
-                <td>
-
-                    ${escapeHTML(
-                        obtenerCategoria(
-                            ticket
-                        )
-                    )}
-
-                </td>
-
-
-                <td>
-
-                    <span
-                        class="ticket-priority priority-${prioridad}"
-                    >
-
-                        ${escapeHTML(
-                            ticket.prioridad ||
-                            "Normal"
-                        )}
-
-                    </span>
-
-                </td>
-
-
-                <td>
-
-                    <span
-                        class="ticket-status status-${estado.replace(
-                            / /g,
-                            "-"
-                        )}"
-                    >
-
-                        ${escapeHTML(
-                            ticket.estatus ||
-                            "Registrado"
-                        )}
-
-                    </span>
-
-                </td>
-
-
-                <td>
-
-                    ${
-                        fecha
-                            ? fecha.toLocaleString(
-                                "es-MX",
-                                {
-                                    day:"2-digit",
-                                    month:"2-digit",
-                                    hour:"2-digit",
-                                    minute:"2-digit"
-                                }
-                            )
-                            : "--"
-                    }
-
-                </td>
-
-            `;
-
-
-            fila.addEventListener(
-                "click",
-                () =>
-                    abrirTicket(
-                        ticket
-                    )
-            );
-
-
-            cuerpo.appendChild(
-                fila
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   ABRIR TICKET
-========================================================= */
-
-function abrirTicket(
-    ticket
-){
-
-    if(
-        !ticket ||
-        !ticket.id
-    ){
-
-        return;
-
-    }
-
-
-    /*
-     * Ajustaremos esta ruta cuando
-     * dejemos definido el detalle
-     * definitivo de tickets.
-     */
-
-    window.location.href =
-        `../tickets/ticket.html?id=${encodeURIComponent(
-            ticket.id
-        )}`;
-
-}
-
-
-/* =========================================================
-   TICKET ATENDIDO
-========================================================= */
-
-function esTicketAtendido(
-    ticket
-){
-
-    const estado =
-        normalizarEstatus(
-            ticket.estatus
-        );
-
-
-    return [
-
-        "en proceso",
-
-        "resuelto",
-
-        "cerrado"
-
-    ].includes(
-        estado
-    );
-
-}
-
-
-/* =========================================================
-   FECHA DE ATENCIÓN
-========================================================= */
-
-function obtenerFechaAtencion(
-    ticket
-){
-
-    return convertirFecha(
-
-        ticket.fecha_resolucion ||
-
-        ticket.fecha_resuelto ||
-
-        ticket.fecha_cierre ||
-
-        ticket.updatedAt ||
-
-        ticket.fecha_actualizacion ||
-
-        ticket.fecha_modificacion ||
-
-        ticket.fecha_creacion ||
-
-        ticket.createdAt ||
-
-        ticket.fecha
-
-    );
-
-}
-
-
-/* =========================================================
-   FECHA ACTUALIZACIÓN
-========================================================= */
-
-function obtenerFechaActualizacion(
-    ticket
-){
-
-    return convertirFecha(
-
-        ticket.updatedAt ||
-
-        ticket.fecha_actualizacion ||
-
-        ticket.fecha_modificacion ||
-
-        ticket.fecha_resolucion ||
-
-        ticket.fecha_cierre ||
-
-        ticket.fecha_creacion ||
-
-        ticket.createdAt ||
-
-        ticket.fecha
-
-    );
-
-}
-
-
-/* =========================================================
-   CATEGORÍA
-========================================================= */
-
-function obtenerCategoria(
-    ticket
-){
-
-    if(
-        typeof ticket.categoria ===
-        "string"
-    ){
 
         return (
-            ticket.categoria ||
-            "Sin categoría"
+            technicianData.nombre ||
+            technicianData.nombreCompleto ||
+            technicianData.displayName ||
+            technicianData.usuario ||
+            technicianData.correo ||
+            technicianData.email ||
+            currentUser?.email ||
+            "Técnico"
         );
 
     }
 
 
-    if(
-        ticket.categoria &&
-        typeof ticket.categoria ===
-        "object"
-    ){
+    /* =====================================================
+       ACTUALIZAR TOPBAR
+    ===================================================== */
 
-        return (
+    function actualizarUsuario() {
 
-            ticket.categoria.nombre ||
-
-            ticket.categoria.name ||
-
-            ticket.categoria.id ||
-
-            "Sin categoría"
-
-        );
-
-    }
+        const nombre =
+            obtenerNombreTecnico();
 
 
-    if(
-        ticket.categoria_nombre
-    ){
-
-        return String(
-            ticket.categoria_nombre
-        );
-
-    }
+        const nombreElemento =
+            document.getElementById(
+                "userName"
+            );
 
 
-    if(
-        ticket.categoria_id
-    ){
-
-        return String(
-            ticket.categoria_id
-        );
-
-    }
+        const avatar =
+            document.getElementById(
+                "userAvatar"
+            );
 
 
-    return "Sin categoría";
+        if (nombreElemento) {
 
-}
+            nombreElemento.textContent =
+                nombre;
 
-
-/* =========================================================
-   ESTATUS
-========================================================= */
-
-function normalizarEstatus(
-    estatus
-){
-
-    const estado =
-        normalizar(
-            estatus
-        );
+        }
 
 
-    if(
-        [
-            "registrado",
-            "nuevo",
-            "abierto"
-        ].includes(
-            estado
-        )
-    ){
+        if (avatar) {
 
-        return "registrado";
+            avatar.textContent =
+                nombre
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
+
+        }
 
     }
 
 
-    if(
-        [
-            "en proceso",
-            "proceso",
-            "en progreso",
-            "asignado"
-        ].includes(
-            estado
-        )
-    ){
+    /* =====================================================
+       NORMALIZAR TEXTO
+    ===================================================== */
 
-        return "en proceso";
+    function normalizar(valor) {
 
-    }
+        if (
+            valor === null ||
+            valor === undefined
+        ) {
+
+            return "";
+
+        }
 
 
-    if(
-        [
-            "en espera",
-            "espera",
-            "pendiente"
-        ].includes(
-            estado
-        )
-    ){
-
-        return "en espera";
+        return String(valor)
+            .trim()
+            .toLowerCase();
 
     }
 
 
-    if(
-        [
-            "resuelto",
-            "solucionado"
-        ].includes(
-            estado
-        )
-    ){
+    /* =====================================================
+       OBTENER CAMPO
+    ===================================================== */
 
-        return "resuelto";
+    function obtenerCampo(
+        ticket,
+        campos
+    ) {
+
+        for (
+            const campo of campos
+        ) {
+
+            if (
+                ticket[campo] !== undefined &&
+                ticket[campo] !== null &&
+                ticket[campo] !== ""
+            ) {
+
+                return ticket[campo];
+
+            }
+
+        }
+
+
+        return "";
 
     }
 
 
-    if(
-        [
-            "cerrado",
-            "finalizado"
-        ].includes(
-            estado
-        )
-    ){
+    /* =====================================================
+       CONVERTIR FECHA FIREBASE
+    ===================================================== */
 
-        return "cerrado";
+    function convertirFecha(valor) {
 
-    }
+        if (!valor) {
 
+            return null;
 
-    return estado;
-
-}
+        }
 
 
-/* =========================================================
-   CERRADO
-========================================================= */
+        if (
+            typeof valor.toDate ===
+            "function"
+        ) {
 
-function esCerrado(
-    estatus
-){
+            return valor.toDate();
 
-    return [
-
-        "resuelto",
-
-        "cerrado"
-
-    ].includes(
-        normalizarEstatus(
-            estatus
-        )
-    );
-
-}
+        }
 
 
-/* =========================================================
-   FECHA
-========================================================= */
+        if (
+            valor instanceof Date
+        ) {
 
-function convertirFecha(
-    valor
-){
+            return valor;
 
-    if(!valor){
+        }
+
+
+        if (
+            typeof valor === "number"
+        ) {
+
+            const fecha =
+                new Date(valor);
+
+            return isNaN(fecha.getTime())
+                ? null
+                : fecha;
+
+        }
+
+
+        if (
+            typeof valor === "string"
+        ) {
+
+            const fecha =
+                new Date(valor);
+
+            return isNaN(fecha.getTime())
+                ? null
+                : fecha;
+
+        }
+
 
         return null;
 
     }
 
 
-    if(
-        valor instanceof Date
-    ){
+    /* =====================================================
+       FECHA DEL TICKET
+    ===================================================== */
 
-        return valor;
+    function obtenerFechaTicket(ticket) {
 
-    }
-
-
-    if(
-        typeof valor.toDate ===
-        "function"
-    ){
-
-        return valor.toDate();
-
-    }
-
-
-    if(
-        typeof valor ===
-        "number"
-    ){
-
-        const fecha =
-            new Date(
-                valor
+        const valor =
+            obtenerCampo(
+                ticket,
+                [
+                    "fecha_creacion",
+                    "fechaCreacion",
+                    "fecha",
+                    "createdAt",
+                    "created_at",
+                    "timestamp"
+                ]
             );
 
 
-        return isNaN(
-            fecha.getTime()
-        )
-            ? null
-            : fecha;
+        return convertirFecha(valor);
 
     }
 
 
-    if(
-        typeof valor ===
-        "string"
-    ){
+    /* =====================================================
+       IDENTIFICAR TÉCNICO
+    ===================================================== */
 
-        const fecha =
-            new Date(
-                valor
+    function ticketPerteneceTecnico(ticket) {
+
+        if (!technicianData) {
+
+            return false;
+
+        }
+
+
+        const uid =
+            normalizar(
+                currentUser?.uid
             );
 
 
-        return isNaN(
-            fecha.getTime()
-        )
-            ? null
-            : fecha;
+        const email =
+            normalizar(
+                currentUser?.email
+            );
+
+
+        const tecnicoId =
+            normalizar(
+                obtenerCampo(
+                    technicianData,
+                    [
+                        "uid",
+                        "id",
+                        "usuarioId"
+                    ]
+                )
+            );
+
+
+        const tecnicoCorreo =
+            normalizar(
+                obtenerCampo(
+                    technicianData,
+                    [
+                        "correo",
+                        "email"
+                    ]
+                )
+            );
+
+
+        const tecnicoNombre =
+            normalizar(
+                obtenerCampo(
+                    technicianData,
+                    [
+                        "nombre",
+                        "nombreCompleto",
+                        "displayName",
+                        "usuario"
+                    ]
+                )
+            );
+
+
+        /*
+         * Campos posibles de asignación
+         */
+
+        const asignadoId =
+            normalizar(
+                obtenerCampo(
+                    ticket,
+                    [
+                        "tecnicoId",
+                        "tecnico_id",
+                        "usuarioTecnicoId",
+                        "asignadoId",
+                        "assignedTo",
+                        "assigned_to"
+                    ]
+                )
+            );
+
+
+        const asignadoCorreo =
+            normalizar(
+                obtenerCampo(
+                    ticket,
+                    [
+                        "tecnicoCorreo",
+                        "tecnico_email",
+                        "asignadoCorreo",
+                        "assignedEmail"
+                    ]
+                )
+            );
+
+
+        const asignadoNombre =
+            normalizar(
+                obtenerCampo(
+                    ticket,
+                    [
+                        "tecnico",
+                        "tecnicoNombre",
+                        "nombreTecnico",
+                        "asignadoA",
+                        "asignado",
+                        "assignedName"
+                    ]
+                )
+            );
+
+
+        /*
+         * Comparación por UID
+         */
+
+        if (
+            uid &&
+            (
+                asignadoId === uid ||
+                asignadoCorreo === email
+            )
+        ) {
+
+            return true;
+
+        }
+
+
+        /*
+         * Comparación contra datos del usuario
+         */
+
+        if (
+            tecnicoId &&
+            asignadoId === tecnicoId
+        ) {
+
+            return true;
+
+        }
+
+
+        if (
+            tecnicoCorreo &&
+            asignadoCorreo === tecnicoCorreo
+        ) {
+
+            return true;
+
+        }
+
+
+        /*
+         * Comparación por nombre
+         */
+
+        if (
+            tecnicoNombre &&
+            asignadoNombre === tecnicoNombre
+        ) {
+
+            return true;
+
+        }
+
+
+        /*
+         * Algunos sistemas guardan directamente
+         * el UID en "tecnico".
+         */
+
+        if (
+            asignadoNombre === uid
+        ) {
+
+            return true;
+
+        }
+
+
+        return false;
 
     }
 
 
-    return null;
+    /* =====================================================
+       CARGAR TICKETS
+    ===================================================== */
 
-}
+    async function cargarTickets() {
 
+        try {
 
-/* =========================================================
-   MISMO DÍA
-========================================================= */
-
-function mismoDia(
-    fechaA,
-    fechaB
-){
-
-    return (
-
-        fechaA.getFullYear() ===
-        fechaB.getFullYear()
-
-        &&
-
-        fechaA.getMonth() ===
-        fechaB.getMonth()
-
-        &&
-
-        fechaA.getDate() ===
-        fechaB.getDate()
-
-    );
-
-}
+            const snapshot =
+                await db
+                    .collection("tickets")
+                    .get();
 
 
-/* =========================================================
-   TIEMPO TRANSCURRIDO
-========================================================= */
+            tickets = [];
 
-function tiempoTranscurrido(
-    fecha
-){
 
-    if(!fecha){
+            snapshot.forEach(
+                function (doc) {
 
-        return "Sin fecha";
+                    const data =
+                        doc.data();
+
+
+                    const ticket = {
+
+                        id: doc.id,
+
+                        ...data
+
+                    };
+
+
+                    if (
+                        ticketPerteneceTecnico(
+                            ticket
+                        )
+                    ) {
+
+                        tickets.push(
+                            ticket
+                        );
+
+                    }
+
+                }
+            );
+
+
+            console.log(
+                "Tickets del técnico:",
+                tickets.length
+            );
+
+
+            procesarDashboard();
+
+
+        } catch (error) {
+
+            console.error(
+                "Error obteniendo tickets:",
+                error
+            );
+
+
+            mostrarError(
+                "No fue posible cargar los tickets del técnico."
+            );
+
+        }
 
     }
 
 
-    const diferencia =
-        Date.now() -
-        fecha.getTime();
+    /* =====================================================
+       PROCESAR DASHBOARD
+    ===================================================== */
+
+    function procesarDashboard() {
+
+        actualizarKPIs();
+
+        generarGraficaDiaria();
+
+        generarGraficaCategorias();
+
+        generarAlertas();
+
+        generarResumen();
+
+    }
 
 
-    const minutos =
-        Math.floor(
-            diferencia /
-            60000
+    /* =====================================================
+       ESTATUS
+    ===================================================== */
+
+    function obtenerEstatus(ticket) {
+
+        return normalizar(
+            obtenerCampo(
+                ticket,
+                [
+                    "estatus",
+                    "estado",
+                    "status"
+                ]
+            )
+        );
+
+    }
+
+
+    /* =====================================================
+       ACTUALIZAR KPIs
+    ===================================================== */
+
+    function actualizarKPIs() {
+
+        const total =
+            tickets.length;
+
+
+        const proceso =
+            tickets.filter(
+                function (ticket) {
+
+                    const estado =
+                        obtenerEstatus(
+                            ticket
+                        );
+
+                    return (
+                        estado === "en proceso" ||
+                        estado === "en_proceso" ||
+                        estado === "proceso"
+                    );
+
+                }
+            ).length;
+
+
+        const pendientes =
+            tickets.filter(
+                function (ticket) {
+
+                    const estado =
+                        obtenerEstatus(
+                            ticket
+                        );
+
+                    return (
+                        estado === "pendiente" ||
+                        estado === "registrado" ||
+                        estado === "abierto"
+                    );
+
+                }
+            ).length;
+
+
+        const alertados =
+            obtenerTicketsAlertados()
+                .length;
+
+
+        document.getElementById(
+            "totalTickets"
+        ).textContent = total;
+
+
+        document.getElementById(
+            "ticketsProceso"
+        ).textContent = proceso;
+
+
+        document.getElementById(
+            "ticketsPendientes"
+        ).textContent = pendientes;
+
+
+        document.getElementById(
+            "ticketsAlertados"
+        ).textContent = alertados;
+
+    }
+
+
+    /* =====================================================
+       GRÁFICA TICKETS POR DÍA
+    ===================================================== */
+
+    function generarGraficaDiaria() {
+
+        const añoActual =
+            new Date().getFullYear();
+
+
+        const diasDelAño =
+            new Date(
+                añoActual,
+                11,
+                31
+            ).getDate() === 31
+                ? (
+                    new Date(
+                        añoActual,
+                        1,
+                        29
+                    ).getMonth() === 1
+                        ? 366
+                        : 365
+                )
+                : 365;
+
+
+        const labels = [];
+
+        const valores = [];
+
+
+        const mapa =
+            {};
+
+
+        tickets.forEach(
+            function (ticket) {
+
+                const fecha =
+                    obtenerFechaTicket(
+                        ticket
+                    );
+
+
+                if (!fecha) {
+
+                    return;
+
+                }
+
+
+                if (
+                    fecha.getFullYear() !==
+                    añoActual
+                ) {
+
+                    return;
+
+                }
+
+
+                const clave =
+                    fecha
+                        .toISOString()
+                        .split("T")[0];
+
+
+                mapa[clave] =
+                    (
+                        mapa[clave] || 0
+                    ) + 1;
+
+            }
         );
 
 
-    if(
-        minutos < 60
-    ){
+        /*
+         * Generamos solamente los días
+         * transcurridos hasta hoy.
+         */
 
-        return `Hace ${minutos} min`;
-
-    }
-
-
-    const horas =
-        Math.floor(
-            minutos /
-            60
-        );
+        const inicio =
+            new Date(
+                añoActual,
+                0,
+                1
+            );
 
 
-    if(
-        horas < 24
-    ){
-
-        return `Hace ${horas} h`;
-
-    }
+        const hoy =
+            new Date();
 
 
-    const dias =
-        Math.floor(
-            horas /
-            24
-        );
+        for (
+            let fecha =
+                new Date(inicio);
+
+            fecha <= hoy;
+
+            fecha.setDate(
+                fecha.getDate() + 1
+            )
+        ) {
+
+            const clave =
+                fecha
+                    .toISOString()
+                    .split("T")[0];
 
 
-    return `Hace ${dias} ${
-        dias === 1
-            ? "día"
-            : "días"
-    }`;
-
-}
-
-
-/* =========================================================
-   NOMBRE
-========================================================= */
-
-function mostrarNombreTecnico(
-    usuario
-){
-
-    const nombre =
-        usuario.displayName ||
-        usuario.email ||
-        "Técnico";
+            labels.push(
+                fecha.toLocaleDateString(
+                    "es-MX",
+                    {
+                        day: "2-digit",
+                        month: "short"
+                    }
+                )
+            );
 
 
-    ponerTexto(
-        "tecnicoNombre",
-        nombre
-    );
+            valores.push(
+                mapa[clave] || 0
+            );
 
-}
+        }
 
 
-/* =========================================================
-   FECHA ACTUAL
-========================================================= */
+        const canvas =
+            document.getElementById(
+                "ticketsDailyChart"
+            );
 
-function mostrarFecha(){
 
-    ponerTexto(
+        if (!canvas) {
 
-        "fechaActual",
+            return;
 
-        new Date()
-            .toLocaleDateString(
-                "es-MX",
+        }
+
+
+        if (dailyChart) {
+
+            dailyChart.destroy();
+
+        }
+
+
+        dailyChart =
+            new Chart(
+                canvas,
                 {
-                    weekday:"long",
-                    day:"numeric",
-                    month:"long",
-                    year:"numeric"
+
+                    type: "line",
+
+                    data: {
+
+                        labels: labels,
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Tickets",
+
+                                data:
+                                    valores,
+
+                                borderColor:
+                                    "#c8102e",
+
+                                backgroundColor:
+                                    "rgba(200,16,46,.10)",
+
+                                borderWidth: 2,
+
+                                pointRadius: 2,
+
+                                pointHoverRadius: 5,
+
+                                fill: true,
+
+                                tension: .35
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        interaction: {
+
+                            intersect: false,
+
+                            mode: "index"
+
+                        },
+
+
+                        plugins: {
+
+                            legend: {
+
+                                display: false
+
+                            }
+
+                        },
+
+
+                        scales: {
+
+                            x: {
+
+                                grid: {
+
+                                    display: false
+
+                                },
+
+                                ticks: {
+
+                                    maxTicksLimit: 12,
+
+                                    font: {
+
+                                        size: 10
+
+                                    }
+
+                                }
+
+                            },
+
+
+                            y: {
+
+                                beginAtZero: true,
+
+                                ticks: {
+
+                                    precision: 0,
+
+                                    font: {
+
+                                        size: 10
+
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+    }
+
+
+    /* =====================================================
+       CATEGORÍA
+    ===================================================== */
+
+    function obtenerCategoria(ticket) {
+
+        return (
+            obtenerCampo(
+                ticket,
+                [
+                    "categoria",
+                    "categoría",
+                    "tipo",
+                    "tipoReporte",
+                    "tipo_reporte",
+                    "categoriaTicket"
+                ]
+            ) ||
+            "Sin categoría"
+        );
+
+    }
+
+
+    /* =====================================================
+       GRÁFICA CATEGORÍAS
+    ===================================================== */
+
+    function generarGraficaCategorias() {
+
+        const contador = {};
+
+
+        tickets.forEach(
+            function (ticket) {
+
+                const categoria =
+                    obtenerCategoria(
+                        ticket
+                    );
+
+
+                contador[categoria] =
+                    (
+                        contador[categoria] ||
+                        0
+                    ) + 1;
+
+            }
+        );
+
+
+        const categorias =
+            Object.keys(
+                contador
+            )
+            .sort(
+                function (a, b) {
+
+                    return (
+                        contador[b] -
+                        contador[a]
+                    );
+
                 }
             )
-
-    );
-
-}
+            .slice(0, 6);
 
 
-/* =========================================================
-   NORMALIZAR
-========================================================= */
+        const valores =
+            categorias.map(
+                function (categoria) {
 
-function normalizar(
-    texto
-){
+                    return contador[
+                        categoria
+                    ];
 
-    return String(
-        texto || ""
-    )
-        .trim()
-        .toLowerCase()
-        .normalize(
-            "NFD"
-        )
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
+                }
+            );
+
+
+        const canvas =
+            document.getElementById(
+                "categoriesChart"
+            );
+
+
+        if (!canvas) {
+
+            return;
+
+        }
+
+
+        if (categoriesChart) {
+
+            categoriesChart.destroy();
+
+        }
+
+
+        if (
+            categorias.length === 0
+        ) {
+
+            categorias.push(
+                "Sin datos"
+            );
+
+            valores.push(1);
+
+        }
+
+
+        categoriesChart =
+            new Chart(
+                canvas,
+                {
+
+                    type: "doughnut",
+
+                    data: {
+
+                        labels: categorias,
+
+                        datasets: [
+
+                            {
+
+                                data: valores,
+
+                                backgroundColor: [
+
+                                    "#c8102e",
+
+                                    "#54565a",
+
+                                    "#00ae42",
+
+                                    "#f59e0b",
+
+                                    "#2563eb",
+
+                                    "#7c3aed"
+
+                                ],
+
+                                borderWidth: 3,
+
+                                borderColor:
+                                    "#ffffff"
+
+                            }
+
+                        ]
+
+                    },
+
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        cutout: "65%",
+
+                        plugins: {
+
+                            legend: {
+
+                                display: false
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+
+        generarLeyendaCategorias(
+            categorias,
+            valores
         );
-
-}
-
-
-/* =========================================================
-   TEXTO SEGURO
-========================================================= */
-
-function escapeHTML(
-    texto
-){
-
-    return String(
-        texto || ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-/* =========================================================
-   PONER TEXTO
-========================================================= */
-
-function ponerTexto(
-    id,
-    valor
-){
-
-    const elemento =
-        document.getElementById(
-            id
-        );
-
-
-    if(elemento){
-
-        elemento.textContent =
-            valor;
-
-    }
-
-}
-
-
-/* =========================================================
-   ERROR FIREBASE
-========================================================= */
-
-function mostrarErrorFirebase(){
-
-    const loading =
-        document.getElementById(
-            "dashboardLoading"
-        );
-
-
-    if(!loading){
-
-        return;
-
-    }
-
-
-    loading.innerHTML = `
-
-        <div class="text-center">
-
-            <i
-                class="fa-solid fa-triangle-exclamation text-danger"
-                style="font-size:40px;"
-            ></i>
-
-            <h4 class="mt-3">
-                Firebase no está disponible
-            </h4>
-
-            <p class="text-muted">
-                No se pudo inicializar la sesión del técnico.
-            </p>
-
-        </div>
-
-    `;
-
-}
-
-
-/* =========================================================
-   ERROR FIRESTORE
-========================================================= */
-
-function mostrarErrorFirestore(){
-
-    const loading =
-        document.getElementById(
-            "dashboardLoading"
-        );
-
-
-    if(!loading){
-
-        return;
 
     }
 
 
-    loading.innerHTML = `
+    /* =====================================================
+       LEYENDA
+    ===================================================== */
 
-        <div class="text-center">
+    function generarLeyendaCategorias(
+        categorias,
+        valores
+    ) {
 
-            <i
-                class="fa-solid fa-database text-danger"
-                style="font-size:40px;"
-            ></i>
+        const container =
+            document.getElementById(
+                "categoryLegend"
+            );
 
-            <h4 class="mt-3">
-                No se pudo conectar con Firestore
-            </h4>
 
-            <p class="text-muted">
-                Revisa la configuración de Firebase y las reglas de Firestore.
-            </p>
+        if (!container) {
 
-        </div>
+            return;
 
-    `;
+        }
+
+
+        let html = "";
+
+
+        categorias.forEach(
+            function (
+                categoria,
+                index
+            ) {
+
+                html += `
+
+                    <div class="legend-item">
+
+                        <div class="legend-name">
+
+                            <span
+                                class="legend-dot"
+                                style="
+                                    background:
+                                    ${[
+                                        "#c8102e",
+                                        "#54565a",
+                                        "#00ae42",
+                                        "#f59e0b",
+                                        "#2563eb",
+                                        "#7c3aed"
+                                    ][index]};
+                                "
+                            ></span>
+
+                            <span>
+                                ${escapeHtml(
+                                    categoria
+                                )}
+                            </span>
+
+                        </div>
+
+                        <span class="legend-value">
+
+                            ${valores[index]}
+
+                        </span>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+        container.innerHTML =
+            html;
+
+    }
+
+
+    /* =====================================================
+       TICKETS ALERTADOS
+    ===================================================== */
+
+    function obtenerTicketsAlertados() {
+
+        const ahora =
+            new Date();
+
+
+        const limite =
+            new Date(
+                ahora.getTime() -
+                (
+                    48 *
+                    60 *
+                    60 *
+                    1000
+                )
+            );
+
+
+        return tickets.filter(
+            function (ticket) {
+
+                const estado =
+                    obtenerEstatus(
+                        ticket
+                    );
+
+
+                /*
+                 * Resueltos y cancelados
+                 * no requieren seguimiento.
+                 */
+
+                if (
+                    estado === "resuelto" ||
+                    estado === "cerrado" ||
+                    estado === "cancelado"
+                ) {
+
+                    return false;
+
+                }
+
+
+                const fecha =
+                    obtenerFechaTicket(
+                        ticket
+                    );
+
+
+                /*
+                 * Si no hay fecha,
+                 * lo consideramos pendiente.
+                 */
+
+                if (!fecha) {
+
+                    return true;
+
+                }
+
+
+                /*
+                 * Ticket abierto/en proceso
+                 * durante más de 48 horas.
+                 */
+
+                return fecha <= limite;
+
+            }
+        )
+        .sort(
+            function (a, b) {
+
+                const fechaA =
+                    obtenerFechaTicket(a);
+
+                const fechaB =
+                    obtenerFechaTicket(b);
+
+
+                if (
+                    !fechaA ||
+                    !fechaB
+                ) {
+
+                    return 0;
+
+                }
+
+
+                return (
+                    fechaA -
+                    fechaB
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       MOSTRAR ALERTAS
+    ===================================================== */
+
+    function generarAlertas() {
+
+        const alertas =
+            obtenerTicketsAlertados();
+
+
+        const container =
+            document.getElementById(
+                "alertsContainer"
+            );
+
+
+        const counter =
+            document.getElementById(
+                "alertCounter"
+            );
+
+
+        counter.textContent =
+            alertas.length;
+
+
+        if (
+            alertas.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="no-alerts">
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                    <strong>
+                        Todo está bajo control
+                    </strong>
+
+                    <span>
+                        No tienes tickets pendientes
+                        que requieran seguimiento.
+                    </span>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let html = "";
+
+
+        alertas
+            .slice(0, 10)
+            .forEach(
+                function (ticket) {
+
+                    const folio =
+                        obtenerCampo(
+                            ticket,
+                            [
+                                "folio",
+                                "numero",
+                                "ticket",
+                                "idTicket"
+                            ]
+                        ) ||
+                        ticket.id;
+
+
+                    const titulo =
+                        obtenerCampo(
+                            ticket,
+                            [
+                                "titulo",
+                                "asunto",
+                                "descripcion",
+                                "problema"
+                            ]
+                        ) ||
+                        "Ticket sin título";
+
+
+                    const estado =
+                        obtenerCampo(
+                            ticket,
+                            [
+                                "estatus",
+                                "estado",
+                                "status"
+                            ]
+                        ) ||
+                        "Pendiente";
+
+
+                    const fecha =
+                        obtenerFechaTicket(
+                            ticket
+                        );
+
+
+                    let fechaTexto =
+                        "Sin fecha";
+
+
+                    if (fecha) {
+
+                        fechaTexto =
+                            fecha.toLocaleDateString(
+                                "es-MX",
+                                {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric"
+                                }
+                            );
+
+                    }
+
+
+                    const prioridad =
+                        obtenerCampo(
+                            ticket,
+                            [
+                                "prioridad",
+                                "priority"
+                            ]
+                        );
+
+
+                    const esCritico =
+                        normalizar(
+                            prioridad
+                        ) ===
+                        "crítica" ||
+                        normalizar(
+                            prioridad
+                        ) ===
+                        "critica";
+
+
+                    html += `
+
+                        <div
+                            class="
+                                alert-item
+                                ${
+                                    esCritico
+                                        ? ""
+                                        : "warning"
+                                }
+                            "
+                        >
+
+                            <div class="alert-info">
+
+                                <div class="alert-ticket">
+
+                                    #${escapeHtml(
+                                        String(folio)
+                                    )}
+
+                                </div>
+
+                                <div class="alert-title">
+
+                                    ${escapeHtml(
+                                        String(titulo)
+                                    )}
+
+                                </div>
+
+
+                                <div class="alert-meta">
+
+                                    <span class="alert-badge">
+
+                                        ${escapeHtml(
+                                            String(
+                                                estado
+                                            )
+                                        )}
+
+                                    </span>
+
+
+                                    ${
+                                        prioridad
+                                            ? `
+                                                <span
+                                                    class="
+                                                        alert-badge
+                                                        ${
+                                                            esCritico
+                                                                ? "danger"
+                                                                : "warning"
+                                                        }
+                                                    "
+                                                >
+                                                    ${escapeHtml(
+                                                        String(
+                                                            prioridad
+                                                        )
+                                                    )}
+                                                </span>
+                                            `
+                                            : ""
+                                    }
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="alert-date">
+
+                                ${fechaTexto}
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+        if (
+            alertas.length > 10
+        ) {
+
+            html += `
+
+                <div
+                    style="
+                        text-align:center;
+                        padding:12px;
+                        font-size:11px;
+                        color:#6b7280;
+                    "
+                >
+
+                    Hay ${alertas.length - 10}
+                    tickets adicionales
+                    que requieren seguimiento.
+
+                </div>
+
+            `;
+
+        }
+
+
+        container.innerHTML =
+            html;
+
+    }
+
+
+    /* =====================================================
+       RESUMEN
+    ===================================================== */
+
+    function generarResumen() {
+
+        const mensaje =
+            document.getElementById(
+                "performanceMessage"
+            );
+
+
+        if (!mensaje) {
+
+            return;
+
+        }
+
+
+        if (
+            tickets.length === 0
+        ) {
+
+            mensaje.textContent =
+                "Todavía no tienes tickets registrados.";
+
+            return;
+
+        }
+
+
+        const añoActual =
+            new Date().getFullYear();
+
+
+        const ticketsEsteAño =
+            tickets.filter(
+                function (ticket) {
+
+                    const fecha =
+                        obtenerFechaTicket(
+                            ticket
+                        );
+
+
+                    return (
+                        fecha &&
+                        fecha.getFullYear() ===
+                        añoActual
+                    );
+
+                }
+            ).length;
+
+
+        const promedio =
+            ticketsEsteAño /
+            Math.max(
+                1,
+                obtenerDiasTranscurridos()
+            );
+
+
+        mensaje.textContent =
+            `Has atendido ${ticketsEsteAño} tickets durante ${añoActual}, con un promedio de ${promedio.toFixed(1)} tickets por día.`;
+
+    }
+
+
+    /* =====================================================
+       DÍAS TRANSCURRIDOS
+    ===================================================== */
+
+    function obtenerDiasTranscurridos() {
+
+        const inicio =
+            new Date(
+                new Date().getFullYear(),
+                0,
+                1
+            );
+
+
+        const ahora =
+            new Date();
+
+
+        const diferencia =
+            ahora.getTime() -
+            inicio.getTime();
+
+
+        return Math.floor(
+            diferencia /
+            (
+                1000 *
+                60 *
+                60 *
+                24
+            )
+        ) + 1;
+
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHtml(valor) {
+
+        return String(valor)
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    /* =====================================================
+       ERROR
+    ===================================================== */
+
+    function mostrarError(
+        mensaje
+    ) {
+
+        const container =
+            document.getElementById(
+                "alertsContainer"
+            );
+
+
+        if (container) {
+
+            container.innerHTML = `
+
+                <div class="no-alerts">
+
+                    <i
+                        class="
+                            fa-solid
+                            fa-triangle-exclamation
+                        "
+                        style="
+                            color:#c8102e;
+                        "
+                    ></i>
+
+                    <strong>
+                        No se pudo cargar el dashboard
+                    </strong>
+
+                    <span>
+                        ${escapeHtml(
+                            mensaje
+                        )}
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       INICIALIZACIÓN
+    ===================================================== */
+
+    async function iniciar() {
+
+        if (
+            !iniciarFirebase()
+        ) {
+
+            return;
+
+        }
+
+
+        currentUser =
+            await esperarUsuario();
+
+
+        if (!currentUser) {
+
+            console.warn(
+                "No hay usuario autenticado."
+            );
+
+            window.location.href =
+                "../../login.html";
+
+            return;
+
+        }
+
+
+        technicianData =
+            await cargarTecnico();
+
+
+        actualizarUsuario();
+
+
+        await cargarTickets();
+
+    }
+
+
+    iniciar();
 
 }
 
-
-/* =========================================================
-   FIN
-========================================================= */
-
-console.log(
-    "Newsroom Portal: dashboard_tecnico.js cargado."
 );

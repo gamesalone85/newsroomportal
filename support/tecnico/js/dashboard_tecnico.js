@@ -1558,199 +1558,92 @@ document.addEventListener(
 
         }
 
+/* =====================================================
+   GRÁFICA TICKETS POR DÍA
+   =====================================================
 
-        /* =====================================================
-           GRÁFICA TICKETS POR DÍA
-        ===================================================== */
+   CORRECCIÓN:
 
-        function generarGraficaDiaria() {
+   - Utiliza fecha local.
+   - Incluye SIEMPRE el día actual.
+   - Muestra los últimos 30 días.
+   - No depende de UTC.
+   - Compatible con Timestamp de Firestore.
+   - El punto de HOY queda explícitamente incluido.
+   - Evita generar más de 200 puntos desde enero.
+===================================================== */
 
-            const añoActual =
-                new Date()
-                    .getFullYear();
+function generarGraficaDiaria() {
 
+    const hoy = new Date();
 
-            const labels = [];
+    /*
+     * Normalizamos HOY a medianoche local.
+     *
+     * Esto evita que las horas interfieran
+     * al generar las fechas.
+     */
 
-            const valores = [];
-
-
-            const mapa = {};
-
-
-            /*
-             * ===============================================
-             * CONTAR TICKETS POR FECHA LOCAL
-             * ===============================================
-             */
-
-            tickets.forEach(
-                function (ticket) {
-
-                    const fecha =
-                        obtenerFechaTicket(
-                            ticket
-                        );
-
-
-                    if (!fecha) {
-
-                        console.warn(
-                            "Ticket sin fecha de creación:",
-                            ticket.id,
-                            ticket
-                        );
-
-                        return;
-
-                    }
+    hoy.setHours(
+        0,
+        0,
+        0,
+        0
+    );
 
 
-                    const año =
-                        fecha.getFullYear();
+    /*
+     * ===============================================
+     * CONFIGURACIÓN
+     * ===============================================
+     *
+     * Mostramos los últimos 30 días.
+     *
+     * El día de hoy SIEMPRE está incluido.
+     */
+
+    const NUMERO_DIAS = 30;
 
 
-                    if (
-                        año !== añoActual
-                    ) {
+    const labels = [];
 
-                        return;
-
-                    }
+    const valores = [];
 
 
-                    /*
-                     * IMPORTANTE:
-                     *
-                     * Se utiliza fecha LOCAL.
-                     *
-                     * NO:
-                     *
-                     * fecha.toISOString()
-                     */
+    /*
+     * ===============================================
+     * MAPA DE TICKETS
+     * ===============================================
+     */
 
-                    const clave =
-                        obtenerClaveFechaLocal(
-                            fecha
-                        );
+    const mapa = {};
 
 
-                    mapa[clave] =
-                        (
-                            mapa[clave] || 0
-                        ) + 1;
+    /*
+     * ===============================================
+     * CONTAR TICKETS
+     * ===============================================
+     */
 
-                }
-            );
+    tickets.forEach(
+        function (ticket) {
 
-
-            /*
-             * ===============================================
-             * GENERAR DÍAS DESDE 1 DE ENERO
-             * HASTA HOY
-             * ===============================================
-             */
-
-            const inicio =
-                new Date(
-                    añoActual,
-                    0,
-                    1
+            const fecha =
+                obtenerFechaTicket(
+                    ticket
                 );
 
 
-            const hoy =
-                new Date();
-
-
             /*
-             * Eliminar horas para evitar
-             * problemas durante el recorrido.
+             * Ticket sin fecha.
              */
 
-            hoy.setHours(
-                23,
-                59,
-                59,
-                999
-            );
-
-
-            for (
-                let fecha =
-                    new Date(
-                        inicio
-                    );
-
-                fecha <= hoy;
-
-                fecha.setDate(
-                    fecha.getDate() + 1
-                )
-
-            ) {
-
-                const clave =
-                    obtenerClaveFechaLocal(
-                        fecha
-                    );
-
-
-                labels.push(
-                    fecha.toLocaleDateString(
-                        "es-MX",
-                        {
-
-                            day:
-                                "2-digit",
-
-                            month:
-                                "short"
-
-                        }
-                    )
-                );
-
-
-                valores.push(
-                    mapa[clave] || 0
-                );
-
-            }
-
-
-            /*
-             * ===============================================
-             * DIAGNÓSTICO
-             * ===============================================
-             */
-
-            console.log(
-                "Datos gráfica diaria:",
-                mapa
-            );
-
-
-            console.log(
-                "Tickets registrados hoy:",
-                mapa[
-                    obtenerClaveFechaLocal(
-                        new Date()
-                    )
-                ] || 0
-            );
-
-
-            const canvas =
-                document.getElementById(
-                    "ticketsDailyChart"
-                );
-
-
-            if (!canvas) {
+            if (!fecha) {
 
                 console.warn(
-                    "No existe ticketsDailyChart."
+                    "Ticket sin fecha de creación:",
+                    ticket.id,
+                    ticket
                 );
 
                 return;
@@ -1758,158 +1651,521 @@ document.addEventListener(
             }
 
 
-            if (dailyChart) {
+            /*
+             * =========================================
+             * FECHA LOCAL DEL TICKET
+             * =========================================
+             */
 
-                dailyChart.destroy();
+            const clave =
+                obtenerClaveFechaLocal(
+                    fecha
+                );
+
+
+            /*
+             * Inicializar contador.
+             */
+
+            if (
+                !mapa[clave]
+            ) {
+
+                mapa[clave] = 0;
 
             }
 
 
-            dailyChart =
-                new Chart(
-                    canvas,
-                    {
-
-                        type:
-                            "line",
+            mapa[clave]++;
 
 
-                        data: {
+            /*
+             * Diagnóstico individual.
+             */
 
-                            labels:
-                                labels,
+            console.log(
+                "Ticket contabilizado en gráfica:",
+                {
+                    id:
+                        ticket.id,
 
-
-                            datasets: [
-
-                                {
-
-                                    label:
-                                        "Tickets",
-
-
-                                    data:
-                                        valores,
-
-
-                                    borderColor:
-                                        "#c8102e",
-
-
-                                    backgroundColor:
-                                        "rgba(200,16,46,.10)",
-
-
-                                    borderWidth:
-                                        2,
-
-
-                                    pointRadius:
-                                        3,
-
-
-                                    pointHoverRadius:
-                                        6,
-
-
-                                    fill:
-                                        true,
-
-
-                                    tension:
-                                        .35
-
-                                }
-
+                    folio:
+                        obtenerCampo(
+                            ticket,
+                            [
+                                "folio",
+                                "numero",
+                                "ticket"
                             ]
+                        ),
 
-                        },
+                    fechaOriginal:
+                        fecha,
 
+                    fechaLocal:
+                        clave,
 
-                        options: {
+                    cantidad:
+                        mapa[clave]
 
-                            responsive:
-                                true,
+                }
+            );
 
-
-                            maintainAspectRatio:
-                                false,
-
-
-                            interaction: {
-
-                                intersect:
-                                    false,
+        }
+    );
 
 
-                                mode:
-                                    "index"
+    /*
+     * ===============================================
+     * GENERAR ÚLTIMOS 30 DÍAS
+     * ===============================================
+     */
 
-                            },
+    for (
+        let i = NUMERO_DIAS - 1;
+        i >= 0;
+        i--
+    ) {
 
-
-                            plugins: {
-
-                                legend: {
-
-                                    display:
-                                        false
-
-                                }
-
-                            },
-
-
-                            scales: {
-
-                                x: {
-
-                                    grid: {
-
-                                        display:
-                                            false
-
-                                    },
+        const fecha =
+            new Date(
+                hoy
+            );
 
 
-                                    ticks: {
+        fecha.setDate(
+            hoy.getDate() - i
+        );
 
-                                        maxTicksLimit:
-                                            12,
+
+        /*
+         * Clave YYYY-MM-DD
+         */
+
+        const clave =
+            obtenerClaveFechaLocal(
+                fecha
+            );
 
 
-                                        font: {
+        /*
+         * Etiqueta visual.
+         */
 
-                                            size:
-                                                10
+        let etiqueta =
+            fecha.toLocaleDateString(
+                "es-MX",
+                {
 
-                                        }
+                    day:
+                        "2-digit",
+
+                    month:
+                        "short"
+
+                }
+            );
+
+
+        /*
+         * Para HOY mostramos
+         * explícitamente "Hoy".
+         */
+
+        if (
+            clave ===
+            obtenerClaveFechaLocal(
+                hoy
+            )
+        ) {
+
+            etiqueta =
+                "Hoy";
+
+        }
+
+
+        labels.push(
+            etiqueta
+        );
+
+
+        valores.push(
+            mapa[clave] || 0
+        );
+
+    }
+
+
+    /*
+     * ===============================================
+     * CLAVE DE HOY
+     * ===============================================
+     */
+
+    const claveHoy =
+        obtenerClaveFechaLocal(
+            hoy
+        );
+
+
+    const ticketsHoy =
+        mapa[claveHoy] || 0;
+
+
+    /*
+     * ===============================================
+     * DIAGNÓSTICO
+     * ===============================================
+     */
+
+    console.log(
+        "============================================"
+    );
+
+
+    console.log(
+        "Datos gráfica diaria:",
+        mapa
+    );
+
+
+    console.log(
+        "Rango gráfica:",
+        {
+
+            desde:
+                labels[0],
+
+            hasta:
+                labels[
+                    labels.length - 1
+                ]
+
+        }
+    );
+
+
+    console.log(
+        "Clave de hoy:",
+        claveHoy
+    );
+
+
+    console.log(
+        "Tickets registrados hoy:",
+        ticketsHoy
+    );
+
+
+    console.log(
+        "Valores gráfica:",
+        valores
+    );
+
+
+    console.log(
+        "============================================"
+    );
+
+
+    /*
+     * ===============================================
+     * CANVAS
+     * ===============================================
+     */
+
+    const canvas =
+        document.getElementById(
+            "ticketsDailyChart"
+        );
+
+
+    if (!canvas) {
+
+        console.warn(
+            "No existe ticketsDailyChart."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * ===============================================
+     * DESTRUIR GRÁFICA ANTERIOR
+     * ===============================================
+     */
+
+    if (
+        dailyChart
+    ) {
+
+        dailyChart.destroy();
+
+        dailyChart = null;
+
+    }
+
+
+    /*
+     * ===============================================
+     * CREAR GRÁFICA
+     * ===============================================
+     */
+
+    dailyChart =
+        new Chart(
+            canvas,
+            {
+
+                type:
+                    "line",
+
+
+                data: {
+
+                    labels:
+                        labels,
+
+
+                    datasets: [
+
+                        {
+
+                            label:
+                                "Tickets",
+
+
+                            data:
+                                valores,
+
+
+                            borderColor:
+                                "#c8102e",
+
+
+                            backgroundColor:
+                                "rgba(200,16,46,.10)",
+
+
+                            borderWidth:
+                                2,
+
+
+                            pointRadius:
+                                function (
+                                    context
+                                ) {
+
+                                    /*
+                                     * Hacer el punto
+                                     * de HOY más visible.
+                                     */
+
+                                    const index =
+                                        context.dataIndex;
+
+
+                                    if (
+                                        index ===
+                                        valores.length - 1
+                                    ) {
+
+                                        return 6;
 
                                     }
+
+
+                                    return 3;
 
                                 },
 
 
-                                y: {
-
-                                    beginAtZero:
-                                        true,
+                            pointHoverRadius:
+                                7,
 
 
-                                    ticks: {
-
-                                        precision:
-                                            0,
+                            pointBorderWidth:
+                                2,
 
 
-                                        font: {
+                            fill:
+                                true,
 
-                                            size:
-                                                10
+
+                            tension:
+                                0.35
+
+                        }
+
+                    ]
+
+                },
+
+
+                options: {
+
+                    responsive:
+                        true,
+
+
+                    maintainAspectRatio:
+                        false,
+
+
+                    interaction: {
+
+                        intersect:
+                            false,
+
+
+                        mode:
+                            "index"
+
+                    },
+
+
+                    plugins: {
+
+                        legend: {
+
+                            display:
+                                false
+
+                        },
+
+
+                        tooltip: {
+
+                            callbacks: {
+
+                                title:
+                                    function (
+                                        context
+                                    ) {
+
+                                        if (
+                                            !context ||
+                                            !context.length
+                                        ) {
+
+                                            return "";
 
                                         }
 
+
+                                        const index =
+                                            context[0]
+                                                .dataIndex;
+
+
+                                        if (
+                                            index ===
+                                            valores.length - 1
+                                        ) {
+
+                                            return (
+                                                "Hoy"
+                                            );
+
+                                        }
+
+
+                                        return (
+                                            context[0]
+                                                .label
+                                        );
+
+                                    },
+
+
+                                label:
+                                    function (
+                                        context
+                                    ) {
+
+                                        const cantidad =
+                                            context.parsed.y ||
+                                            0;
+
+
+                                        return (
+                                            " Tickets: " +
+                                            cantidad
+                                        );
+
                                     }
+
+                            }
+
+                        }
+
+                    },
+
+
+                    scales: {
+
+                        x: {
+
+                            grid: {
+
+                                display:
+                                    false
+
+                            },
+
+
+                            ticks: {
+
+                                /*
+                                 * Como ahora solamente
+                                 * mostramos 30 días,
+                                 * podemos permitir más
+                                 * etiquetas.
+                                 */
+
+                                maxTicksLimit:
+                                    10,
+
+
+                                autoSkip:
+                                    true,
+
+
+                                font: {
+
+                                    size:
+                                        10
+
+                                }
+
+                            }
+
+                        },
+
+
+                        y: {
+
+                            beginAtZero:
+                                true,
+
+
+                            ticks: {
+
+                                precision:
+                                    0,
+
+
+                                stepSize:
+                                    1,
+
+
+                                font: {
+
+                                    size:
+                                        10
 
                                 }
 
@@ -1918,9 +2174,46 @@ document.addEventListener(
                         }
 
                     }
-                );
+
+                }
+
+            }
+        );
+
+
+    /*
+     * ===============================================
+     * CONFIRMACIÓN FINAL
+     * ===============================================
+     */
+
+    console.log(
+        "Gráfica diaria creada correctamente."
+    );
+
+
+    console.log(
+        "Punto correspondiente a HOY:",
+        {
+
+            fecha:
+                claveHoy,
+
+            tickets:
+                ticketsHoy,
+
+            indice:
+                valores.length - 1,
+
+            valorGrafica:
+                valores[
+                    valores.length - 1
+                ]
 
         }
+    );
+
+}
 
 
         /* =====================================================

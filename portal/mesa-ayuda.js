@@ -1,119 +1,24 @@
 /* =========================================================
    NEWSROOM PORTAL
    MESA DE AYUDA PÚBLICA
-   CREAR TICKET
-   FIREBASE / FIRESTORE
-
-   IMPORTANTE:
-
-   Esta página NO requiere autenticación.
-
-   El usuario público puede crear un ticket
-   proporcionando sus datos de contacto.
-
+   CREAR TICKETS SIN AUTENTICACIÓN
 ========================================================= */
 
+
+/* =========================================================
+   INICIO
+========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
-
 
         console.log(
             "Newsroom Portal: Mesa de Ayuda pública iniciada."
         );
 
 
-        /* =================================================
-           VERIFICAR FIREBASE
-        ================================================= */
-
-        if (
-            typeof firebase ===
-            "undefined"
-        ) {
-
-            console.error(
-                "Newsroom Portal: Firebase SDK no está disponible."
-            );
-
-            mostrarMensaje(
-                "No fue posible cargar el servicio de soporte.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        /* =================================================
-           VERIFICAR FIRESTORE
-        ================================================= */
-
-        if (
-            typeof newsroomDB ===
-            "undefined"
-        ) {
-
-            console.error(
-                "Newsroom Portal: Firestore no está disponible."
-            );
-
-            mostrarMensaje(
-                "No fue posible conectar con el servicio de soporte.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        /* =================================================
-           IDENTIDAD PÚBLICA
-        ================================================= */
-
-        actualizarUsuarioPublico();
-
-
-        /* =================================================
-           CARGAR CATÁLOGOS
-        ================================================= */
-
-        cargarDivisiones();
-
-        cargarAreas();
-
-        cargarCategorias();
-
-
-        /* =================================================
-           FORMULARIO
-        ================================================= */
-
-        const formulario =
-            document.getElementById(
-                "ticketForm"
-            );
-
-
-        if (!formulario) {
-
-            console.error(
-                "Newsroom Portal: formulario ticketForm no encontrado."
-            );
-
-            return;
-
-        }
-
-
-        formulario.addEventListener(
-            "submit",
-            crearTicket
-        );
-
+        inicializarMesaAyuda();
 
     }
 );
@@ -121,36 +26,89 @@ document.addEventListener(
 
 
 /* =========================================================
-   ACTUALIZAR IDENTIDAD PÚBLICA
+   INICIALIZAR
 ========================================================= */
 
-function actualizarUsuarioPublico() {
+function inicializarMesaAyuda() {
 
+    /* =====================================================
+       VERIFICAR FIRESTORE
+    ===================================================== */
 
-    const userName =
-        document.getElementById(
-            "userName"
+    if (
+        typeof newsroomPublicDB ===
+        "undefined" ||
+        !newsroomPublicDB
+    ) {
+
+        console.error(
+            "Newsroom Portal: Firestore público no está disponible."
         );
 
-
-    const userAvatar =
-        document.getElementById(
-            "userAvatar"
+        mostrarMensaje(
+            "No fue posible conectar con la Mesa de Ayuda.",
+            "error"
         );
 
-
-    if (userName) {
-
-        userName.textContent =
-            "Usuario";
+        return;
 
     }
 
 
-    if (userAvatar) {
+    /* =====================================================
+       CARGAR CATÁLOGOS
+    ===================================================== */
 
-        userAvatar.textContent =
-            "U";
+    cargarDivisiones();
+
+    cargarAreas();
+
+    cargarCategorias();
+
+
+    /* =====================================================
+       INICIAR WIZARD
+    ===================================================== */
+
+    inicializarWizard();
+
+
+    /* =====================================================
+       FORMULARIO
+    ===================================================== */
+
+    const formulario =
+        document.getElementById(
+            "ticketForm"
+        );
+
+
+    if (formulario) {
+
+        formulario.addEventListener(
+            "submit",
+            crearTicket
+        );
+
+    }
+
+
+    /* =====================================================
+       NUEVO TICKET
+    ===================================================== */
+
+    const nuevoTicketBtn =
+        document.getElementById(
+            "nuevoTicketBtn"
+        );
+
+
+    if (nuevoTicketBtn) {
+
+        nuevoTicketBtn.addEventListener(
+            "click",
+            nuevoTicket
+        );
 
     }
 
@@ -159,11 +117,228 @@ function actualizarUsuarioPublico() {
 
 
 /* =========================================================
-   CARGAR DIVISIONES
+   WIZARD
+========================================================= */
+
+let pasoActual = 1;
+
+
+function inicializarWizard() {
+
+    const nextButtons =
+        document.querySelectorAll(
+            ".next-btn"
+        );
+
+
+    const prevButtons =
+        document.querySelectorAll(
+            ".prev-btn"
+        );
+
+
+    nextButtons.forEach(
+        boton => {
+
+            boton.addEventListener(
+                "click",
+                function () {
+
+                    if (
+                        validarPaso(
+                            pasoActual
+                        )
+                    ) {
+
+                        cambiarPaso(
+                            pasoActual + 1
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    prevButtons.forEach(
+        boton => {
+
+            boton.addEventListener(
+                "click",
+                function () {
+
+                    cambiarPaso(
+                        pasoActual - 1
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+    cambiarPaso(1);
+
+}
+
+
+
+/* =========================================================
+   VALIDAR PASO
+========================================================= */
+
+function validarPaso(
+    paso
+) {
+
+    const contenedor =
+        document.querySelector(
+            `.form-step[data-step="${paso}"]`
+        );
+
+
+    if (!contenedor) {
+
+        return true;
+
+    }
+
+
+    const campos =
+        contenedor.querySelectorAll(
+            "input, select, textarea"
+        );
+
+
+    for (
+        const campo of campos
+    ) {
+
+        if (
+            !campo.checkValidity()
+        ) {
+
+            campo.reportValidity();
+
+            return false;
+
+        }
+
+    }
+
+
+    return true;
+
+}
+
+
+
+/* =========================================================
+   CAMBIAR PASO
+========================================================= */
+
+function cambiarPaso(
+    nuevoPaso
+) {
+
+    if (
+        nuevoPaso < 1 ||
+        nuevoPaso > 3
+    ) {
+
+        return;
+
+    }
+
+
+    pasoActual =
+        nuevoPaso;
+
+
+    const pasos =
+        document.querySelectorAll(
+            ".form-step"
+        );
+
+
+    pasos.forEach(
+        paso => {
+
+            const numero =
+                Number(
+                    paso.dataset.step
+                );
+
+
+            paso.classList.toggle(
+                "active",
+                numero === nuevoPaso
+            );
+
+        }
+    );
+
+
+    const indicadores =
+        document.querySelectorAll(
+            ".step"
+        );
+
+
+    indicadores.forEach(
+        indicador => {
+
+            const numero =
+                Number(
+                    indicador.dataset.step
+                );
+
+
+            indicador.classList.toggle(
+                "active",
+                numero === nuevoPaso
+            );
+
+
+            indicador.classList.toggle(
+                "completed",
+                numero < nuevoPaso
+            );
+
+        }
+    );
+
+
+    const progressFill =
+        document.getElementById(
+            "progressFill"
+        );
+
+
+    if (progressFill) {
+
+        const porcentaje =
+            ((nuevoPaso - 1) / 2) * 100;
+
+
+        progressFill.style.width =
+            `${porcentaje}%`;
+
+    }
+
+}
+
+
+
+/* =========================================================
+   DIVISIONES
 ========================================================= */
 
 function cargarDivisiones() {
-
 
     const select =
         document.getElementById(
@@ -178,27 +353,28 @@ function cargarDivisiones() {
     }
 
 
-    if (
-        typeof obtenerDivisiones !==
-        "function"
-    ) {
+    const divisiones = [
 
-        console.error(
-            "Newsroom Portal: obtenerDivisiones() no está disponible."
-        );
+        {
+            id: "DNI",
+            nombre: "DNI"
+        },
 
-        return;
+        {
+            id: "DUCTER",
+            nombre: "DUCTER"
+        },
 
-    }
+        {
+            id: "FSN",
+            nombre: "FSN"
+        }
 
-
-    const divisiones =
-        obtenerDivisiones();
+    ];
 
 
     divisiones.forEach(
-        function (division) {
-
+        division => {
 
             const option =
                 document.createElement(
@@ -218,21 +394,18 @@ function cargarDivisiones() {
                 option
             );
 
-
         }
     );
-
 
 }
 
 
 
 /* =========================================================
-   CARGAR ÁREAS
+   ÁREAS
 ========================================================= */
 
 function cargarAreas() {
-
 
     const select =
         document.getElementById(
@@ -247,27 +420,56 @@ function cargarAreas() {
     }
 
 
-    if (
-        typeof obtenerAreas !==
-        "function"
-    ) {
+    const areas = [
 
-        console.error(
-            "Newsroom Portal: obtenerAreas() no está disponible."
-        );
+        ["CONT", "Contabilidad"],
+        ["TES", "Tesorería"],
+        ["SIST", "Sistemas"],
+        ["ACT", "Activo Fijo"],
+        ["ARCH", "Archivo"],
+        ["COMP", "Compras"],
+        ["CXP", "Cuentas por Pagar"],
+        ["CXC", "Cuentas por Cobrar"],
+        ["REG", "Regulación"],
+        ["DIR", "Dirección"],
+        ["RH", "Recursos Humanos"],
+        ["JUR", "Jurídico"],
+        ["ADM", "Administración"],
+        ["FIN", "Finanzas"],
+        ["AUD", "Auditoría"],
+        ["CONTR", "Contraloría"],
+        ["OPER", "Operaciones"],
+        ["LOG", "Logística"],
+        ["ALM", "Almacén"],
+        ["MANT", "Mantenimiento"],
+        ["CAL", "Calidad"],
+        ["PROY", "Proyectos"],
+        ["PLANE", "Planeación"],
+        ["PROC", "Procesos"],
+        ["CUM", "Cumplimiento"],
+        ["SEG", "Seguridad"],
+        ["COMEX", "Comercio Exterior"],
+        ["IMP", "Impuestos"],
+        ["NOM", "Nómina"],
+        ["CAP", "Capacitación"],
+        ["DES", "Desarrollo Organizacional"],
+        ["RECEP", "Recepción"],
+        ["ATC", "Atención a Clientes"],
+        ["DOC", "Documentación"],
+        ["INFRA", "Infraestructura"],
+        ["DAT", "Datos / BI"],
+        ["SOP", "Soporte"],
+        ["PRES", "Presupuesto"],
+        ["RIES", "Riesgos"],
+        ["CONTROL", "Control Interno"],
+        ["COMERCIAL", "Comercial / Ventas"],
+        ["MKT", "Marketing"]
 
-        return;
-
-    }
-
-
-    const areas =
-        obtenerAreas();
+    ];
 
 
     areas.forEach(
-        function (area) {
-
+        area => {
 
             const option =
                 document.createElement(
@@ -276,32 +478,29 @@ function cargarAreas() {
 
 
             option.value =
-                area.id;
+                area[0];
 
 
             option.textContent =
-                area.nombre;
+                area[1];
 
 
             select.appendChild(
                 option
             );
 
-
         }
     );
-
 
 }
 
 
 
 /* =========================================================
-   CARGAR CATEGORÍAS
+   CATEGORÍAS
 ========================================================= */
 
 function cargarCategorias() {
-
 
     const select =
         document.getElementById(
@@ -316,27 +515,35 @@ function cargarCategorias() {
     }
 
 
-    if (
-        typeof obtenerCategorias !==
-        "function"
-    ) {
+    const categorias = [
 
-        console.error(
-            "Newsroom Portal: obtenerCategorias() no está disponible."
-        );
+        ["HARDWARE", "Hardware"],
+        ["SOFTWARE", "Software"],
+        ["RED", "Red / Conectividad"],
+        ["IMPRESORAS", "Impresoras"],
+        ["CORREO", "Correo Electrónico"],
+        ["ACCESOS", "Accesos y Permisos"],
+        ["CUENTAS", "Cuentas de Usuario"],
+        ["INTERNET", "Internet"],
+        ["TELEFONIA", "Telefonía"],
+        ["SERVIDORES", "Servidores"],
+        ["SISTEMAS", "Sistemas / Aplicaciones"],
+        ["SEGURIDAD", "Seguridad Informática"],
+        ["BACKUP", "Respaldos"],
+        ["DATOS", "Datos / Información"],
+        ["PERIFERICOS", "Periféricos"],
+        ["EQUIPOS", "Equipos de Cómputo"],
+        ["MANTENIMIENTO", "Mantenimiento"],
+        ["INSTALACION", "Instalación / Configuración"],
+        ["ACTUALIZACION", "Actualización"],
+        ["SOLICITUD", "Solicitud de Servicio"],
+        ["OTRO", "Otro"]
 
-        return;
-
-    }
-
-
-    const categorias =
-        obtenerCategorias();
+    ];
 
 
     categorias.forEach(
-        function (categoria) {
-
+        categoria => {
 
             const option =
                 document.createElement(
@@ -345,21 +552,19 @@ function cargarCategorias() {
 
 
             option.value =
-                categoria.id;
+                categoria[0];
 
 
             option.textContent =
-                categoria.nombre;
+                categoria[1];
 
 
             select.appendChild(
                 option
             );
 
-
         }
     );
-
 
 }
 
@@ -373,13 +578,20 @@ async function crearTicket(
     event
 ) {
 
-
     event.preventDefault();
 
 
-    console.log(
-        "Newsroom Portal: iniciando creación de ticket público."
-    );
+    /* =====================================================
+       VALIDAR PASO 3
+    ===================================================== */
+
+    if (
+        !validarPaso(3)
+    ) {
+
+        return;
+
+    }
 
 
     /* =====================================================
@@ -387,12 +599,13 @@ async function crearTicket(
     ===================================================== */
 
     if (
-        typeof newsroomDB ===
-        "undefined"
+        typeof newsroomPublicDB ===
+        "undefined" ||
+        !newsroomPublicDB
     ) {
 
         mostrarMensaje(
-            "El servicio de soporte no está disponible.",
+            "Firestore no está disponible.",
             "error"
         );
 
@@ -418,7 +631,7 @@ async function crearTicket(
 
 
         boton.innerHTML =
-            '<i class="fa-solid fa-spinner fa-spin"></i> Creando Ticket...';
+            '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
 
     }
 
@@ -427,66 +640,74 @@ async function crearTicket(
 
 
         /* =================================================
-           DATOS DEL FORMULARIO
+           DATOS
         ================================================= */
 
         const empleado =
-            obtenerValor(
-                "empleado"
-            );
+            document
+                .getElementById("empleado")
+                .value
+                .trim();
 
 
         const contacto =
-            obtenerValor(
-                "contacto"
-            );
+            document
+                .getElementById("contacto")
+                .value
+                .trim();
 
 
         const divisionId =
-            obtenerValor(
-                "division"
-            );
+            document
+                .getElementById("division")
+                .value
+                .trim();
 
 
         const areaId =
-            obtenerValor(
-                "area"
-            );
+            document
+                .getElementById("area")
+                .value
+                .trim();
 
 
         const categoriaId =
-            obtenerValor(
-                "categoria"
-            );
+            document
+                .getElementById("categoria")
+                .value
+                .trim();
+
+
+        const impacto =
+            document
+                .getElementById("impacto")
+                .value
+                .trim();
 
 
         const equipo =
-            obtenerValor(
-                "equipo"
-            );
+            document
+                .getElementById("equipo")
+                .value
+                .trim();
 
 
         const titulo =
-            obtenerValor(
-                "titulo"
-            );
+            document
+                .getElementById("titulo")
+                .value
+                .trim();
 
 
         const descripcion =
-            obtenerValor(
-                "descripcion"
-            );
-
-
-        const prioridad =
-            obtenerValor(
-                "prioridad"
-            ) ||
-            "Media";
+            document
+                .getElementById("descripcion")
+                .value
+                .trim();
 
 
         /* =================================================
-           VALIDACIONES
+           VALIDACIÓN
         ================================================= */
 
         if (
@@ -495,114 +716,17 @@ async function crearTicket(
             !divisionId ||
             !areaId ||
             !categoriaId ||
+            !impacto ||
+            !equipo ||
             !titulo ||
             !descripcion
         ) {
 
             mostrarMensaje(
-                "Por favor completa todos los campos obligatorios.",
+                "Completa todos los campos obligatorios.",
                 "error"
             );
 
-            restaurarBoton();
-
-            return;
-
-        }
-
-
-        if (
-            empleado.length >
-            120
-        ) {
-
-            mostrarMensaje(
-                "El nombre del empleado es demasiado largo.",
-                "error"
-            );
-
-            restaurarBoton();
-
-            return;
-
-        }
-
-
-        if (
-            contacto.length >
-            150
-        ) {
-
-            mostrarMensaje(
-                "El contacto es demasiado largo.",
-                "error"
-            );
-
-            restaurarBoton();
-
-            return;
-
-        }
-
-
-        if (
-            titulo.length >
-            200
-        ) {
-
-            mostrarMensaje(
-                "El título es demasiado largo.",
-                "error"
-            );
-
-            restaurarBoton();
-
-            return;
-
-        }
-
-
-        if (
-            descripcion.length >
-            3000
-        ) {
-
-            mostrarMensaje(
-                "La descripción es demasiado larga.",
-                "error"
-            );
-
-            restaurarBoton();
-
-            return;
-
-        }
-
-
-        /* =================================================
-           VALIDAR PRIORIDAD
-        ================================================= */
-
-        const prioridadesPermitidas = [
-
-            "Baja",
-            "Media",
-            "Alta",
-            "Crítica"
-
-        ];
-
-
-        if (
-            !prioridadesPermitidas.includes(
-                prioridad
-            )
-        ) {
-
-            mostrarMensaje(
-                "La prioridad seleccionada no es válida.",
-                "error"
-            );
 
             restaurarBoton();
 
@@ -615,70 +739,35 @@ async function crearTicket(
            CATÁLOGOS
         ================================================= */
 
-        const divisiones =
-            obtenerDivisiones();
-
-
-        const areas =
-            obtenerAreas();
-
-
-        const categorias =
-            obtenerCategorias();
-
-
         const division =
-            divisiones.find(
-                function (item) {
-
-                    return String(
-                        item.id
-                    ) === String(
-                        divisionId
-                    );
-
-                }
+            obtenerDivision(
+                divisionId
             );
 
 
         const area =
-            areas.find(
-                function (item) {
-
-                    return String(
-                        item.id
-                    ) === String(
-                        areaId
-                    );
-
-                }
+            obtenerArea(
+                areaId
             );
 
 
         const categoria =
-            categorias.find(
-                function (item) {
-
-                    return String(
-                        item.id
-                    ) === String(
-                        categoriaId
-                    );
-
-                }
+            obtenerCategoria(
+                categoriaId
             );
 
 
-        /* =================================================
-           VALIDAR DIVISIÓN
-        ================================================= */
-
-        if (!division) {
+        if (
+            !division ||
+            !area ||
+            !categoria
+        ) {
 
             mostrarMensaje(
-                "La división seleccionada no es válida.",
+                "Uno de los valores seleccionados no es válido.",
                 "error"
             );
+
 
             restaurarBoton();
 
@@ -688,43 +777,7 @@ async function crearTicket(
 
 
         /* =================================================
-           VALIDAR ÁREA
-        ================================================= */
-
-        if (!area) {
-
-            mostrarMensaje(
-                "El área seleccionada no es válida.",
-                "error"
-            );
-
-            restaurarBoton();
-
-            return;
-
-        }
-
-
-        /* =================================================
-           VALIDAR CATEGORÍA
-        ================================================= */
-
-        if (!categoria) {
-
-            mostrarMensaje(
-                "La categoría seleccionada no es válida.",
-                "error"
-            );
-
-            restaurarBoton();
-
-            return;
-
-        }
-
-
-        /* =================================================
-           GENERAR FOLIO
+           FOLIO
         ================================================= */
 
         const folio =
@@ -732,38 +785,24 @@ async function crearTicket(
 
 
         /* =================================================
-           OBJETO TICKET PÚBLICO
+           FECHA
+        ================================================= */
+
+        const ahora =
+            firebase.firestore
+                .Timestamp
+                .now();
+
+
+        /* =================================================
+           TICKET PÚBLICO
         ================================================= */
 
         const ticket = {
 
-            /* =============================================
-               IDENTIFICACIÓN
-            ============================================= */
-
             folio:
                 folio,
 
-
-            origen:
-                "mesa_ayuda_publica",
-
-
-            /* =============================================
-               SOLICITANTE
-            ============================================= */
-
-            solicitante_nombre:
-                empleado,
-
-
-            solicitante_contacto:
-                contacto,
-
-
-            /* =============================================
-               DATOS DEL TICKET
-            ============================================= */
 
             titulo:
                 titulo,
@@ -774,16 +813,42 @@ async function crearTicket(
 
 
             prioridad:
-                prioridad,
+                calcularPrioridad(
+                    impacto
+                ),
+
+
+            impacto:
+                impacto,
+
+
+            usuario_id:
+                null,
+
+
+            usuario:
+                "publico",
+
+
+            nombre_usuario:
+                empleado,
+
+
+            correo_usuario:
+                contacto,
+
+
+            empleado:
+                empleado,
+
+
+            contacto:
+                contacto,
 
 
             equipo:
                 equipo,
 
-
-            /* =============================================
-               DIVISIÓN
-            ============================================= */
 
             division_id:
                 divisionId,
@@ -793,10 +858,6 @@ async function crearTicket(
                 division.nombre,
 
 
-            /* =============================================
-               ÁREA
-            ============================================= */
-
             area_id:
                 areaId,
 
@@ -804,10 +865,6 @@ async function crearTicket(
             area:
                 area.nombre,
 
-
-            /* =============================================
-               CATEGORÍA
-            ============================================= */
 
             categoria_id:
                 categoriaId,
@@ -817,10 +874,6 @@ async function crearTicket(
                 categoria.nombre,
 
 
-            /* =============================================
-               ESTATUS
-            ============================================= */
-
             estatus:
                 "Registrado",
 
@@ -829,106 +882,56 @@ async function crearTicket(
                 null,
 
 
-            /* =============================================
-               FECHAS
-            ============================================= */
+            tecnico_id:
+                null,
+
+
+            origen:
+                "Mesa de Ayuda Pública",
+
 
             fecha_creacion:
-                firebase.firestore
-                    .FieldValue
-                    .serverTimestamp(),
+                ahora,
 
 
             fecha_actualizacion:
-                firebase.firestore
-                    .FieldValue
-                    .serverTimestamp()
+                ahora
 
         };
 
 
         /* =================================================
-           LOG
+           GUARDAR
         ================================================= */
 
         console.log(
-            "Newsroom Portal: ticket público preparado.",
+            "Newsroom Portal: creando ticket público...",
             ticket
         );
 
 
-        /* =================================================
-           GUARDAR EN FIRESTORE
-        ================================================= */
-
         const referencia =
-            await newsroomDB
-                .collection(
-                    "tickets"
-                )
-                .add(
-                    ticket
-                );
+            await newsroomPublicDB
+                .collection("tickets")
+                .add(ticket);
 
-
-        /* =================================================
-           ÉXITO
-        ================================================= */
 
         console.log(
-            "Newsroom Portal: ticket creado correctamente.",
+            "Newsroom Portal: ticket creado.",
             referencia.id
         );
 
 
-        mostrarMensaje(
-            `Ticket ${folio} creado correctamente. Guarda este folio para futuras consultas.`,
-            "success"
-        );
-
-
         /* =================================================
-           LIMPIAR FORMULARIO
+           MOSTRAR RESULTADO
         ================================================= */
 
-        const formulario =
-            document.getElementById(
-                "ticketForm"
-            );
-
-
-        if (formulario) {
-
-            formulario.reset();
-
-        }
-
-
-        /* =================================================
-           REDIRECCIÓN
-
-           Dejamos un pequeño tiempo para que el usuario
-           pueda ver el folio generado.
-
-        ================================================= */
-
-        setTimeout(
-            function () {
-
-                restaurarBoton();
-
-            },
-            3000
+        mostrarResultado(
+            folio
         );
-
 
     }
     catch (error) {
-
-
-        /* =================================================
-           ERROR
-        ================================================= */
 
         console.error(
             "Newsroom Portal: error creando ticket público.",
@@ -937,7 +940,7 @@ async function crearTicket(
 
 
         let mensaje =
-            "No fue posible crear el ticket.";
+            "No fue posible registrar el ticket.";
 
 
         if (
@@ -947,7 +950,7 @@ async function crearTicket(
         ) {
 
             mensaje =
-                "Firebase rechazó la solicitud. Revisa las reglas de Firestore.";
+                "Firebase rechazó el ticket. Debemos revisar las reglas de Firestore.";
 
         }
 
@@ -959,19 +962,7 @@ async function crearTicket(
         ) {
 
             mensaje =
-                "El servicio de soporte no está disponible temporalmente.";
-
-        }
-
-
-        if (
-            error &&
-            error.code ===
-            "failed-precondition"
-        ) {
-
-            mensaje =
-                "La configuración de Firebase requiere atención.";
+                "Firebase no está disponible en este momento.";
 
         }
 
@@ -991,32 +982,257 @@ async function crearTicket(
 
 
 /* =========================================================
-   OBTENER VALOR
+   PRIORIDAD
 ========================================================= */
 
-function obtenerValor(
-    id
+function calcularPrioridad(
+    impacto
 ) {
 
+    if (
+        impacto ===
+        "No puedo trabajar"
+    ) {
 
-    const elemento =
-        document.getElementById(
-            id
-        );
-
-
-    if (!elemento) {
-
-        return "";
+        return "Alta";
 
     }
 
 
-    return String(
-        elemento.value ||
-        ""
-    )
-        .trim();
+    if (
+        impacto ===
+        "Trabajo limitado"
+    ) {
+
+        return "Media";
+
+    }
+
+
+    return "Baja";
+
+}
+
+
+
+/* =========================================================
+   OBTENER DIVISIÓN
+========================================================= */
+
+function obtenerDivision(
+    id
+) {
+
+    const divisiones = {
+
+        DNI:
+            "DNI",
+
+        DUCTER:
+            "DUCTER",
+
+        FSN:
+            "FSN"
+
+    };
+
+
+    if (
+        !divisiones[id]
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        id:
+            id,
+
+        nombre:
+            divisiones[id]
+
+    };
+
+}
+
+
+
+/* =========================================================
+   OBTENER ÁREA
+========================================================= */
+
+function obtenerArea(
+    id
+) {
+
+    const areas = {
+
+        CONT: "Contabilidad",
+        TES: "Tesorería",
+        SIST: "Sistemas",
+        ACT: "Activo Fijo",
+        ARCH: "Archivo",
+        COMP: "Compras",
+        CXP: "Cuentas por Pagar",
+        CXC: "Cuentas por Cobrar",
+        REG: "Regulación",
+        DIR: "Dirección",
+        RH: "Recursos Humanos",
+        JUR: "Jurídico",
+        ADM: "Administración",
+        FIN: "Finanzas",
+        AUD: "Auditoría",
+        CONTR: "Contraloría",
+        OPER: "Operaciones",
+        LOG: "Logística",
+        ALM: "Almacén",
+        MANT: "Mantenimiento",
+        CAL: "Calidad",
+        PROY: "Proyectos",
+        PLANE: "Planeación",
+        PROC: "Procesos",
+        CUM: "Cumplimiento",
+        SEG: "Seguridad",
+        COMEX: "Comercio Exterior",
+        IMP: "Impuestos",
+        NOM: "Nómina",
+        CAP: "Capacitación",
+        DES: "Desarrollo Organizacional",
+        RECEP: "Recepción",
+        ATC: "Atención a Clientes",
+        DOC: "Documentación",
+        INFRA: "Infraestructura",
+        DAT: "Datos / BI",
+        SOP: "Soporte",
+        PRES: "Presupuesto",
+        RIES: "Riesgos",
+        CONTROL: "Control Interno",
+        COMERCIAL: "Comercial / Ventas",
+        MKT: "Marketing"
+
+    };
+
+
+    if (
+        !areas[id]
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        id:
+            id,
+
+        nombre:
+            areas[id]
+
+    };
+
+}
+
+
+
+/* =========================================================
+   OBTENER CATEGORÍA
+========================================================= */
+
+function obtenerCategoria(
+    id
+) {
+
+    const categorias = {
+
+        HARDWARE:
+            "Hardware",
+
+        SOFTWARE:
+            "Software",
+
+        RED:
+            "Red / Conectividad",
+
+        IMPRESORAS:
+            "Impresoras",
+
+        CORREO:
+            "Correo Electrónico",
+
+        ACCESOS:
+            "Accesos y Permisos",
+
+        CUENTAS:
+            "Cuentas de Usuario",
+
+        INTERNET:
+            "Internet",
+
+        TELEFONIA:
+            "Telefonía",
+
+        SERVIDORES:
+            "Servidores",
+
+        SISTEMAS:
+            "Sistemas / Aplicaciones",
+
+        SEGURIDAD:
+            "Seguridad Informática",
+
+        BACKUP:
+            "Respaldos",
+
+        DATOS:
+            "Datos / Información",
+
+        PERIFERICOS:
+            "Periféricos",
+
+        EQUIPOS:
+            "Equipos de Cómputo",
+
+        MANTENIMIENTO:
+            "Mantenimiento",
+
+        INSTALACION:
+            "Instalación / Configuración",
+
+        ACTUALIZACION:
+            "Actualización",
+
+        SOLICITUD:
+            "Solicitud de Servicio",
+
+        OTRO:
+            "Otro"
+
+    };
+
+
+    if (
+        !categorias[id]
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        id:
+            id,
+
+        nombre:
+            categorias[id]
+
+    };
 
 }
 
@@ -1027,7 +1243,6 @@ function obtenerValor(
 ========================================================= */
 
 function generarFolio() {
-
 
     const fecha =
         new Date();
@@ -1057,49 +1272,133 @@ function generarFolio() {
         );
 
 
-    const hora =
-        String(
-            fecha.getHours()
-        )
-        .padStart(
-            2,
-            "0"
-        );
-
-
-    const minutos =
-        String(
-            fecha.getMinutes()
-        )
-        .padStart(
-            2,
-            "0"
-        );
-
-
-    const segundos =
-        String(
-            fecha.getSeconds()
-        )
-        .padStart(
-            2,
-            "0"
-        );
-
-
     const numero =
         Math.floor(
-            100 +
+            1000 +
             Math.random() *
-            900
+            9000
         );
 
 
-    return (
-        `TK-${year}${month}${day}-` +
-        `${hora}${minutos}${segundos}-` +
-        `${numero}`
-    );
+    return `TK-${year}${month}${day}-${numero}`;
+
+}
+
+
+
+/* =========================================================
+   MOSTRAR RESULTADO
+========================================================= */
+
+function mostrarResultado(
+    folio
+) {
+
+    const formulario =
+        document.getElementById(
+            "ticketForm"
+        );
+
+
+    const successContainer =
+        document.getElementById(
+            "successContainer"
+        );
+
+
+    const folioResultado =
+        document.getElementById(
+            "folioResultado"
+        );
+
+
+    if (formulario) {
+
+        formulario.style.display =
+            "none";
+
+    }
+
+
+    if (folioResultado) {
+
+        folioResultado.textContent =
+            folio;
+
+    }
+
+
+    if (successContainer) {
+
+        successContainer.classList.add(
+            "active"
+        );
+
+    }
+
+
+    const message =
+        document.getElementById(
+            "ticketMessage"
+        );
+
+
+    if (message) {
+
+        message.style.display =
+            "none";
+
+    }
+
+}
+
+
+
+/* =========================================================
+   NUEVO TICKET
+========================================================= */
+
+function nuevoTicket() {
+
+    const formulario =
+        document.getElementById(
+            "ticketForm"
+        );
+
+
+    const successContainer =
+        document.getElementById(
+            "successContainer"
+        );
+
+
+    if (formulario) {
+
+        formulario.reset();
+
+        formulario.style.display =
+            "block";
+
+    }
+
+
+    if (successContainer) {
+
+        successContainer.classList.remove(
+            "active"
+        );
+
+    }
+
+
+    pasoActual =
+        1;
+
+
+    cambiarPaso(1);
+
+
+    restaurarBoton();
 
 }
 
@@ -1110,7 +1409,6 @@ function generarFolio() {
 ========================================================= */
 
 function restaurarBoton() {
-
 
     const boton =
         document.getElementById(
@@ -1130,7 +1428,7 @@ function restaurarBoton() {
 
 
     boton.innerHTML =
-        '<i class="fa-solid fa-ticket"></i> Crear Ticket';
+        '<i class="fa-solid fa-paper-plane"></i> Enviar Ticket';
 
 }
 
@@ -1144,7 +1442,6 @@ function mostrarMensaje(
     mensaje,
     tipo
 ) {
-
 
     const elemento =
         document.getElementById(
@@ -1163,25 +1460,17 @@ function mostrarMensaje(
         mensaje;
 
 
+    elemento.className =
+        "message-box";
+
+
+    elemento.classList.add(
+        tipo
+    );
+
+
     elemento.style.display =
         "block";
-
-
-    if (
-        tipo ===
-        "success"
-    ) {
-
-        elemento.className =
-            "success-message full-width";
-
-    }
-    else {
-
-        elemento.className =
-            "error-message full-width";
-
-    }
 
 
     elemento.scrollIntoView({

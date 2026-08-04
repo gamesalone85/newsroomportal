@@ -28,22 +28,22 @@
 
 
 <!-- ==================================================
-     ESTILOS GENERALES
+     ESTILOS GENERALES NEWSROOM
 ================================================== -->
 
 <link
     rel="stylesheet"
-    href="../../css/styles.css"
+    href="../css/styles.css"
 >
 
 <link
     rel="stylesheet"
-    href="../../css/layout-corporate.css"
+    href="../css/layout-corporate.css"
 >
 
 
 <!-- ==================================================
-     ESTILOS DEL TÉCNICO
+     ESTILOS EXCLUSIVOS DEL DASHBOARD TÉCNICO
 ================================================== -->
 
 <link
@@ -65,13 +65,13 @@
 
 <div
     id="sidebarContainer"
-    data-sidebar="../../includes/sidebar.html"
+    data-sidebar="../includes/sidebar.html"
 ></div>
 
 
 
 <!-- ==================================================
-     MAIN
+     MAIN CONTENT
 ================================================== -->
 
 <main class="main-content">
@@ -131,7 +131,7 @@
 
 
         <!-- ==================================================
-             HEADER
+             HEADER DEL TÉCNICO
         ================================================== -->
 
         <div class="technician-header">
@@ -176,9 +176,12 @@
         <div class="stats-grid">
 
 
-            <!-- TOTAL -->
+            <!-- ==================================================
+                 TICKETS ATENDIDOS
+            ================================================== -->
 
             <div class="stat-card">
+
 
                 <div class="stat-icon red">
 
@@ -203,13 +206,17 @@
 
                 </div>
 
+
             </div>
 
 
 
-            <!-- EN PROCESO -->
+            <!-- ==================================================
+                 EN PROCESO
+            ================================================== -->
 
             <div class="stat-card">
+
 
                 <div class="stat-icon orange">
 
@@ -234,13 +241,17 @@
 
                 </div>
 
+
             </div>
 
 
 
-            <!-- PENDIENTES -->
+            <!-- ==================================================
+                 PENDIENTES
+            ================================================== -->
 
             <div class="stat-card">
+
 
                 <div class="stat-icon yellow">
 
@@ -265,13 +276,17 @@
 
                 </div>
 
+
             </div>
 
 
 
-            <!-- ALERTADOS -->
+            <!-- ==================================================
+                 ALERTAS
+            ================================================== -->
 
             <div class="stat-card alert-card">
+
 
                 <div class="stat-icon danger">
 
@@ -296,6 +311,7 @@
 
                 </div>
 
+
             </div>
 
 
@@ -311,7 +327,7 @@
 
 
             <!-- ==================================================
-                 TICKETS POR DÍA
+                 GRÁFICA TICKETS POR DÍA
             ================================================== -->
 
             <div class="dashboard-card chart-card large">
@@ -360,7 +376,7 @@
 
 
             <!-- ==================================================
-                 TOP CATEGORÍAS
+                 GRÁFICA TOP CATEGORÍAS
             ================================================== -->
 
             <div class="dashboard-card chart-card">
@@ -419,7 +435,7 @@
 
 
         <!-- ==================================================
-             ALERTAS
+             ALERTAS / SEGUIMIENTO
         ================================================== -->
 
         <div class="dashboard-card alerts-card">
@@ -464,6 +480,7 @@
                 class="alerts-container"
             >
 
+
                 <div class="loading-state">
 
                     <i class="fa-solid fa-spinner fa-spin"></i>
@@ -471,6 +488,7 @@
                     Cargando información...
 
                 </div>
+
 
             </div>
 
@@ -480,7 +498,7 @@
 
 
         <!-- ==================================================
-             RESUMEN
+             RESUMEN DE RENDIMIENTO
         ================================================== -->
 
         <div class="dashboard-card summary-card">
@@ -519,7 +537,7 @@
 </div>
 
 <!-- =========================================================
-     FIREBASE
+     FIREBASE SDK
 ========================================================= -->
 
 <script
@@ -543,16 +561,16 @@
 ></script>
 
 <!-- =========================================================
-     NEWSROOM - JS GENERAL
+     NEWSROOM - ARCHIVOS GENERALES
 ========================================================= -->
 
-<script src="../../js/data.js"></script>
+<script src="../js/data.js"></script>
 
-<script src="../../firebase/firebase-config.js"></script>
+<script src="../firebase/firebase-config.js"></script>
 
-<script src="../../js/auth.js"></script>
+<script src="../js/auth.js"></script>
 
-<script src="../../js/sidebar.js"></script>
+<script src="../js/sidebar.js"></script>
 
 <!-- =========================================================
      DASHBOARD TÉCNICO

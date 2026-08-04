@@ -4,21 +4,29 @@
    FIRESTORE
    =========================================================
 
-   FUNCIONES:
+   RELACIÓN DE TICKETS:
 
-   - Obtener usuario autenticado
-   - Obtener datos del técnico
-   - Obtener tickets desde Firestore
-   - Identificar tickets asignados al técnico
-   - Mostrar tickets atendidos
-   - Mostrar tickets en proceso
-   - Mostrar tickets pendientes
-   - Mostrar tickets que requieren seguimiento
-   - Gráfica de tickets por día
-   - Gráfica de categorías
-   - Resumen anual
-   - Compatibilidad con diferentes estructuras
-     históricas de tickets
+   1. UID DEL TÉCNICO
+   2. ID DEL TÉCNICO
+   3. CORREO DEL TÉCNICO
+   4. NOMBRE DEL TÉCNICO
+   5. ID DEL ROL / ÁREA
+   6. NOMBRE DEL ROL / ÁREA
+
+   IMPORTANTE:
+
+   En Newsroom Portal los tickets actuales pueden estar
+   asignados mediante:
+
+       tecnico_id = 2
+       tecnico    = "Support"
+
+   mientras que el usuario autenticado puede tener:
+
+       rol_id     = 2
+       rol_nombre = "Soporte"
+
+   Por ello el dashboard contempla ambas estructuras.
 
 ========================================================= */
 
@@ -62,7 +70,7 @@ document.addEventListener(
             ) {
 
                 console.error(
-                    "Newsroom Portal: Firebase no está cargado."
+                    "Firebase no está cargado."
                 );
 
 
@@ -82,7 +90,7 @@ document.addEventListener(
             ) {
 
                 console.error(
-                    "Newsroom Portal: Firebase no está inicializado."
+                    "Firebase no está inicializado."
                 );
 
 
@@ -193,214 +201,12 @@ document.addEventListener(
 
 
         /* =====================================================
-           CARGAR DATOS DEL TÉCNICO
-        ===================================================== */
-
-        async function cargarTecnico() {
-
-
-            if (!currentUser) {
-
-                return null;
-
-            }
-
-
-            let tecnico = null;
-
-
-            try {
-
-
-                const doc =
-                    await db
-                        .collection("usuarios")
-                        .doc(
-                            currentUser.uid
-                        )
-                        .get();
-
-
-                if (
-                    doc.exists
-                ) {
-
-
-                    tecnico = {
-
-                        id: doc.id,
-
-                        ...doc.data()
-
-                    };
-
-
-                    console.log(
-                        "Datos del técnico encontrados en usuarios:",
-                        tecnico
-                    );
-
-
-                } else {
-
-
-                    console.warn(
-                        "No existe documento en usuarios para:",
-                        currentUser.uid
-                    );
-
-
-                }
-
-
-            } catch (error) {
-
-
-                console.warn(
-                    "No se pudo obtener el usuario desde usuarios:",
-                    error
-                );
-
-
-            }
-
-
-            /* =================================================
-               FALLBACK AUTH
-            ================================================= */
-
-
-            if (!tecnico) {
-
-
-                tecnico = {
-
-
-                    id:
-                        currentUser.uid,
-
-
-                    uid:
-                        currentUser.uid,
-
-
-                    correo:
-                        currentUser.email || "",
-
-
-                    email:
-                        currentUser.email || "",
-
-
-                    nombre:
-                        currentUser.displayName ||
-                        currentUser.email ||
-                        "Técnico"
-
-
-                };
-
-
-            }
-
-
-            return tecnico;
-
-        }
-
-
-        /* =====================================================
-           NOMBRE TÉCNICO
-        ===================================================== */
-
-        function obtenerNombreTecnico() {
-
-
-            if (!technicianData) {
-
-                return "Técnico";
-
-            }
-
-
-            return (
-
-                technicianData.nombre ||
-
-                technicianData.nombreCompleto ||
-
-                technicianData.displayName ||
-
-                technicianData.usuario ||
-
-                technicianData.nombreTecnico ||
-
-                technicianData.correo ||
-
-                technicianData.email ||
-
-                currentUser?.email ||
-
-                "Técnico"
-
-            );
-
-        }
-
-
-        /* =====================================================
-           ACTUALIZAR TOPBAR
-        ===================================================== */
-
-        function actualizarUsuario() {
-
-
-            const nombre =
-                obtenerNombreTecnico();
-
-
-            const nombreElemento =
-                document.getElementById(
-                    "userName"
-                );
-
-
-            const avatar =
-                document.getElementById(
-                    "userAvatar"
-                );
-
-
-            if (
-                nombreElemento
-            ) {
-
-                nombreElemento.textContent =
-                    nombre;
-
-            }
-
-
-            if (
-                avatar
-            ) {
-
-                avatar.textContent =
-                    nombre
-                        .trim()
-                        .charAt(0)
-                        .toUpperCase();
-
-            }
-
-        }
-
-
-        /* =====================================================
            NORMALIZAR TEXTO
         ===================================================== */
 
-        function normalizar(valor) {
+        function normalizar(
+            valor
+        ) {
 
 
             if (
@@ -425,13 +231,13 @@ document.addEventListener(
         ===================================================== */
 
         function obtenerCampo(
-            ticket,
+            objeto,
             campos
         ) {
 
 
             if (
-                !ticket
+                !objeto
             ) {
 
                 return "";
@@ -445,12 +251,12 @@ document.addEventListener(
 
 
                 if (
-                    ticket[campo] !== undefined &&
-                    ticket[campo] !== null &&
-                    ticket[campo] !== ""
+                    objeto[campo] !== undefined &&
+                    objeto[campo] !== null &&
+                    objeto[campo] !== ""
                 ) {
 
-                    return ticket[campo];
+                    return objeto[campo];
 
                 }
 
@@ -463,7 +269,7 @@ document.addEventListener(
 
 
         /* =====================================================
-           EXTRAER VALOR DE ASIGNACIÓN
+           EXTRAER VALOR
         ===================================================== */
 
         function extraerValor(
@@ -481,28 +287,8 @@ document.addEventListener(
             }
 
 
-            /* ---------------------------------------------
-               STRING
-            --------------------------------------------- */
-
-
             if (
-                typeof valor === "string"
-            ) {
-
-                return normalizar(
-                    valor
-                );
-
-            }
-
-
-            /* ---------------------------------------------
-               NUMBER
-            --------------------------------------------- */
-
-
-            if (
+                typeof valor === "string" ||
                 typeof valor === "number"
             ) {
 
@@ -511,11 +297,6 @@ document.addEventListener(
                 );
 
             }
-
-
-            /* ---------------------------------------------
-               OBJETO
-            --------------------------------------------- */
 
 
             if (
@@ -539,6 +320,14 @@ document.addEventListener(
 
                     normalizar(
                         valor.tecnicoId
+                    ) ||
+
+                    normalizar(
+                        valor.rol_id
+                    ) ||
+
+                    normalizar(
+                        valor.rolId
                     ) ||
 
                     normalizar(
@@ -578,7 +367,211 @@ document.addEventListener(
 
 
         /* =====================================================
-           CONVERTIR FECHA FIREBASE
+           CARGAR DATOS DEL TÉCNICO
+        ===================================================== */
+
+        async function cargarTecnico() {
+
+
+            if (
+                !currentUser
+            ) {
+
+                return null;
+
+            }
+
+
+            let tecnico = null;
+
+
+            try {
+
+
+                const doc =
+                    await db
+                        .collection("usuarios")
+                        .doc(
+                            currentUser.uid
+                        )
+                        .get();
+
+
+                if (
+                    doc.exists
+                ) {
+
+
+                    tecnico = {
+
+                        id:
+                            doc.id,
+
+                        ...doc.data()
+
+                    };
+
+
+                    console.log(
+                        "Datos del técnico encontrados en usuarios:",
+                        tecnico
+                    );
+
+
+                }
+
+
+            } catch (error) {
+
+
+                console.warn(
+                    "No se pudo obtener el usuario:",
+                    error
+                );
+
+
+            }
+
+
+            /* =================================================
+               FALLBACK AUTH
+            ================================================= */
+
+
+            if (
+                !tecnico
+            ) {
+
+
+                tecnico = {
+
+
+                    id:
+                        currentUser.uid,
+
+
+                    uid:
+                        currentUser.uid,
+
+
+                    correo:
+                        currentUser.email || "",
+
+
+                    email:
+                        currentUser.email || "",
+
+
+                    nombre:
+                        currentUser.displayName ||
+                        currentUser.email ||
+                        "Técnico"
+
+
+                };
+
+
+            }
+
+
+            return tecnico;
+
+        }
+
+
+        /* =====================================================
+           NOMBRE DEL TÉCNICO
+        ===================================================== */
+
+        function obtenerNombreTecnico() {
+
+
+            if (
+                !technicianData
+            ) {
+
+                return "Técnico";
+
+            }
+
+
+            return (
+
+                technicianData.nombre ||
+
+                technicianData.nombreCompleto ||
+
+                technicianData.displayName ||
+
+                technicianData.usuario ||
+
+                technicianData.nombreTecnico ||
+
+                technicianData.correo ||
+
+                technicianData.email ||
+
+                currentUser?.email ||
+
+                "Técnico"
+
+            );
+
+        }
+
+
+        /* =====================================================
+           ACTUALIZAR USUARIO
+        ===================================================== */
+
+        function actualizarUsuario() {
+
+
+            const nombre =
+                obtenerNombreTecnico();
+
+
+            const nombreElemento =
+                document.getElementById(
+                    "userName"
+                );
+
+
+            const avatar =
+                document.getElementById(
+                    "userAvatar"
+                );
+
+
+            if (
+                nombreElemento
+            ) {
+
+                nombreElemento.textContent =
+                    nombre;
+
+            }
+
+
+            if (
+                avatar
+            ) {
+
+
+                avatar.textContent =
+                    nombre
+                        .trim()
+                        .charAt(0)
+                        .toUpperCase();
+
+
+            }
+
+        }
+
+
+        /* =====================================================
+           CONVERTIR FECHA
         ===================================================== */
 
         function convertirFecha(
@@ -595,28 +588,15 @@ document.addEventListener(
             }
 
 
-            /* ---------------------------------------------
-               FIRESTORE TIMESTAMP
-            --------------------------------------------- */
-
-
             if (
                 typeof valor.toDate ===
                 "function"
             ) {
 
+
                 try {
 
-                    const fecha =
-                        valor.toDate();
-
-
-                    return isNaN(
-                        fecha.getTime()
-                    )
-                        ? null
-                        : fecha;
-
+                    return valor.toDate();
 
                 } catch (error) {
 
@@ -627,27 +607,13 @@ document.addEventListener(
             }
 
 
-            /* ---------------------------------------------
-               DATE
-            --------------------------------------------- */
-
-
             if (
                 valor instanceof Date
             ) {
 
-                return isNaN(
-                    valor.getTime()
-                )
-                    ? null
-                    : valor;
+                return valor;
 
             }
-
-
-            /* ---------------------------------------------
-               FIRESTORE TIMESTAMP SERIALIZADO
-            --------------------------------------------- */
 
 
             if (
@@ -660,18 +626,10 @@ document.addEventListener(
                     "number"
                 ) {
 
-                    const fecha =
-                        new Date(
-                            valor.seconds *
-                            1000
-                        );
 
-
-                    return isNaN(
-                        fecha.getTime()
-                    )
-                        ? null
-                        : fecha;
+                    return new Date(
+                        valor.seconds * 1000
+                    );
 
                 }
 
@@ -681,52 +639,25 @@ document.addEventListener(
                     "number"
                 ) {
 
-                    const fecha =
-                        new Date(
-                            valor._seconds *
-                            1000
-                        );
 
-
-                    return isNaN(
-                        fecha.getTime()
-                    )
-                        ? null
-                        : fecha;
+                    return new Date(
+                        valor._seconds * 1000
+                    );
 
                 }
 
             }
 
 
-            /* ---------------------------------------------
-               NUMBER
-            --------------------------------------------- */
-
-
             if (
                 typeof valor === "number"
             ) {
 
-
-                const fecha =
-                    new Date(
-                        valor
-                    );
-
-
-                return isNaN(
-                    fecha.getTime()
-                )
-                    ? null
-                    : fecha;
+                return new Date(
+                    valor
+                );
 
             }
-
-
-            /* ---------------------------------------------
-               STRING
-            --------------------------------------------- */
 
 
             if (
@@ -782,9 +713,9 @@ document.addEventListener(
 
                         "fecha_registro",
 
-                        "timestamp",
+                        "fecha_actualizacion",
 
-                        "created"
+                        "timestamp"
 
                     ]
                 );
@@ -798,7 +729,136 @@ document.addEventListener(
 
 
         /* =====================================================
-           IDENTIFICAR TÉCNICO
+           OBTENER ID DEL ROL DEL TÉCNICO
+        ===================================================== */
+
+        function obtenerRolIdTecnico() {
+
+
+            if (
+                !technicianData
+            ) {
+
+                return "";
+
+            }
+
+
+            return extraerValor(
+                obtenerCampo(
+                    technicianData,
+                    [
+
+                        "rol_id",
+
+                        "rolId",
+
+                        "id_rol",
+
+                        "idRol",
+
+                        "role_id",
+
+                        "roleId",
+
+                        "rol"
+
+                    ]
+                )
+            );
+
+        }
+
+
+        /* =====================================================
+           OBTENER NOMBRE DEL ROL
+        ===================================================== */
+
+        function obtenerRolNombreTecnico() {
+
+
+            if (
+                !technicianData
+            ) {
+
+                return "";
+
+            }
+
+
+            return normalizar(
+                obtenerCampo(
+                    technicianData,
+                    [
+
+                        "rol_nombre",
+
+                        "rolNombre",
+
+                        "nombreRol",
+
+                        "role_name",
+
+                        "roleName",
+
+                        "rol"
+
+                    ]
+                )
+            );
+
+        }
+
+
+        /* =====================================================
+           NORMALIZAR NOMBRE DE ÁREA / ROL
+        ===================================================== */
+
+        function normalizarArea(
+            valor
+        ) {
+
+
+            const texto =
+                normalizar(
+                    valor
+                );
+
+
+            if (
+                !texto
+            ) {
+
+                return "";
+
+            }
+
+
+            /* ---------------------------------------------
+               SOPORTE
+            --------------------------------------------- */
+
+
+            if (
+                texto === "support" ||
+                texto === "soporte" ||
+                texto === "technical support" ||
+                texto === "soporte tecnico" ||
+                texto === "soporte técnico"
+            ) {
+
+                return "soporte";
+
+            }
+
+
+            return texto;
+
+        }
+
+
+        /* =====================================================
+           IDENTIFICAR TICKET DEL TÉCNICO
         ===================================================== */
 
         function ticketPerteneceTecnico(
@@ -807,15 +867,9 @@ document.addEventListener(
 
 
             if (
-                !technicianData ||
-                !currentUser
+                !currentUser ||
+                !technicianData
             ) {
-
-
-                console.warn(
-                    "No hay información suficiente del técnico actual."
-                );
-
 
                 return false;
 
@@ -823,7 +877,7 @@ document.addEventListener(
 
 
             /* =================================================
-               DATOS DEL TÉCNICO ACTUAL
+               DATOS DEL USUARIO
             ================================================= */
 
 
@@ -863,7 +917,7 @@ document.addEventListener(
 
 
             const tecnicoCorreo =
-                extraerValor(
+                normalizar(
                     obtenerCampo(
                         technicianData,
                         [
@@ -878,7 +932,7 @@ document.addEventListener(
 
 
             const tecnicoNombre =
-                extraerValor(
+                normalizar(
                     obtenerCampo(
                         technicianData,
                         [
@@ -891,9 +945,7 @@ document.addEventListener(
 
                             "usuario",
 
-                            "nombreTecnico",
-
-                            "nombre_tecnico"
+                            "nombreTecnico"
 
                         ]
                     )
@@ -901,7 +953,20 @@ document.addEventListener(
 
 
             /* =================================================
-               ASIGNACIÓN DEL TICKET
+               DATOS DEL ROL
+            ================================================= */
+
+
+            const rolId =
+                obtenerRolIdTecnico();
+
+
+            const rolNombre =
+                obtenerRolNombreTecnico();
+
+
+            /* =================================================
+               DATOS DEL TICKET
             ================================================= */
 
 
@@ -919,10 +984,6 @@ document.addEventListener(
 
                             "usuario_tecnico_id",
 
-                            "usuarioTecnico",
-
-                            "usuario_tecnico",
-
                             "asignadoId",
 
                             "asignado_id",
@@ -937,7 +998,7 @@ document.addEventListener(
 
 
             const asignadoCorreo =
-                extraerValor(
+                normalizar(
                     obtenerCampo(
                         ticket,
                         [
@@ -960,11 +1021,11 @@ document.addEventListener(
 
                         ]
                     )
-                );
+            );
 
 
             const asignadoNombre =
-                extraerValor(
+                normalizar(
                     obtenerCampo(
                         ticket,
                         [
@@ -983,14 +1044,29 @@ document.addEventListener(
 
                             "asignadoA",
 
-                            "asignado_a",
-
                             "assignedName",
 
                             "assigned_name"
 
                         ]
                     )
+            );
+
+
+            /* =================================================
+               NORMALIZAR ÁREAS
+            ================================================= */
+
+
+            const areaTicket =
+                normalizarArea(
+                    asignadoNombre
+                );
+
+
+            const areaTecnico =
+                normalizarArea(
+                    rolNombre
                 );
 
 
@@ -1007,7 +1083,6 @@ document.addEventListener(
             console.log(
                 "Ticket:",
                 ticket.folio ||
-                ticket.numero ||
                 ticket.id
             );
 
@@ -1024,7 +1099,11 @@ document.addEventListener(
 
                     tecnicoCorreo,
 
-                    tecnicoNombre
+                    tecnicoNombre,
+
+                    rolId,
+
+                    rolNombre
 
                 }
             );
@@ -1038,14 +1117,16 @@ document.addEventListener(
 
                     asignadoCorreo,
 
-                    asignadoNombre
+                    asignadoNombre,
+
+                    areaTicket
 
                 }
             );
 
 
             /* =================================================
-               COMPARAR UID
+               1. UID
             ================================================= */
 
 
@@ -1057,7 +1138,7 @@ document.addEventListener(
 
 
                 console.log(
-                    "✓ Ticket asignado por UID."
+                    "✓ MATCH: UID del técnico"
                 );
 
 
@@ -1067,7 +1148,7 @@ document.addEventListener(
 
 
             /* =================================================
-               COMPARAR ID DEL TÉCNICO
+               2. ID DEL TÉCNICO
             ================================================= */
 
 
@@ -1079,7 +1160,7 @@ document.addEventListener(
 
 
                 console.log(
-                    "✓ Ticket asignado por ID del técnico."
+                    "✓ MATCH: ID del técnico"
                 );
 
 
@@ -1089,19 +1170,19 @@ document.addEventListener(
 
 
             /* =================================================
-               COMPARAR CORREO
+               3. CORREO
             ================================================= */
 
 
             if (
                 email &&
                 asignadoCorreo &&
-                asignadoCorreo === email
+                email === asignadoCorreo
             ) {
 
 
                 console.log(
-                    "✓ Ticket asignado por correo."
+                    "✓ MATCH: correo"
                 );
 
 
@@ -1113,12 +1194,12 @@ document.addEventListener(
             if (
                 tecnicoCorreo &&
                 asignadoCorreo &&
-                asignadoCorreo === tecnicoCorreo
+                tecnicoCorreo === asignadoCorreo
             ) {
 
 
                 console.log(
-                    "✓ Ticket asignado por correo del usuario."
+                    "✓ MATCH: correo del usuario"
                 );
 
 
@@ -1128,19 +1209,19 @@ document.addEventListener(
 
 
             /* =================================================
-               COMPARAR NOMBRE
+               4. NOMBRE DEL TÉCNICO
             ================================================= */
 
 
             if (
                 tecnicoNombre &&
                 asignadoNombre &&
-                asignadoNombre === tecnicoNombre
+                tecnicoNombre === asignadoNombre
             ) {
 
 
                 console.log(
-                    "✓ Ticket asignado por nombre."
+                    "✓ MATCH: nombre del técnico"
                 );
 
 
@@ -1150,8 +1231,61 @@ document.addEventListener(
 
 
             /* =================================================
-               CASO:
-               EL CAMPO "tecnico" CONTIENE DIRECTAMENTE UID
+               5. NUEVO:
+                  ID DEL ROL / ÁREA
+            ================================================= */
+
+
+            if (
+                rolId &&
+                asignadoId &&
+                rolId === asignadoId
+            ) {
+
+
+                console.log(
+                    "✓ MATCH: ID del rol/área",
+                    {
+                        rolId,
+                        asignadoId
+                    }
+                );
+
+
+                return true;
+
+            }
+
+
+            /* =================================================
+               6. NUEVO:
+                  NOMBRE DEL ROL / ÁREA
+            ================================================= */
+
+
+            if (
+                areaTecnico &&
+                areaTicket &&
+                areaTecnico === areaTicket
+            ) {
+
+
+                console.log(
+                    "✓ MATCH: nombre del rol/área",
+                    {
+                        areaTecnico,
+                        areaTicket
+                    }
+                );
+
+
+                return true;
+
+            }
+
+
+            /* =================================================
+               7. TICKET CON UID EN TECNICO
             ================================================= */
 
 
@@ -1162,7 +1296,7 @@ document.addEventListener(
 
 
                 console.log(
-                    "✓ Ticket asignado directamente al UID."
+                    "✓ MATCH: UID dentro de tecnico"
                 );
 
 
@@ -1172,8 +1306,7 @@ document.addEventListener(
 
 
             /* =================================================
-               CASO:
-               TECNICO ES IGUAL AL CORREO
+               8. TICKET CON CORREO EN TECNICO
             ================================================= */
 
 
@@ -1184,7 +1317,7 @@ document.addEventListener(
 
 
                 console.log(
-                    "✓ Ticket asignado directamente al correo."
+                    "✓ MATCH: correo dentro de tecnico"
                 );
 
 
@@ -1253,13 +1386,10 @@ document.addEventListener(
 
                         const ticket = {
 
-
                             id:
                                 doc.id,
 
-
                             ...data
-
 
                         };
 
@@ -1340,31 +1470,6 @@ document.addEventListener(
 
 
         /* =====================================================
-           PROCESAR DASHBOARD
-        ===================================================== */
-
-        function procesarDashboard() {
-
-
-            actualizarKPIs();
-
-
-            generarGraficaDiaria();
-
-
-            generarGraficaCategorias();
-
-
-            generarAlertas();
-
-
-            generarResumen();
-
-
-        }
-
-
-        /* =====================================================
            ESTATUS
         ===================================================== */
 
@@ -1396,7 +1501,7 @@ document.addEventListener(
 
 
         /* =====================================================
-           ESTADO CERRADO / RESUELTO
+           TICKET ATENDIDO
         ===================================================== */
 
         function esTicketAtendido(
@@ -1426,7 +1531,7 @@ document.addEventListener(
 
 
         /* =====================================================
-           ESTADO EN PROCESO
+           EN PROCESO
         ===================================================== */
 
         function esTicketEnProceso(
@@ -1446,9 +1551,9 @@ document.addEventListener(
 
                 estado === "en_proceso" ||
 
-                estado === "proceso" ||
-
                 estado === "en-proceso" ||
+
+                estado === "proceso" ||
 
                 estado === "trabajando"
 
@@ -1458,7 +1563,7 @@ document.addEventListener(
 
 
         /* =====================================================
-           ESTADO PENDIENTE
+           PENDIENTE
         ===================================================== */
 
         function esTicketPendiente(
@@ -1498,18 +1603,6 @@ document.addEventListener(
                 tickets.length;
 
 
-            const atendidos =
-                tickets.filter(
-                    function (ticket) {
-
-                        return esTicketAtendido(
-                            ticket
-                        );
-
-                    }
-                ).length;
-
-
             const proceso =
                 tickets.filter(
                     function (ticket) {
@@ -1537,15 +1630,6 @@ document.addEventListener(
             const alertados =
                 obtenerTicketsAlertados()
                     .length;
-
-
-            /* =================================================
-               TICKETS ATENDIDOS
-               
-               Se consideran todos los tickets asignados
-               al técnico para mantener compatibilidad con
-               el significado original del KPI.
-            ================================================= */
 
 
             const totalElemento =
@@ -1618,8 +1702,6 @@ document.addEventListener(
 
                     total,
 
-                    atendidos,
-
                     proceso,
 
                     pendientes,
@@ -1633,7 +1715,7 @@ document.addEventListener(
 
 
         /* =====================================================
-           GRÁFICA TICKETS POR DÍA
+           GRÁFICA DIARIA
         ===================================================== */
 
         function generarGraficaDiaria() {
@@ -1647,7 +1729,6 @@ document.addEventListener(
             const labels = [];
 
             const valores = [];
-
 
             const mapa = {};
 
@@ -1733,9 +1814,11 @@ document.addEventListener(
                         "es-MX",
                         {
 
-                            day: "2-digit",
+                            day:
+                                "2-digit",
 
-                            month: "short"
+                            month:
+                                "short"
 
                         }
                     )
@@ -1747,7 +1830,6 @@ document.addEventListener(
                     0
                 );
 
-
             }
 
 
@@ -1758,24 +1840,9 @@ document.addEventListener(
 
 
             if (
-                !canvas
+                !canvas ||
+                typeof Chart === "undefined"
             ) {
-
-                return;
-
-            }
-
-
-            if (
-                typeof Chart ===
-                "undefined"
-            ) {
-
-
-                console.error(
-                    "Chart.js no está disponible."
-                );
-
 
                 return;
 
@@ -1803,9 +1870,7 @@ document.addEventListener(
                         data:
                         {
 
-                            labels:
-                                labels,
-
+                            labels,
 
                             datasets:
                             [
@@ -1815,34 +1880,26 @@ document.addEventListener(
                                     label:
                                         "Tickets",
 
-
                                     data:
                                         valores,
-
 
                                     borderColor:
                                         "#c8102e",
 
-
                                     backgroundColor:
                                         "rgba(200,16,46,.10)",
-
 
                                     borderWidth:
                                         2,
 
-
                                     pointRadius:
                                         2,
-
 
                                     pointHoverRadius:
                                         5,
 
-
                                     fill:
                                         true,
-
 
                                     tension:
                                         .35
@@ -1860,17 +1917,14 @@ document.addEventListener(
                             responsive:
                                 true,
 
-
                             maintainAspectRatio:
                                 false,
-
 
                             interaction:
                             {
 
                                 intersect:
                                     false,
-
 
                                 mode:
                                     "index"
@@ -1906,13 +1960,11 @@ document.addEventListener(
 
                                     },
 
-
                                     ticks:
                                     {
 
                                         maxTicksLimit:
                                             12,
-
 
                                         font:
                                         {
@@ -1933,13 +1985,11 @@ document.addEventListener(
                                     beginAtZero:
                                         true,
 
-
                                     ticks:
                                     {
 
                                         precision:
                                             0,
-
 
                                         font:
                                         {
@@ -1960,12 +2010,11 @@ document.addEventListener(
                     }
                 );
 
-
         }
 
 
         /* =====================================================
-           CLAVE DE FECHA
+           CLAVE FECHA
         ===================================================== */
 
         function obtenerClaveFecha(
@@ -2027,6 +2076,8 @@ document.addEventListener(
 
                         "categoría",
 
+                        "categoria_id",
+
                         "tipo",
 
                         "tipoReporte",
@@ -2080,7 +2131,7 @@ document.addEventListener(
             );
 
 
-            const categorias =
+            let categorias =
                 Object.keys(
                     contador
                 )
@@ -2100,7 +2151,7 @@ document.addEventListener(
                 );
 
 
-            const valores =
+            let valores =
                 categorias.map(
                     function (categoria) {
 
@@ -2119,17 +2170,8 @@ document.addEventListener(
 
 
             if (
-                !canvas
-            ) {
-
-                return;
-
-            }
-
-
-            if (
-                typeof Chart ===
-                "undefined"
+                !canvas ||
+                typeof Chart === "undefined"
             ) {
 
                 return;
@@ -2147,20 +2189,18 @@ document.addEventListener(
 
 
             if (
-                categorias.length ===
-                0
+                categorias.length === 0
             ) {
 
 
-                categorias.push(
+                categorias = [
                     "Sin datos"
-                );
+                ];
 
 
-                valores.push(
+                valores = [
                     1
-                );
-
+                ];
 
             }
 
@@ -2228,14 +2268,11 @@ document.addEventListener(
                             responsive:
                                 true,
 
-
                             maintainAspectRatio:
                                 false,
 
-
                             cutout:
                                 "65%",
-
 
                             plugins:
                             {
@@ -2261,12 +2298,11 @@ document.addEventListener(
                 valores
             );
 
-
         }
 
 
         /* =====================================================
-           LEYENDA CATEGORÍAS
+           LEYENDA
         ===================================================== */
 
         function generarLeyendaCategorias(
@@ -2350,14 +2386,12 @@ document.addEventListener(
 
                     `;
 
-
                 }
             );
 
 
             container.innerHTML =
                 html;
-
 
         }
 
@@ -2396,11 +2430,6 @@ document.addEventListener(
                             );
 
 
-                        /* -------------------------------------
-                           ESTADOS QUE NO REQUIEREN SEGUIMIENTO
-                        ------------------------------------- */
-
-
                         if (
                             estado === "resuelto" ||
                             estado === "cerrado" ||
@@ -2420,11 +2449,6 @@ document.addEventListener(
                             );
 
 
-                        /* -------------------------------------
-                           SIN FECHA
-                        ------------------------------------- */
-
-
                         if (
                             !fecha
                         ) {
@@ -2432,11 +2456,6 @@ document.addEventListener(
                             return true;
 
                         }
-
-
-                        /* -------------------------------------
-                           MÁS DE 48 HORAS
-                        ------------------------------------- */
 
 
                         return (
@@ -2496,7 +2515,6 @@ document.addEventListener(
                             fechaB
                         );
 
-
                     }
                 );
 
@@ -2504,7 +2522,7 @@ document.addEventListener(
 
 
         /* =====================================================
-           MOSTRAR ALERTAS
+           ALERTAS
         ===================================================== */
 
         function generarAlertas() {
@@ -2546,8 +2564,7 @@ document.addEventListener(
 
 
             if (
-                alertas.length ===
-                0
+                alertas.length === 0
             ) {
 
 
@@ -2650,17 +2667,9 @@ document.addEventListener(
                             );
 
 
-                        let fechaTexto =
-                            "Sin fecha";
-
-
-                        if (
+                        const fechaTexto =
                             fecha
-                        ) {
-
-
-                            fechaTexto =
-                                fecha.toLocaleDateString(
+                                ? fecha.toLocaleDateString(
                                     "es-MX",
                                     {
 
@@ -2674,10 +2683,8 @@ document.addEventListener(
                                             "numeric"
 
                                     }
-                                );
-
-
-                        }
+                                )
+                                : "Sin fecha";
 
 
                         const prioridad =
@@ -2701,10 +2708,10 @@ document.addEventListener(
 
                         const esCritico =
                             prioridadNormalizada ===
-                                "crítica" ||
+                                "critica" ||
 
                             prioridadNormalizada ===
-                                "critica" ||
+                                "crítica" ||
 
                             prioridadNormalizada ===
                                 "alta";
@@ -2808,8 +2815,7 @@ document.addEventListener(
 
 
             if (
-                alertas.length >
-                10
+                alertas.length > 10
             ) {
 
 
@@ -2841,7 +2847,6 @@ document.addEventListener(
             container.innerHTML =
                 html;
 
-
         }
 
 
@@ -2868,8 +2873,7 @@ document.addEventListener(
 
 
             if (
-                tickets.length ===
-                0
+                tickets.length === 0
             ) {
 
 
@@ -2964,6 +2968,7 @@ document.addEventListener(
 
 
             return (
+
                 Math.floor(
                     diferencia /
                     (
@@ -2973,6 +2978,7 @@ document.addEventListener(
                         24
                     )
                 ) + 1
+
             );
 
         }
@@ -3015,7 +3021,7 @@ document.addEventListener(
 
 
         /* =====================================================
-           MOSTRAR ERROR
+           ERROR
         ===================================================== */
 
         function mostrarError(
@@ -3062,14 +3068,38 @@ document.addEventListener(
 
                 `;
 
-
             }
 
         }
 
 
         /* =====================================================
-           INICIALIZACIÓN
+           PROCESAR DASHBOARD
+        ===================================================== */
+
+        function procesarDashboard() {
+
+
+            actualizarKPIs();
+
+
+            generarGraficaDiaria();
+
+
+            generarGraficaCategorias();
+
+
+            generarAlertas();
+
+
+            generarResumen();
+
+
+        }
+
+
+        /* =====================================================
+           INICIAR
         ===================================================== */
 
         async function iniciar() {
@@ -3137,7 +3167,7 @@ document.addEventListener(
 
 
             /* ---------------------------------------------
-               DATOS DEL TÉCNICO
+               TÉCNICO
             --------------------------------------------- */
 
 
@@ -3145,22 +3175,21 @@ document.addEventListener(
                 await cargarTecnico();
 
 
-            if (
-                !technicianData
-            ) {
-
-
-                console.warn(
-                    "No se pudieron obtener datos adicionales del técnico."
-                );
-
-
-            }
-
-
             console.log(
                 "Técnico utilizado por el dashboard:",
                 technicianData
+            );
+
+
+            console.log(
+                "Rol ID detectado:",
+                obtenerRolIdTecnico()
+            );
+
+
+            console.log(
+                "Rol nombre detectado:",
+                obtenerRolNombreTecnico()
             );
 
 

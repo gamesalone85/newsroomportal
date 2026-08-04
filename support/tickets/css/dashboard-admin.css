@@ -1,25 +1,27 @@
 /* =========================================================
    NEWSROOM PORTAL
-   DASHBOARD TÉCNICO
-   ESTILOS DEL MÓDULO
+   DASHBOARD ADMINISTRATIVO DE TICKETS
+   dashboard-admin.css
+
+   IMPORTANTE:
+   Este archivo está diseñado específicamente para:
+   dashboard-admin.html
+
+   No utiliza clases genéricas como:
+   .dashboard-grid
+   .stat-card
+   .card-header
+   .dashboard-card
+
+   para evitar conflictos con otros módulos.
 ========================================================= */
 
 
 /* =========================================================
-   HEADER TÉCNICO
+   PAGE HEADER
 ========================================================= */
 
-.technician-header {
-
-    background: #ffffff;
-
-    color: #374151;
-
-    border-radius: 20px;
-
-    padding: 28px 32px;
-
-    margin-bottom: 24px;
+.page-header {
 
     display: flex;
 
@@ -27,96 +29,122 @@
 
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 24px;
 
-    border: 1px solid #e5e7eb;
-
-    box-shadow:
-        0 6px 20px rgba(15, 23, 42, .05);
+    margin-bottom: 24px;
 
 }
 
 
-/* =========================================================
-   ETIQUETA
-========================================================= */
-
-.technician-label {
-
-    display: block;
-
-    font-size: 11px;
-
-    font-weight: 800;
-
-    letter-spacing: 1.5px;
-
-    color: #6b7280;
-
-    opacity: 1;
-
-}
-
-
-/* =========================================================
-   TÍTULO
-========================================================= */
-
-.technician-header h1 {
-
-    margin: 7px 0 6px;
-
-    font-size: 28px;
-
-    font-weight: 800;
-
-    color: #fafbfc;
-
-}
-
-
-/* =========================================================
-   DESCRIPCIÓN
-========================================================= */
-
-.technician-header p {
+.page-header h2 {
 
     margin: 0;
 
+    color: #1f2937;
+
+    font-size: 24px;
+
+    font-weight: 800;
+
+    line-height: 1.2;
+
+}
+
+
+.page-subtitle {
+
+    margin: 7px 0 0;
+
+    color: #6b7280;
+
     font-size: 13px;
 
-    color: #dae1ed;
-
-    opacity: 1;
+    line-height: 1.5;
 
 }
 
 
 /* =========================================================
-   ICONO DEL HEADER
+   DASHBOARD ACTIONS
 ========================================================= */
 
-.technician-header-icon {
-
-    width: 70px;
-
-    height: 70px;
-
-    border-radius: 18px;
-
-    background: #f3f4f6;
-
-    color: #4b5563;
+.dashboard-actions {
 
     display: flex;
 
     align-items: center;
 
-    justify-content: center;
+    justify-content: flex-end;
 
-    font-size: 30px;
+    gap: 10px;
 
     flex-shrink: 0;
+
+}
+
+
+/* =========================================================
+   BOTÓN ACTUALIZAR
+========================================================= */
+
+.dashboard-actions .btn-primary {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 40px;
+
+    padding: 0 16px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background: #c8102e;
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.dashboard-actions .btn-primary:hover {
+
+    background: #a90d27;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 14px rgba(200, 16, 46, .18);
+
+}
+
+
+.dashboard-actions .btn-primary:active {
+
+    transform: translateY(0);
+
+}
+
+
+.dashboard-actions .btn-primary i {
+
+    font-size: 12px;
 
 }
 
@@ -125,14 +153,14 @@
    KPI GRID
 ========================================================= */
 
-.stats-grid {
+.dashboard-kpi-grid {
 
     display: grid;
 
     grid-template-columns:
         repeat(4, minmax(0, 1fr));
 
-    gap: 18px;
+    gap: 16px;
 
     margin-bottom: 24px;
 
@@ -143,39 +171,45 @@
    KPI CARD
 ========================================================= */
 
-.stat-card {
+.dashboard-kpi-card {
+
+    min-width: 0;
+
+    min-height: 94px;
+
+    padding: 18px;
 
     background: #ffffff;
 
-    border: 1px solid #edf0f4;
+    border: 1px solid #e8ebef;
 
-    border-radius: 18px;
-
-    padding: 20px;
+    border-radius: 16px;
 
     display: flex;
 
     align-items: center;
 
-    gap: 15px;
+    gap: 14px;
 
     box-shadow:
-        0 5px 18px rgba(0, 0, 0, .05);
+        0 4px 14px rgba(15, 23, 42, .04);
 
     transition:
         transform .2s ease,
-        box-shadow .2s ease;
+        box-shadow .2s ease,
+        border-color .2s ease;
 
 }
 
 
-.stat-card:hover {
+.dashboard-kpi-card:hover {
 
-    transform:
-        translateY(-2px);
+    transform: translateY(-2px);
+
+    border-color: #dfe3e8;
 
     box-shadow:
-        0 8px 22px rgba(0, 0, 0, .08);
+        0 7px 20px rgba(15, 23, 42, .07);
 
 }
 
@@ -184,13 +218,15 @@
    KPI ICON
 ========================================================= */
 
-.stat-icon {
+.dashboard-kpi-icon {
 
-    width: 50px;
+    width: 46px;
 
-    height: 50px;
+    height: 46px;
 
-    border-radius: 14px;
+    min-width: 46px;
+
+    border-radius: 13px;
 
     display: flex;
 
@@ -198,91 +234,50 @@
 
     justify-content: center;
 
-    font-size: 20px;
-
-    flex-shrink: 0;
-
-}
-
-
-/* =========================================================
-   KPI RED
-========================================================= */
-
-.stat-icon.red {
-
-    background: #fee2e2;
+    background: #fef2f2;
 
     color: #c8102e;
 
-}
-
-
-/* =========================================================
-   KPI ORANGE
-========================================================= */
-
-.stat-icon.orange {
-
-    background: #ffedd5;
-
-    color: #c2410c;
+    font-size: 18px;
 
 }
 
 
 /* =========================================================
-   KPI YELLOW
+   KPI CONTENT
 ========================================================= */
 
-.stat-icon.yellow {
+.dashboard-kpi-card > div:last-child {
 
-    background: #fef3c7;
-
-    color: #92400e;
+    min-width: 0;
 
 }
 
 
-/* =========================================================
-   KPI DANGER
-========================================================= */
-
-.stat-icon.danger {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-}
-
-
-/* =========================================================
-   KPI TEXT
-========================================================= */
-
-.stat-label {
+.dashboard-kpi-card span {
 
     display: block;
 
-    font-size: 11px;
+    margin-bottom: 6px;
 
     color: #6b7280;
 
+    font-size: 11px;
+
     font-weight: 600;
 
-    margin-bottom: 5px;
+    line-height: 1.2;
 
 }
 
 
-.stat-value {
+.dashboard-kpi-card strong {
 
     display: block;
 
     color: #1f2937;
 
-    font-size: 26px;
+    font-size: 25px;
 
     font-weight: 800;
 
@@ -292,447 +287,33 @@
 
 
 /* =========================================================
-   DASHBOARD GRID
+   KPI VARIANTS
+   Permite que dashboard-admin.js pueda agregar clases
+   posteriormente sin romper el diseño.
 ========================================================= */
 
-.dashboard-grid {
-
-    display: grid;
-
-    grid-template-columns:
-        minmax(0, 2fr)
-        minmax(320px, 1fr);
-
-    gap: 20px;
-
-    margin-bottom: 20px;
-
-}
-
-
-/* =========================================================
-   DASHBOARD CARDS
-========================================================= */
-
-.dashboard-card {
-
-    background: #ffffff;
-
-    border: 1px solid #edf0f4;
-
-    border-radius: 18px;
-
-    box-shadow:
-        0 5px 18px rgba(0, 0, 0, .05);
-
-}
-
-
-/* =========================================================
-   CHART CARD
-========================================================= */
-
-.chart-card {
-
-    padding: 22px;
-
-}
-
-
-/* =========================================================
-   CARD HEADER
-========================================================= */
-
-.card-header {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 15px;
-
-    margin-bottom: 20px;
-
-}
-
-
-.card-header h3 {
-
-    margin: 0;
-
-    color: #1f2937;
-
-    font-size: 16px;
-
-    font-weight: 800;
-
-}
-
-
-.card-header p {
-
-    margin: 5px 0 0;
-
-    color: #6b7280;
-
-    font-size: 11px;
-
-}
-
-
-/* =========================================================
-   CARD HEADER ICON
-========================================================= */
-
-.card-header-icon {
-
-    width: 40px;
-
-    height: 40px;
-
-    border-radius: 12px;
+.dashboard-kpi-card:nth-child(1)
+.dashboard-kpi-icon {
 
     background: #fef2f2;
 
-    color: #e8d3d7;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-}
-
-
-/* =========================================================
-   CHART
-========================================================= */
-
-.chart-wrapper {
-
-    position: relative;
-
-    height: 330px;
-
-    width: 100%;
-
-}
-
-
-/* =========================================================
-   DONUT CHART
-========================================================= */
-
-.donut-wrapper {
-
-    position: relative;
-
-    height: 260px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-}
-
-
-/* =========================================================
-   CATEGORY LEGEND
-========================================================= */
-
-.category-legend {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 8px;
-
-    margin-top: 15px;
-
-}
-
-
-.legend-item {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 10px;
-
-    font-size: 11px;
-
-    color: #4b5563;
-
-}
-
-
-.legend-name {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-}
-
-
-.legend-dot {
-
-    width: 9px;
-
-    height: 9px;
-
-    border-radius: 50%;
-
-    background: #c8102e;
-
-    flex-shrink: 0;
-
-}
-
-
-.legend-value {
-
-    font-weight: 800;
-
-    color: #1f2937;
-
-}
-
-
-/* =========================================================
-   ALERTAS
-========================================================= */
-
-.alerts-card {
-
-    padding: 22px;
-
-    margin-bottom: 20px;
-
-}
-
-
-.alerts-card .card-header {
-
-    margin-bottom: 15px;
-
-}
-
-
-.alerts-card h3 {
-
-    color: #1f2937;
-
-}
-
-
-.alerts-card h3 i {
-
     color: #c8102e;
 
-    margin-right: 5px;
+}
+
+
+.dashboard-kpi-card:nth-child(2)
+.dashboard-kpi-icon {
+
+    background: #eff6ff;
+
+    color: #2563eb;
 
 }
 
 
-/* =========================================================
-   ALERT COUNTER
-========================================================= */
-
-.alert-counter {
-
-    min-width: 34px;
-
-    height: 34px;
-
-    padding: 0 8px;
-
-    border-radius: 50%;
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 12px;
-
-    font-weight: 800;
-
-}
-
-
-/* =========================================================
-   ALERTS CONTAINER
-========================================================= */
-
-.alerts-container {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-
-}
-
-
-/* =========================================================
-   ALERT ITEM
-========================================================= */
-
-.alert-item {
-
-    border: 1px solid #edf0f4;
-
-    border-left: 4px solid #c8102e;
-
-    border-radius: 12px;
-
-    padding: 14px 16px;
-
-    background: #ffffff;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 15px;
-
-    transition:
-        background .2s ease,
-        box-shadow .2s ease;
-
-}
-
-
-.alert-item:hover {
-
-    background: #fafafa;
-
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, .04);
-
-}
-
-
-/* =========================================================
-   ALERT WARNING
-========================================================= */
-
-.alert-item.warning {
-
-    border-left-color: #f59e0b;
-
-}
-
-
-/* =========================================================
-   ALERT INFO
-========================================================= */
-
-.alert-info {
-
-    min-width: 0;
-
-}
-
-
-.alert-ticket {
-
-    font-size: 12px;
-
-    font-weight: 800;
-
-    color: #1f2937;
-
-}
-
-
-.alert-title {
-
-    margin-top: 4px;
-
-    font-size: 11px;
-
-    color: #6b7280;
-
-    white-space: nowrap;
-
-    overflow: hidden;
-
-    text-overflow: ellipsis;
-
-    max-width: 500px;
-
-}
-
-
-/* =========================================================
-   ALERT META
-========================================================= */
-
-.alert-meta {
-
-    margin-top: 6px;
-
-    display: flex;
-
-    flex-wrap: wrap;
-
-    gap: 6px;
-
-}
-
-
-/* =========================================================
-   ALERT BADGE
-========================================================= */
-
-.alert-badge {
-
-    padding: 4px 8px;
-
-    border-radius: 30px;
-
-    font-size: 9px;
-
-    font-weight: 700;
-
-    background: #f3f4f6;
-
-    color: #4b5563;
-
-}
-
-
-.alert-badge.danger {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-}
-
-
-.alert-badge.warning {
+.dashboard-kpi-card:nth-child(3)
+.dashboard-kpi-icon {
 
     background: #fef3c7;
 
@@ -741,130 +322,364 @@
 }
 
 
-/* =========================================================
-   ALERT DATE
-========================================================= */
+.dashboard-kpi-card:nth-child(4)
+.dashboard-kpi-icon {
 
-.alert-date {
+    background: #fff7ed;
 
-    font-size: 10px;
-
-    color: #9ca3af;
-
-    white-space: nowrap;
+    color: #c2410c;
 
 }
 
 
-/* =========================================================
-   LOADING
-========================================================= */
+.dashboard-kpi-card:nth-child(5)
+.dashboard-kpi-icon {
 
-.loading-state {
+    background: #ecfdf5;
 
-    padding: 35px;
-
-    text-align: center;
-
-    color: #6b7280;
-
-    font-size: 12px;
+    color: #15803d;
 
 }
 
 
-.loading-state i {
-
-    color: #c8102e;
-
-    margin-right: 6px;
-
-}
-
-
-/* =========================================================
-   NO ALERTS
-========================================================= */
-
-.no-alerts {
-
-    padding: 35px 20px;
-
-    text-align: center;
-
-    color: #6b7280;
-
-}
-
-
-.no-alerts i {
-
-    display: block;
-
-    font-size: 32px;
-
-    color: #16a34a;
-
-    margin-bottom: 10px;
-
-}
-
-
-.no-alerts strong {
-
-    display: block;
-
-    color: #374151;
-
-    margin-bottom: 5px;
-
-}
-
-
-/* =========================================================
-   SUMMARY CARD
-========================================================= */
-
-.summary-card {
-
-    padding: 20px 22px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 15px;
-
-    margin-bottom: 20px;
-
-}
-
-
-/* =========================================================
-   SUMMARY ICON
-========================================================= */
-
-.summary-icon {
-
-    width: 48px;
-
-    height: 48px;
-
-    border-radius: 14px;
+.dashboard-kpi-card:nth-child(6)
+.dashboard-kpi-icon {
 
     background: #fef2f2;
 
-    color: #c8102e;
+    color: #991b1b;
+
+}
+
+
+.dashboard-kpi-card:nth-child(7)
+.dashboard-kpi-icon {
+
+    background: #f3f4f6;
+
+    color: #374151;
+
+}
+
+
+.dashboard-kpi-card:nth-child(8)
+.dashboard-kpi-icon {
+
+    background: #f5f3ff;
+
+    color: #6d28d9;
+
+}
+
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.dashboard-filter-card {
+
+    margin-bottom: 24px;
+
+    padding: 20px 22px;
+
+    background: #ffffff;
+
+    border: 1px solid #e8ebef;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 14px rgba(15, 23, 42, .04);
+
+}
+
+
+/* =========================================================
+   FILTER TITLE
+========================================================= */
+
+.filter-title {
 
     display: flex;
 
     align-items: center;
 
-    justify-content: center;
+    gap: 8px;
 
-    font-size: 20px;
+    margin-bottom: 18px;
 
-    flex-shrink: 0;
+    color: #1f2937;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+}
+
+
+.filter-title i {
+
+    color: #c8102e;
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   FILTER GRID
+========================================================= */
+
+.dashboard-filters {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 16px;
+
+    align-items: end;
+
+}
+
+
+/* =========================================================
+   FILTER GROUP
+========================================================= */
+
+.filter-group {
+
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+
+}
+
+
+.filter-group label {
+
+    color: #4b5563;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   FILTER INPUTS
+========================================================= */
+
+.filter-group select,
+.filter-group input {
+
+    width: 100%;
+
+    height: 40px;
+
+    min-width: 0;
+
+    padding: 0 12px;
+
+    border: 1px solid #dfe3e8;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+.filter-group select {
+
+    cursor: pointer;
+
+}
+
+
+.filter-group input::placeholder {
+
+    color: #9ca3af;
+
+}
+
+
+.filter-group select:hover,
+.filter-group input:hover {
+
+    border-color: #cbd1d8;
+
+}
+
+
+.filter-group select:focus,
+.filter-group input:focus {
+
+    border-color: #c8102e;
+
+    box-shadow:
+        0 0 0 3px rgba(200, 16, 46, .08);
+
+}
+
+
+/* =========================================================
+   SEARCH FILTER
+========================================================= */
+
+.filter-search {
+
+    grid-column: span 2;
+
+}
+
+
+/* =========================================================
+   RESUMEN OPERATIVO
+========================================================= */
+
+.dashboard-columns {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 24px;
+
+}
+
+
+/* =========================================================
+   DASHBOARD PANEL
+========================================================= */
+
+.dashboard-panel {
+
+    min-width: 0;
+
+    background: #ffffff;
+
+    border: 1px solid #e8ebef;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 4px 14px rgba(15, 23, 42, .04);
+
+}
+
+
+/* =========================================================
+   PANEL HEADER
+========================================================= */
+
+.dashboard-panel-header {
+
+    min-height: 72px;
+
+    padding: 17px 19px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-bottom: 1px solid #edf0f4;
+
+}
+
+
+.dashboard-panel-header h3 {
+
+    margin: 0;
+
+    color: #1f2937;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    line-height: 1.3;
+
+}
+
+
+.dashboard-panel-header p {
+
+    margin: 5px 0 0;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    line-height: 1.4;
+
+}
+
+
+/* =========================================================
+   SUMMARY LIST
+========================================================= */
+
+.dashboard-summary-list {
+
+    min-height: 170px;
+
+    padding: 12px 18px 16px;
+
+}
+
+
+/* =========================================================
+   SUMMARY ITEMS
+   Estas reglas también funcionan con elementos generados
+   dinámicamente por dashboard-admin.js.
+========================================================= */
+
+.dashboard-summary-list > div {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 10px 0;
+
+    border-bottom: 1px solid #f1f3f5;
+
+}
+
+
+.dashboard-summary-list > div:last-child {
+
+    border-bottom: 0;
 
 }
 
@@ -873,24 +688,47 @@
    SUMMARY TEXT
 ========================================================= */
 
-.summary-card h3 {
+.dashboard-summary-list span {
 
-    margin: 0 0 5px;
+    min-width: 0;
 
-    font-size: 14px;
+    color: #4b5563;
 
-    font-weight: 800;
-
-    color: #1f2937;
+    font-size: 11px;
 
 }
 
 
-.summary-card p {
+.dashboard-summary-list strong {
 
-    margin: 0;
+    flex-shrink: 0;
 
-    color: #6b7280;
+    color: #1f2937;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+}
+
+
+/* =========================================================
+   EMPTY SUMMARY
+========================================================= */
+
+.dashboard-summary-list:empty::before {
+
+    content: "Sin información disponible";
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 140px;
+
+    color: #9ca3af;
 
     font-size: 11px;
 
@@ -898,12 +736,359 @@
 
 
 /* =========================================================
-   ALERT CARD
+   TABLA
 ========================================================= */
 
-.alert-card {
+.dashboard-table-card {
 
-    border-color: #f3d4d8;
+    margin-bottom: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #e8ebef;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 4px 14px rgba(15, 23, 42, .04);
+
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.dashboard-table-header {
+
+    min-height: 76px;
+
+    padding: 18px 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border-bottom: 1px solid #edf0f4;
+
+}
+
+
+.dashboard-table-header h3 {
+
+    margin: 0;
+
+    color: #1f2937;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+}
+
+
+.dashboard-table-header p {
+
+    margin: 5px 0 0;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+
+}
+
+
+/* =========================================================
+   RESULTS COUNTER
+========================================================= */
+
+.results-counter {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 30px;
+
+    padding: 0 11px;
+
+    border-radius: 20px;
+
+    background: #f3f4f6;
+
+    color: #4b5563;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.dashboard-table-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+
+    overflow-y: hidden;
+
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.dashboard-table {
+
+    width: 100%;
+
+    min-width: 1100px;
+
+    border-collapse: collapse;
+
+    table-layout: auto;
+
+}
+
+
+/* =========================================================
+   TABLE HEAD
+========================================================= */
+
+.dashboard-table thead {
+
+    background: #f8f9fb;
+
+}
+
+
+.dashboard-table th {
+
+    padding: 12px 14px;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    color: #6b7280;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    text-align: left;
+
+    white-space: nowrap;
+
+}
+
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+.dashboard-table td {
+
+    padding: 13px 14px;
+
+    border-bottom: 1px solid #f0f2f4;
+
+    color: #4b5563;
+
+    font-size: 11px;
+
+    vertical-align: middle;
+
+}
+
+
+.dashboard-table tbody tr {
+
+    transition:
+        background .15s ease;
+
+}
+
+
+.dashboard-table tbody tr:hover {
+
+    background: #fafafa;
+
+}
+
+
+.dashboard-table tbody tr:last-child td {
+
+    border-bottom: 0;
+
+}
+
+
+/* =========================================================
+   TABLE EMPTY STATE
+========================================================= */
+
+.dashboard-table tbody:empty::after {
+
+    content: "No hay tickets para mostrar";
+
+    display: table-cell;
+
+    width: 100%;
+
+    padding: 45px 20px;
+
+    color: #9ca3af;
+
+    font-size: 12px;
+
+    text-align: center;
+
+}
+
+
+/* =========================================================
+   CELDAS ESPECÍFICAS
+========================================================= */
+
+.dashboard-table td:first-child {
+
+    color: #1f2937;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+
+}
+
+
+/* =========================================================
+   BADGES GENERALES
+   Compatibilidad con elementos que pueda generar JS.
+========================================================= */
+
+.dashboard-table .badge,
+.dashboard-table .status-badge,
+.dashboard-table .priority-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 23px;
+
+    padding: 3px 8px;
+
+    border-radius: 20px;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+
+}
+
+
+/* =========================================================
+   BOTONES DENTRO DE TABLA
+========================================================= */
+
+.dashboard-table button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    min-height: 30px;
+
+    padding: 0 9px;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #4b5563;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease,
+        color .2s ease;
+
+}
+
+
+.dashboard-table button:hover {
+
+    border-color: #c8102e;
+
+    background: #fef2f2;
+
+    color: #c8102e;
+
+}
+
+
+/* =========================================================
+   SCROLLBAR TABLA
+========================================================= */
+
+.dashboard-table-wrapper::-webkit-scrollbar {
+
+    height: 8px;
+
+}
+
+
+.dashboard-table-wrapper::-webkit-scrollbar-track {
+
+    background: #f3f4f6;
+
+}
+
+
+.dashboard-table-wrapper::-webkit-scrollbar-thumb {
+
+    background: #d1d5db;
+
+    border-radius: 10px;
+
+}
+
+
+.dashboard-table-wrapper::-webkit-scrollbar-thumb:hover {
+
+    background: #9ca3af;
 
 }
 
@@ -912,87 +1097,75 @@
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1100px) {
+/* ---------------------------------------------------------
+   1200 PX
+--------------------------------------------------------- */
 
-    .stats-grid {
+@media (max-width: 1200px) {
+
+    .dashboard-kpi-grid {
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+    }
+
+
+    .dashboard-filters {
+
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+
+    }
+
+
+    .filter-search {
+
+        grid-column: span 1;
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   1000 PX
+--------------------------------------------------------- */
+
+@media (max-width: 1000px) {
+
+    .dashboard-kpi-grid {
 
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
 
     }
 
-}
 
-
-/* =========================================================
-   TABLET
-========================================================= */
-
-@media (max-width: 900px) {
-
-    .dashboard-grid {
-
-        grid-template-columns: 1fr;
-
-    }
-
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 650px) {
-
-    .stats-grid {
+    .dashboard-columns {
 
         grid-template-columns:
-            1fr;
+            repeat(2, minmax(0, 1fr));
 
     }
 
 
-    .technician-header {
+    .dashboard-columns .dashboard-panel:last-child {
 
-        padding: 22px;
-
-    }
-
-
-    .technician-header h1 {
-
-        font-size: 23px;
+        grid-column: span 2;
 
     }
 
-
-    .technician-header-icon {
-
-        width: 55px;
-
-        height: 55px;
-
-        font-size: 23px;
-
-    }
+}
 
 
-    .chart-wrapper {
+/* ---------------------------------------------------------
+   800 PX
+--------------------------------------------------------- */
 
-        height: 260px;
+@media (max-width: 800px) {
 
-    }
-
-
-    .donut-wrapper {
-
-        height: 230px;
-
-    }
-
-
-    .alert-item {
+    .page-header {
 
         align-items: flex-start;
 
@@ -1001,9 +1174,204 @@
     }
 
 
-    .alert-date {
+    .dashboard-actions {
 
-        align-self: flex-end;
+        width: 100%;
+
+        justify-content: flex-start;
+
+    }
+
+
+    .dashboard-filters {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+    }
+
+
+    .filter-search {
+
+        grid-column: span 2;
+
+    }
+
+
+    .dashboard-columns {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .dashboard-columns .dashboard-panel:last-child {
+
+        grid-column: auto;
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   650 PX
+--------------------------------------------------------- */
+
+@media (max-width: 650px) {
+
+    .page-header h2 {
+
+        font-size: 21px;
+
+    }
+
+
+    .page-subtitle {
+
+        font-size: 12px;
+
+    }
+
+
+    .dashboard-kpi-grid {
+
+        grid-template-columns: 1fr;
+
+        gap: 12px;
+
+    }
+
+
+    .dashboard-kpi-card {
+
+        min-height: 82px;
+
+        padding: 16px;
+
+    }
+
+
+    .dashboard-kpi-icon {
+
+        width: 42px;
+
+        height: 42px;
+
+        min-width: 42px;
+
+        font-size: 16px;
+
+    }
+
+
+    .dashboard-kpi-card strong {
+
+        font-size: 23px;
+
+    }
+
+
+    .dashboard-filter-card {
+
+        padding: 17px;
+
+    }
+
+
+    .dashboard-filters {
+
+        grid-template-columns: 1fr;
+
+        gap: 13px;
+
+    }
+
+
+    .filter-search {
+
+        grid-column: auto;
+
+    }
+
+
+    .dashboard-panel-header {
+
+        padding: 16px;
+
+    }
+
+
+    .dashboard-summary-list {
+
+        padding-left: 16px;
+
+        padding-right: 16px;
+
+    }
+
+
+    .dashboard-table-header {
+
+        padding: 16px;
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   480 PX
+--------------------------------------------------------- */
+
+@media (max-width: 480px) {
+
+    .page-header {
+
+        margin-bottom: 18px;
+
+    }
+
+
+    .dashboard-actions {
+
+        width: 100%;
+
+    }
+
+
+    .dashboard-actions .btn-primary {
+
+        width: 100%;
+
+    }
+
+
+    .dashboard-kpi-card {
+
+        border-radius: 13px;
+
+    }
+
+
+    .dashboard-filter-card,
+    .dashboard-panel,
+    .dashboard-table-card {
+
+        border-radius: 13px;
+
+    }
+
+
+    .dashboard-table {
+
+        min-width: 1050px;
 
     }
 
@@ -1011,43 +1379,31 @@
 
 
 /* =========================================================
-   MOBILE PEQUEÑO
+   ACCESIBILIDAD
 ========================================================= */
 
-@media (max-width: 480px) {
+.dashboard-admin :focus-visible {
 
-    .stat-card {
+    outline: 2px solid #c8102e;
 
-        padding: 16px;
+    outline-offset: 2px;
 
-    }
-
-
-    .stat-value {
-
-        font-size: 22px;
-
-    }
+}
 
 
-    .chart-card,
-    .alerts-card {
+/* =========================================================
+   REDUCCIÓN DE MOVIMIENTO
+========================================================= */
 
-        padding: 16px;
+@media (prefers-reduced-motion: reduce) {
 
-    }
+    .dashboard-kpi-card,
+    .dashboard-actions .btn-primary,
+    .dashboard-table tbody tr,
+    .filter-group select,
+    .filter-group input {
 
-
-    .technician-header {
-
-        gap: 15px;
-
-    }
-
-
-    .technician-header p {
-
-        line-height: 1.5;
+        transition: none;
 
     }
 

@@ -33,12 +33,12 @@
 
 <link
     rel="stylesheet"
-    href="../css/styles.css"
+    href="../../css/styles.css"
 >
 
 <link
     rel="stylesheet"
-    href="../css/layout-corporate.css"
+    href="../../css/layout-corporate.css"
 >
 
 
@@ -48,7 +48,7 @@
 
 <link
     rel="stylesheet"
-    href="css/tecnico.css"
+    href="css/dashboard_tecnico.css"
 >
 ```
 
@@ -65,7 +65,7 @@
 
 <div
     id="sidebarContainer"
-    data-sidebar="includes/sidebar.html"
+    data-sidebar="../../includes/sidebar.html"
 ></div>
 
 
@@ -82,6 +82,7 @@
 
     <header class="topbar">
 
+
         <div class="page-title">
 
             Dashboard Técnico
@@ -90,6 +91,7 @@
 
 
         <div class="topbar-user">
+
 
             <div
                 class="user-avatar"
@@ -111,7 +113,9 @@
 
             </div>
 
+
         </div>
+
 
     </header>
 
@@ -129,15 +133,18 @@
 
         <div class="technician-header">
 
+
             <div>
 
                 <span class="technician-label">
                     CENTRO DE SOPORTE
                 </span>
 
+
                 <h1>
                     Mi rendimiento
                 </h1>
+
 
                 <p>
                     Consulta el comportamiento de tus tickets
@@ -153,7 +160,9 @@
 
             </div>
 
+
         </div>
+
 
 
         <!-- ==================================================
@@ -163,6 +172,8 @@
         <div class="stats-grid">
 
 
+            <!-- TOTAL -->
+
             <div class="stat-card">
 
                 <div class="stat-icon red">
@@ -171,11 +182,13 @@
 
                 </div>
 
+
                 <div>
 
                     <span class="stat-label">
                         Tickets atendidos
                     </span>
+
 
                     <strong
                         id="totalTickets"
@@ -189,6 +202,9 @@
             </div>
 
 
+
+            <!-- EN PROCESO -->
+
             <div class="stat-card">
 
                 <div class="stat-icon orange">
@@ -197,11 +213,13 @@
 
                 </div>
 
+
                 <div>
 
                     <span class="stat-label">
                         En proceso
                     </span>
+
 
                     <strong
                         id="ticketsProceso"
@@ -215,6 +233,9 @@
             </div>
 
 
+
+            <!-- PENDIENTES -->
+
             <div class="stat-card">
 
                 <div class="stat-icon yellow">
@@ -223,11 +244,13 @@
 
                 </div>
 
+
                 <div>
 
                     <span class="stat-label">
                         Pendientes
                     </span>
+
 
                     <strong
                         id="ticketsPendientes"
@@ -241,6 +264,9 @@
             </div>
 
 
+
+            <!-- ALERTAS -->
+
             <div class="stat-card alert-card">
 
                 <div class="stat-icon danger">
@@ -249,11 +275,13 @@
 
                 </div>
 
+
                 <div>
 
                     <span class="stat-label">
                         Requieren seguimiento
                     </span>
+
 
                     <strong
                         id="ticketsAlertados"
@@ -270,6 +298,7 @@
         </div>
 
 
+
         <!-- ==================================================
              GRÁFICAS
         ================================================== -->
@@ -283,13 +312,16 @@
 
             <div class="dashboard-card chart-card large">
 
+
                 <div class="card-header">
+
 
                     <div>
 
                         <h3>
                             Tickets por día
                         </h3>
+
 
                         <p>
                             Rendimiento durante el año actual
@@ -304,6 +336,7 @@
 
                     </div>
 
+
                 </div>
 
 
@@ -315,7 +348,9 @@
 
                 </div>
 
+
             </div>
+
 
 
             <!-- ==================================================
@@ -324,13 +359,16 @@
 
             <div class="dashboard-card chart-card">
 
+
                 <div class="card-header">
+
 
                     <div>
 
                         <h3>
                             Top de reportes
                         </h3>
+
 
                         <p>
                             Categorías más atendidas
@@ -344,6 +382,7 @@
                         <i class="fa-solid fa-chart-pie"></i>
 
                     </div>
+
 
                 </div>
 
@@ -362,10 +401,12 @@
                     class="category-legend"
                 ></div>
 
+
             </div>
 
 
         </div>
+
 
 
         <!-- ==================================================
@@ -374,7 +415,9 @@
 
         <div class="dashboard-card alerts-card">
 
+
             <div class="card-header">
+
 
                 <div>
 
@@ -385,6 +428,7 @@
                         Tickets que requieren atención
 
                     </h3>
+
 
                     <p>
                         Tickets pendientes o sin seguimiento reciente.
@@ -400,13 +444,16 @@
                     0
                 </span>
 
+
             </div>
+
 
 
             <div
                 id="alertsContainer"
                 class="alerts-container"
             >
+
 
                 <div class="loading-state">
 
@@ -416,9 +463,12 @@
 
                 </div>
 
+
             </div>
 
+
         </div>
+
 
 
         <!-- ==================================================
@@ -426,6 +476,7 @@
         ================================================== -->
 
         <div class="dashboard-card summary-card">
+
 
             <div class="summary-icon">
 
@@ -440,16 +491,19 @@
                     Rendimiento del año
                 </h3>
 
+
                 <p id="performanceMessage">
                     Calculando rendimiento...
                 </p>
 
             </div>
 
+
         </div>
 
 
     </section>
+
 
 </main>
 ```
@@ -481,24 +535,18 @@
 ></script>
 
 <!-- =========================================================
-     NEWSROOM
+     FIREBASE CONFIG
 ========================================================= -->
 
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-
-<script src="../../js/data.js"></script>
-
 <script src="../../firebase/firebase-config.js"></script>
+
+<!-- =========================================================
+     NEWSROOM
+========================================================= -->
 
 <script src="../../js/auth.js"></script>
 
 <script src="../../js/sidebar.js"></script>
-
-<script src="js/tecnico.js"></script>
 
 <!-- =========================================================
      TÉCNICO

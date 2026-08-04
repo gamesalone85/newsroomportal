@@ -4,37 +4,41 @@
    FIRESTORE
    =========================================================
 
-   RELACIÓN DE TICKETS:
+   VERSIÓN CORREGIDA
 
-   1. UID DEL TÉCNICO
-   2. ID DEL TÉCNICO
-   3. CORREO DEL TÉCNICO
-   4. NOMBRE DEL TÉCNICO
-   5. ID DEL ROL / ÁREA
-   6. NOMBRE DEL ROL / ÁREA
+   CORRECCIONES PRINCIPALES:
 
-   IMPORTANTE:
+   1. Reconoce asignaciones por:
+      - UID
+      - correo
+      - tecnicoId
+      - tecnico_id
+      - usuarioTecnicoId
+      - asignadoId
+      - assignedTo
+      - nombre del técnico
+      - nombre del rol técnico
+      - "Support" / "Soporte"
 
-   En Newsroom Portal los tickets actuales pueden estar
-   asignados mediante:
+   2. Los tickets cerrados y resueltos permanecen
+      dentro del total de tickets atendidos.
 
-       tecnico_id = 2
-       tecnico    = "Support"
+   3. La gráfica diaria utiliza FECHA LOCAL y no UTC.
 
-   mientras que el usuario autenticado puede tener:
+   4. Los tickets creados hoy se contabilizan correctamente.
 
-       rol_id     = 2
-       rol_nombre = "Soporte"
-
-   Por ello el dashboard contempla ambas estructuras.
+   5. Compatible con Timestamp de Firestore.
 
 ========================================================= */
 
 
+/* =========================================================
+   DOM READY
+========================================================= */
+
 document.addEventListener(
     "DOMContentLoaded",
     function () {
-
 
         console.log(
             "Newsroom Portal: dashboard técnico cargado."
@@ -64,20 +68,17 @@ document.addEventListener(
 
         function iniciarFirebase() {
 
-
             if (
                 typeof firebase === "undefined"
             ) {
 
                 console.error(
-                    "Firebase no está cargado."
+                    "Newsroom Portal: Firebase no está cargado."
                 );
-
 
                 mostrarError(
                     "Firebase no está disponible."
                 );
-
 
                 return false;
 
@@ -90,14 +91,12 @@ document.addEventListener(
             ) {
 
                 console.error(
-                    "Firebase no está inicializado."
+                    "Newsroom Portal: Firebase no está inicializado."
                 );
-
 
                 mostrarError(
                     "Firebase no está inicializado."
                 );
-
 
                 return false;
 
@@ -117,12 +116,10 @@ document.addEventListener(
 
                 return true;
 
-
             } catch (error) {
 
-
                 console.error(
-                    "Error inicializando Firestore:",
+                    "Error conectando Firestore:",
                     error
                 );
 
@@ -140,15 +137,13 @@ document.addEventListener(
 
 
         /* =====================================================
-           ESPERAR USUARIO AUTH
+           ESPERAR USUARIO
         ===================================================== */
 
         function esperarUsuario() {
 
-
             return new Promise(
                 function (resolve) {
-
 
                     if (
                         typeof firebase === "undefined" ||
@@ -162,37 +157,17 @@ document.addEventListener(
                     }
 
 
-                    let resuelto = false;
-
-
                     const unsubscribe =
-                        firebase
-                            .auth()
+                        firebase.auth()
                             .onAuthStateChanged(
                                 function (user) {
 
-
-                                    if (
-                                        resuelto
-                                    ) {
-
-                                        return;
-
-                                    }
-
-
-                                    resuelto = true;
-
-
                                     unsubscribe();
-
 
                                     resolve(user);
 
-
                                 }
                             );
-
 
                 }
             );
@@ -201,13 +176,184 @@ document.addEventListener(
 
 
         /* =====================================================
+           CARGAR DATOS DEL TÉCNICO
+        ===================================================== */
+
+        async function cargarTecnico() {
+
+            if (!currentUser) {
+
+                return null;
+
+            }
+
+
+            let tecnico = null;
+
+
+            try {
+
+                const doc =
+                    await db
+                        .collection("usuarios")
+                        .doc(currentUser.uid)
+                        .get();
+
+
+                if (doc.exists) {
+
+                    tecnico = {
+
+                        id:
+                            doc.id,
+
+                        ...doc.data()
+
+                    };
+
+
+                    console.log(
+                        "Datos del técnico encontrados en usuarios:",
+                        tecnico
+                    );
+
+                }
+
+            } catch (error) {
+
+                console.warn(
+                    "No se pudo obtener el usuario:",
+                    error
+                );
+
+            }
+
+
+            /*
+             * Si no existe documento en usuarios,
+             * utilizamos Authentication.
+             */
+
+            if (!tecnico) {
+
+                tecnico = {
+
+                    id:
+                        currentUser.uid,
+
+                    uid:
+                        currentUser.uid,
+
+                    correo:
+                        currentUser.email || "",
+
+                    email:
+                        currentUser.email || "",
+
+                    nombre:
+                        currentUser.displayName ||
+                        currentUser.email ||
+                        "Técnico"
+
+                };
+
+
+                console.warn(
+                    "No existe documento en usuarios. Se utilizan datos de Authentication."
+                );
+
+            }
+
+
+            return tecnico;
+
+        }
+
+
+        /* =====================================================
+           NOMBRE TÉCNICO
+        ===================================================== */
+
+        function obtenerNombreTecnico() {
+
+            if (!technicianData) {
+
+                return "Técnico";
+
+            }
+
+
+            return (
+
+                technicianData.nombre ||
+
+                technicianData.nombreCompleto ||
+
+                technicianData.displayName ||
+
+                technicianData.usuario ||
+
+                technicianData.correo ||
+
+                technicianData.email ||
+
+                currentUser?.email ||
+
+                "Técnico"
+
+            );
+
+        }
+
+
+        /* =====================================================
+           ACTUALIZAR TOPBAR
+        ===================================================== */
+
+        function actualizarUsuario() {
+
+            const nombre =
+                obtenerNombreTecnico();
+
+
+            const nombreElemento =
+                document.getElementById(
+                    "userName"
+                );
+
+
+            const avatar =
+                document.getElementById(
+                    "userAvatar"
+                );
+
+
+            if (nombreElemento) {
+
+                nombreElemento.textContent =
+                    nombre;
+
+            }
+
+
+            if (avatar) {
+
+                avatar.textContent =
+                    nombre
+                        .trim()
+                        .charAt(0)
+                        .toUpperCase();
+
+            }
+
+        }
+
+
+        /* =====================================================
            NORMALIZAR TEXTO
         ===================================================== */
 
-        function normalizar(
-            valor
-        ) {
-
+        function normalizar(valor) {
 
             if (
                 valor === null ||
@@ -221,7 +367,12 @@ document.addEventListener(
 
             return String(valor)
                 .trim()
-                .toLowerCase();
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(
+                    /[\u0300-\u036f]/g,
+                    ""
+                );
 
         }
 
@@ -235,10 +386,7 @@ document.addEventListener(
             campos
         ) {
 
-
-            if (
-                !objeto
-            ) {
+            if (!objeto) {
 
                 return "";
 
@@ -248,7 +396,6 @@ document.addEventListener(
             for (
                 const campo of campos
             ) {
-
 
                 if (
                     objeto[campo] !== undefined &&
@@ -269,406 +416,142 @@ document.addEventListener(
 
 
         /* =====================================================
-           EXTRAER VALOR
+           CONVERTIR FECHA FIREBASE
         ===================================================== */
 
-        function extraerValor(
-            valor
-        ) {
+        function convertirFecha(valor) {
 
-
-            if (
-                valor === null ||
-                valor === undefined
-            ) {
-
-                return "";
-
-            }
-
-
-            if (
-                typeof valor === "string" ||
-                typeof valor === "number"
-            ) {
-
-                return normalizar(
-                    valor
-                );
-
-            }
-
-
-            if (
-                typeof valor === "object"
-            ) {
-
-
-                return (
-
-                    normalizar(
-                        valor.uid
-                    ) ||
-
-                    normalizar(
-                        valor.id
-                    ) ||
-
-                    normalizar(
-                        valor.tecnico_id
-                    ) ||
-
-                    normalizar(
-                        valor.tecnicoId
-                    ) ||
-
-                    normalizar(
-                        valor.rol_id
-                    ) ||
-
-                    normalizar(
-                        valor.rolId
-                    ) ||
-
-                    normalizar(
-                        valor.nombre
-                    ) ||
-
-                    normalizar(
-                        valor.nombreCompleto
-                    ) ||
-
-                    normalizar(
-                        valor.displayName
-                    ) ||
-
-                    normalizar(
-                        valor.usuario
-                    ) ||
-
-                    normalizar(
-                        valor.correo
-                    ) ||
-
-                    normalizar(
-                        valor.email
-                    ) ||
-
-                    ""
-
-                );
-
-            }
-
-
-            return "";
-
-        }
-
-
-        /* =====================================================
-           CARGAR DATOS DEL TÉCNICO
-        ===================================================== */
-
-        async function cargarTecnico() {
-
-
-            if (
-                !currentUser
-            ) {
+            if (!valor) {
 
                 return null;
 
             }
 
 
-            let tecnico = null;
-
-
-            try {
-
-
-                const doc =
-                    await db
-                        .collection("usuarios")
-                        .doc(
-                            currentUser.uid
-                        )
-                        .get();
-
-
-                if (
-                    doc.exists
-                ) {
-
-
-                    tecnico = {
-
-                        id:
-                            doc.id,
-
-                        ...doc.data()
-
-                    };
-
-
-                    console.log(
-                        "Datos del técnico encontrados en usuarios:",
-                        tecnico
-                    );
-
-
-                }
-
-
-            } catch (error) {
-
-
-                console.warn(
-                    "No se pudo obtener el usuario:",
-                    error
-                );
-
-
-            }
-
-
-            /* =================================================
-               FALLBACK AUTH
-            ================================================= */
-
-
-            if (
-                !tecnico
-            ) {
-
-
-                tecnico = {
-
-
-                    id:
-                        currentUser.uid,
-
-
-                    uid:
-                        currentUser.uid,
-
-
-                    correo:
-                        currentUser.email || "",
-
-
-                    email:
-                        currentUser.email || "",
-
-
-                    nombre:
-                        currentUser.displayName ||
-                        currentUser.email ||
-                        "Técnico"
-
-
-                };
-
-
-            }
-
-
-            return tecnico;
-
-        }
-
-
-        /* =====================================================
-           NOMBRE DEL TÉCNICO
-        ===================================================== */
-
-        function obtenerNombreTecnico() {
-
-
-            if (
-                !technicianData
-            ) {
-
-                return "Técnico";
-
-            }
-
-
-            return (
-
-                technicianData.nombre ||
-
-                technicianData.nombreCompleto ||
-
-                technicianData.displayName ||
-
-                technicianData.usuario ||
-
-                technicianData.nombreTecnico ||
-
-                technicianData.correo ||
-
-                technicianData.email ||
-
-                currentUser?.email ||
-
-                "Técnico"
-
-            );
-
-        }
-
-
-        /* =====================================================
-           ACTUALIZAR USUARIO
-        ===================================================== */
-
-        function actualizarUsuario() {
-
-
-            const nombre =
-                obtenerNombreTecnico();
-
-
-            const nombreElemento =
-                document.getElementById(
-                    "userName"
-                );
-
-
-            const avatar =
-                document.getElementById(
-                    "userAvatar"
-                );
-
-
-            if (
-                nombreElemento
-            ) {
-
-                nombreElemento.textContent =
-                    nombre;
-
-            }
-
-
-            if (
-                avatar
-            ) {
-
-
-                avatar.textContent =
-                    nombre
-                        .trim()
-                        .charAt(0)
-                        .toUpperCase();
-
-
-            }
-
-        }
-
-
-        /* =====================================================
-           CONVERTIR FECHA
-        ===================================================== */
-
-        function convertirFecha(
-            valor
-        ) {
-
-
-            if (
-                !valor
-            ) {
-
-                return null;
-
-            }
-
+            /*
+             * Firebase Timestamp
+             */
 
             if (
                 typeof valor.toDate ===
                 "function"
             ) {
 
+                const fecha =
+                    valor.toDate();
 
-                try {
 
-                    return valor.toDate();
-
-                } catch (error) {
-
-                    return null;
-
-                }
+                return isNaN(
+                    fecha.getTime()
+                )
+                    ? null
+                    : fecha;
 
             }
 
+
+            /*
+             * Firestore Timestamp serializado
+             */
+
+            if (
+                typeof valor === "object" &&
+                valor.seconds !== undefined
+            ) {
+
+                const fecha =
+                    new Date(
+                        Number(valor.seconds) *
+                        1000
+                    );
+
+
+                return isNaN(
+                    fecha.getTime()
+                )
+                    ? null
+                    : fecha;
+
+            }
+
+
+            /*
+             * Date
+             */
 
             if (
                 valor instanceof Date
             ) {
 
-                return valor;
+                return isNaN(
+                    valor.getTime()
+                )
+                    ? null
+                    : valor;
 
             }
 
 
-            if (
-                typeof valor === "object"
-            ) {
-
-
-                if (
-                    typeof valor.seconds ===
-                    "number"
-                ) {
-
-
-                    return new Date(
-                        valor.seconds * 1000
-                    );
-
-                }
-
-
-                if (
-                    typeof valor._seconds ===
-                    "number"
-                ) {
-
-
-                    return new Date(
-                        valor._seconds * 1000
-                    );
-
-                }
-
-            }
-
+            /*
+             * Número / Unix timestamp
+             */
 
             if (
                 typeof valor === "number"
             ) {
 
-                return new Date(
-                    valor
-                );
+                let numero =
+                    valor;
+
+
+                /*
+                 * Si viene en segundos,
+                 * convertir a milisegundos.
+                 */
+
+                if (
+                    numero < 100000000000
+                ) {
+
+                    numero *= 1000;
+
+                }
+
+
+                const fecha =
+                    new Date(numero);
+
+
+                return isNaN(
+                    fecha.getTime()
+                )
+                    ? null
+                    : fecha;
 
             }
 
+
+            /*
+             * String
+             */
 
             if (
                 typeof valor === "string"
             ) {
 
+                const texto =
+                    valor.trim();
+
+
+                if (!texto) {
+
+                    return null;
+
+                }
+
 
                 const fecha =
-                    new Date(
-                        valor
-                    );
+                    new Date(texto);
 
 
                 return isNaN(
@@ -689,10 +572,15 @@ document.addEventListener(
            FECHA DEL TICKET
         ===================================================== */
 
-        function obtenerFechaTicket(
-            ticket
-        ) {
+        function obtenerFechaTicket(ticket) {
 
+            /*
+             * IMPORTANTE:
+             *
+             * Se prioriza fecha de creación.
+             * No se utiliza fecha_actualizacion para
+             * la gráfica de tickets creados por día.
+             */
 
             const valor =
                 obtenerCampo(
@@ -703,19 +591,21 @@ document.addEventListener(
 
                         "fechaCreacion",
 
-                        "fecha",
+                        "fecha_creado",
+
+                        "fechaCreado",
 
                         "createdAt",
 
                         "created_at",
 
-                        "fechaRegistro",
+                        "fecha",
+
+                        "timestamp",
 
                         "fecha_registro",
 
-                        "fecha_actualizacion",
-
-                        "timestamp"
+                        "fechaRegistro"
 
                     ]
                 );
@@ -729,145 +619,168 @@ document.addEventListener(
 
 
         /* =====================================================
-           OBTENER ID DEL ROL DEL TÉCNICO
+           FECHA DE ACTUALIZACIÓN
         ===================================================== */
 
-        function obtenerRolIdTecnico() {
-
-
-            if (
-                !technicianData
-            ) {
-
-                return "";
-
-            }
-
-
-            return extraerValor(
-                obtenerCampo(
-                    technicianData,
-                    [
-
-                        "rol_id",
-
-                        "rolId",
-
-                        "id_rol",
-
-                        "idRol",
-
-                        "role_id",
-
-                        "roleId",
-
-                        "rol"
-
-                    ]
-                )
-            );
-
-        }
-
-
-        /* =====================================================
-           OBTENER NOMBRE DEL ROL
-        ===================================================== */
-
-        function obtenerRolNombreTecnico() {
-
-
-            if (
-                !technicianData
-            ) {
-
-                return "";
-
-            }
-
-
-            return normalizar(
-                obtenerCampo(
-                    technicianData,
-                    [
-
-                        "rol_nombre",
-
-                        "rolNombre",
-
-                        "nombreRol",
-
-                        "role_name",
-
-                        "roleName",
-
-                        "rol"
-
-                    ]
-                )
-            );
-
-        }
-
-
-        /* =====================================================
-           NORMALIZAR NOMBRE DE ÁREA / ROL
-        ===================================================== */
-
-        function normalizarArea(
-            valor
+        function obtenerFechaActualizacion(
+            ticket
         ) {
 
+            const valor =
+                obtenerCampo(
+                    ticket,
+                    [
 
-            const texto =
-                normalizar(
-                    valor
+                        "fecha_actualizacion",
+
+                        "fechaActualizacion",
+
+                        "updatedAt",
+
+                        "updated_at",
+
+                        "ultima_actualizacion",
+
+                        "ultimaActualizacion"
+
+                    ]
                 );
 
 
-            if (
-                !texto
-            ) {
+            return convertirFecha(
+                valor
+            );
+
+        }
+
+
+        /* =====================================================
+           FECHA LOCAL YYYY-MM-DD
+        =====================================================
+
+           NO utilizar toISOString() aquí.
+
+           toISOString() convierte a UTC y puede cambiar
+           el día para usuarios en México.
+
+        ===================================================== */
+
+        function obtenerClaveFechaLocal(
+            fecha
+        ) {
+
+            if (!fecha) {
 
                 return "";
 
             }
 
 
-            /* ---------------------------------------------
-               SOPORTE
-            --------------------------------------------- */
+            const año =
+                fecha.getFullYear();
 
 
-            if (
-                texto === "support" ||
-                texto === "soporte" ||
-                texto === "technical support" ||
-                texto === "soporte tecnico" ||
-                texto === "soporte técnico"
-            ) {
-
-                return "soporte";
-
-            }
+            const mes =
+                String(
+                    fecha.getMonth() + 1
+                )
+                .padStart(
+                    2,
+                    "0"
+                );
 
 
-            return texto;
+            const dia =
+                String(
+                    fecha.getDate()
+                )
+                .padStart(
+                    2,
+                    "0"
+                );
+
+
+            return (
+                año +
+                "-" +
+                mes +
+                "-" +
+                dia
+            );
 
         }
 
 
         /* =====================================================
-           IDENTIFICAR TICKET DEL TÉCNICO
+           ESTATUS
+        ===================================================== */
+
+        function obtenerEstatus(ticket) {
+
+            return normalizar(
+                obtenerCampo(
+                    ticket,
+                    [
+
+                        "estatus",
+
+                        "estado",
+
+                        "status",
+
+                        "estado_ticket",
+
+                        "estadoTicket"
+
+                    ]
+                )
+            );
+
+        }
+
+
+        /* =====================================================
+           IDENTIFICAR ESTADOS CERRADOS
+        ===================================================== */
+
+        function esTicketCerrado(
+            ticket
+        ) {
+
+            const estado =
+                obtenerEstatus(
+                    ticket
+                );
+
+
+            return (
+
+                estado === "cerrado" ||
+
+                estado === "resuelto" ||
+
+                estado === "solucionado" ||
+
+                estado === "finalizado" ||
+
+                estado === "completado" ||
+
+                estado === "completado"
+
+            );
+
+        }
+
+
+        /* =====================================================
+           IDENTIFICAR TÉCNICO
         ===================================================== */
 
         function ticketPerteneceTecnico(
             ticket
         ) {
 
-
             if (
-                !currentUser ||
                 !technicianData
             ) {
 
@@ -876,25 +789,26 @@ document.addEventListener(
             }
 
 
-            /* =================================================
-               DATOS DEL USUARIO
-            ================================================= */
-
-
             const uid =
                 normalizar(
-                    currentUser.uid
+                    currentUser?.uid
                 );
 
 
             const email =
                 normalizar(
-                    currentUser.email
+                    currentUser?.email
                 );
 
 
+            /*
+             * ===============================================
+             * DATOS DEL TÉCNICO
+             * ===============================================
+             */
+
             const tecnicoId =
-                extraerValor(
+                normalizar(
                     obtenerCampo(
                         technicianData,
                         [
@@ -943,42 +857,55 @@ document.addEventListener(
 
                             "displayName",
 
-                            "usuario",
-
-                            "nombreTecnico"
+                            "usuario"
 
                         ]
                     )
                 );
 
 
-            /* =================================================
-               DATOS DEL ROL
-            ================================================= */
+            /*
+             * ===============================================
+             * ROL DEL TÉCNICO
+             * ===============================================
+             */
+
+            const rol =
+                normalizar(
+                    obtenerCampo(
+                        technicianData,
+                        [
+
+                            "rol",
+
+                            "rol_nombre",
+
+                            "rolNombre",
+
+                            "role",
+
+                            "roleName"
+
+                        ]
+                    )
+                );
 
 
-            const rolId =
-                obtenerRolIdTecnico();
-
-
-            const rolNombre =
-                obtenerRolNombreTecnico();
-
-
-            /* =================================================
-               DATOS DEL TICKET
-            ================================================= */
-
+            /*
+             * ===============================================
+             * ASIGNACIÓN DEL TICKET
+             * ===============================================
+             */
 
             const asignadoId =
-                extraerValor(
+                normalizar(
                     obtenerCampo(
                         ticket,
                         [
 
-                            "tecnico_id",
-
                             "tecnicoId",
+
+                            "tecnico_id",
 
                             "usuarioTecnicoId",
 
@@ -1005,15 +932,13 @@ document.addEventListener(
 
                             "tecnicoCorreo",
 
-                            "tecnico_correo",
-
                             "tecnico_email",
 
-                            "tecnicoEmail",
+                            "tecnicoCorreoElectronico",
 
                             "asignadoCorreo",
 
-                            "asignado_correo",
+                            "asignado_email",
 
                             "assignedEmail",
 
@@ -1021,7 +946,7 @@ document.addEventListener(
 
                         ]
                     )
-            );
+                );
 
 
             const asignadoNombre =
@@ -1032,17 +957,17 @@ document.addEventListener(
 
                             "tecnico",
 
-                            "tecnico_nombre",
-
                             "tecnicoNombre",
+
+                            "tecnico_nombre",
 
                             "nombreTecnico",
 
                             "nombre_tecnico",
 
-                            "asignado",
-
                             "asignadoA",
+
+                            "asignado",
 
                             "assignedName",
 
@@ -1050,30 +975,14 @@ document.addEventListener(
 
                         ]
                     )
-            );
-
-
-            /* =================================================
-               NORMALIZAR ÁREAS
-            ================================================= */
-
-
-            const areaTicket =
-                normalizarArea(
-                    asignadoNombre
                 );
 
 
-            const areaTecnico =
-                normalizarArea(
-                    rolNombre
-                );
-
-
-            /* =================================================
-               DEBUG
-            ================================================= */
-
+            /*
+             * ===============================================
+             * LOG DE DIAGNÓSTICO
+             * ===============================================
+             */
 
             console.log(
                 "--------------------------------------------"
@@ -1082,8 +991,14 @@ document.addEventListener(
 
             console.log(
                 "Ticket:",
-                ticket.folio ||
-                ticket.id
+                obtenerCampo(
+                    ticket,
+                    [
+                        "folio",
+                        "numero",
+                        "ticket"
+                    ]
+                ) || ticket.id
             );
 
 
@@ -1091,19 +1006,23 @@ document.addEventListener(
                 "Técnico actual:",
                 {
 
-                    uid,
+                    uid:
+                        uid,
 
-                    email,
+                    email:
+                        email,
 
-                    tecnicoId,
+                    tecnicoId:
+                        tecnicoId,
 
-                    tecnicoCorreo,
+                    tecnicoCorreo:
+                        tecnicoCorreo,
 
-                    tecnicoNombre,
+                    tecnicoNombre:
+                        tecnicoNombre,
 
-                    rolId,
-
-                    rolNombre
+                    rol:
+                        rol
 
                 }
             );
@@ -1113,223 +1032,231 @@ document.addEventListener(
                 "Asignación del ticket:",
                 {
 
-                    asignadoId,
+                    asignadoId:
+                        asignadoId,
 
-                    asignadoCorreo,
+                    asignadoCorreo:
+                        asignadoCorreo,
 
-                    asignadoNombre,
-
-                    areaTicket
+                    asignadoNombre:
+                        asignadoNombre
 
                 }
             );
 
 
-            /* =================================================
-               1. UID
-            ================================================= */
-
+            /*
+             * ===============================================
+             * 1. UID
+             * ===============================================
+             */
 
             if (
                 uid &&
-                asignadoId &&
                 asignadoId === uid
             ) {
 
-
                 console.log(
-                    "✓ MATCH: UID del técnico"
+                    "✓ Ticket pertenece al técnico por UID."
                 );
-
 
                 return true;
 
             }
 
 
-            /* =================================================
-               2. ID DEL TÉCNICO
-            ================================================= */
+            /*
+             * ===============================================
+             * 2. CORREO
+             * ===============================================
+             */
 
+            if (
+                email &&
+                asignadoCorreo === email
+            ) {
+
+                console.log(
+                    "✓ Ticket pertenece al técnico por correo."
+                );
+
+                return true;
+
+            }
+
+
+            /*
+             * ===============================================
+             * 3. ID DEL USUARIO
+             * ===============================================
+             */
 
             if (
                 tecnicoId &&
-                asignadoId &&
                 asignadoId === tecnicoId
             ) {
 
-
                 console.log(
-                    "✓ MATCH: ID del técnico"
+                    "✓ Ticket pertenece al técnico por tecnicoId."
                 );
-
 
                 return true;
 
             }
 
 
-            /* =================================================
-               3. CORREO
-            ================================================= */
-
-
-            if (
-                email &&
-                asignadoCorreo &&
-                email === asignadoCorreo
-            ) {
-
-
-                console.log(
-                    "✓ MATCH: correo"
-                );
-
-
-                return true;
-
-            }
-
+            /*
+             * ===============================================
+             * 4. CORREO DEL DOCUMENTO USUARIOS
+             * ===============================================
+             */
 
             if (
                 tecnicoCorreo &&
-                asignadoCorreo &&
-                tecnicoCorreo === asignadoCorreo
+                asignadoCorreo === tecnicoCorreo
             ) {
 
-
                 console.log(
-                    "✓ MATCH: correo del usuario"
+                    "✓ Ticket pertenece al técnico por correo del documento."
                 );
-
 
                 return true;
 
             }
 
 
-            /* =================================================
-               4. NOMBRE DEL TÉCNICO
-            ================================================= */
-
+            /*
+             * ===============================================
+             * 5. NOMBRE
+             * ===============================================
+             */
 
             if (
                 tecnicoNombre &&
-                asignadoNombre &&
-                tecnicoNombre === asignadoNombre
+                asignadoNombre === tecnicoNombre
             ) {
 
-
                 console.log(
-                    "✓ MATCH: nombre del técnico"
+                    "✓ Ticket pertenece al técnico por nombre."
                 );
-
 
                 return true;
 
             }
 
 
-            /* =================================================
-               5. NUEVO:
-                  ID DEL ROL / ÁREA
-            ================================================= */
-
-
-            if (
-                rolId &&
-                asignadoId &&
-                rolId === asignadoId
-            ) {
-
-
-                console.log(
-                    "✓ MATCH: ID del rol/área",
-                    {
-                        rolId,
-                        asignadoId
-                    }
-                );
-
-
-                return true;
-
-            }
-
-
-            /* =================================================
-               6. NUEVO:
-                  NOMBRE DEL ROL / ÁREA
-            ================================================= */
-
+            /*
+             * ===============================================
+             * 6. TECNICO = UID
+             * ===============================================
+             */
 
             if (
-                areaTecnico &&
-                areaTicket &&
-                areaTecnico === areaTicket
-            ) {
-
-
-                console.log(
-                    "✓ MATCH: nombre del rol/área",
-                    {
-                        areaTecnico,
-                        areaTicket
-                    }
-                );
-
-
-                return true;
-
-            }
-
-
-            /* =================================================
-               7. TICKET CON UID EN TECNICO
-            ================================================= */
-
-
-            if (
-                uid &&
                 asignadoNombre === uid
             ) {
 
-
                 console.log(
-                    "✓ MATCH: UID dentro de tecnico"
+                    "✓ Ticket pertenece al técnico: tecnico contiene UID."
                 );
-
 
                 return true;
 
             }
 
 
-            /* =================================================
-               8. TICKET CON CORREO EN TECNICO
-            ================================================= */
+            /*
+             * ===============================================
+             * 7. SOPORTE / SUPPORT
+             * ===============================================
+
+             * En la estructura actual de Newsroom Portal
+             * Firestore está guardando:
+             *
+             * tecnico: "Support"
+             * tecnicoId: "2"
+             *
+             * Mientras el usuario tiene:
+             *
+             * rol_nombre: "Soporte"
+             *
+             * Por lo tanto se reconoce la equivalencia.
+             */
+
+            const esRolSoporte =
+                (
+
+                    rol === "soporte" ||
+
+                    rol === "support" ||
+
+                    rol === "tecnico" ||
+
+                    rol === "technical support"
+
+                );
+
+
+            const ticketEsSoporte =
+                (
+
+                    asignadoNombre === "soporte" ||
+
+                    asignadoNombre === "support" ||
+
+                    asignadoNombre === "technical support"
+
+                );
 
 
             if (
-                email &&
-                asignadoNombre === email
+                esRolSoporte &&
+                ticketEsSoporte
             ) {
 
-
                 console.log(
-                    "✓ MATCH: correo dentro de tecnico"
+                    "✓ Ticket pertenece al área de Soporte."
                 );
-
 
                 return true;
 
             }
 
 
-            /* =================================================
-               NO COINCIDE
-            ================================================= */
+            /*
+             * ===============================================
+             * 8. ID LEGACY DEL ÁREA DE SOPORTE
+             * ===============================================
+             *
+             * En los tickets actuales aparece:
+             *
+             * tecnicoId: "2"
+             *
+             * y:
+             *
+             * tecnico: "Support"
+             *
+             * El usuario autenticado pertenece a Soporte.
+             */
 
+            if (
+                esRolSoporte &&
+                asignadoId === "2"
+            ) {
+
+                console.log(
+                    "✓ Ticket pertenece a Soporte por ID legacy 2."
+                );
+
+                return true;
+
+            }
+
+
+            /*
+             * ===============================================
+             * NO PERTENECE
+             * ===============================================
+             */
 
             console.warn(
                 "✗ Ticket NO pertenece al técnico actual."
@@ -1347,9 +1274,7 @@ document.addEventListener(
 
         async function cargarTickets() {
 
-
             try {
-
 
                 console.log(
                     "============================================"
@@ -1379,7 +1304,6 @@ document.addEventListener(
                 snapshot.forEach(
                     function (doc) {
 
-
                         const data =
                             doc.data();
 
@@ -1406,14 +1330,11 @@ document.addEventListener(
                             )
                         ) {
 
-
                             tickets.push(
                                 ticket
                             );
 
-
                         }
-
 
                     }
                 );
@@ -1452,7 +1373,6 @@ document.addEventListener(
 
             } catch (error) {
 
-
                 console.error(
                     "Error obteniendo tickets:",
                     error
@@ -1463,141 +1383,35 @@ document.addEventListener(
                     "No fue posible cargar los tickets del técnico."
                 );
 
-
             }
 
         }
 
 
         /* =====================================================
-           ESTATUS
+           PROCESAR DASHBOARD
         ===================================================== */
 
-        function obtenerEstatus(
-            ticket
-        ) {
+        function procesarDashboard() {
 
+            actualizarKPIs();
 
-            return normalizar(
-                obtenerCampo(
-                    ticket,
-                    [
+            generarGraficaDiaria();
 
-                        "estatus",
+            generarGraficaCategorias();
 
-                        "estado",
+            generarAlertas();
 
-                        "status",
-
-                        "estadoTicket",
-
-                        "estado_ticket"
-
-                    ]
-                )
-            );
+            generarResumen();
 
         }
 
 
         /* =====================================================
-           TICKET ATENDIDO
-        ===================================================== */
-
-        function esTicketAtendido(
-            ticket
-        ) {
-
-
-            const estado =
-                obtenerEstatus(
-                    ticket
-                );
-
-
-            return (
-
-                estado === "resuelto" ||
-
-                estado === "cerrado" ||
-
-                estado === "finalizado" ||
-
-                estado === "completado"
-
-            );
-
-        }
-
-
-        /* =====================================================
-           EN PROCESO
-        ===================================================== */
-
-        function esTicketEnProceso(
-            ticket
-        ) {
-
-
-            const estado =
-                obtenerEstatus(
-                    ticket
-                );
-
-
-            return (
-
-                estado === "en proceso" ||
-
-                estado === "en_proceso" ||
-
-                estado === "en-proceso" ||
-
-                estado === "proceso" ||
-
-                estado === "trabajando"
-
-            );
-
-        }
-
-
-        /* =====================================================
-           PENDIENTE
-        ===================================================== */
-
-        function esTicketPendiente(
-            ticket
-        ) {
-
-
-            const estado =
-                obtenerEstatus(
-                    ticket
-                );
-
-
-            return (
-
-                estado === "pendiente" ||
-
-                estado === "registrado" ||
-
-                estado === "abierto" ||
-
-                estado === "nuevo"
-
-            );
-
-        }
-
-
-        /* =====================================================
-           ACTUALIZAR KPIs
+           KPIs
         ===================================================== */
 
         function actualizarKPIs() {
-
 
             const total =
                 tickets.length;
@@ -1607,8 +1421,24 @@ document.addEventListener(
                 tickets.filter(
                     function (ticket) {
 
-                        return esTicketEnProceso(
-                            ticket
+                        const estado =
+                            obtenerEstatus(
+                                ticket
+                            );
+
+
+                        return (
+
+                            estado === "en proceso" ||
+
+                            estado === "en_proceso" ||
+
+                            estado === "en-proceso" ||
+
+                            estado === "proceso" ||
+
+                            estado === "trabajando"
+
                         );
 
                     }
@@ -1619,8 +1449,24 @@ document.addEventListener(
                 tickets.filter(
                     function (ticket) {
 
-                        return esTicketPendiente(
-                            ticket
+                        const estado =
+                            obtenerEstatus(
+                                ticket
+                            );
+
+
+                        return (
+
+                            estado === "pendiente" ||
+
+                            estado === "registrado" ||
+
+                            estado === "abierto" ||
+
+                            estado === "nuevo" ||
+
+                            estado === "por atender"
+
                         );
 
                     }
@@ -1656,9 +1502,7 @@ document.addEventListener(
                 );
 
 
-            if (
-                totalElemento
-            ) {
+            if (totalElemento) {
 
                 totalElemento.textContent =
                     total;
@@ -1666,9 +1510,7 @@ document.addEventListener(
             }
 
 
-            if (
-                procesoElemento
-            ) {
+            if (procesoElemento) {
 
                 procesoElemento.textContent =
                     proceso;
@@ -1676,9 +1518,7 @@ document.addEventListener(
             }
 
 
-            if (
-                pendientesElemento
-            ) {
+            if (pendientesElemento) {
 
                 pendientesElemento.textContent =
                     pendientes;
@@ -1686,9 +1526,7 @@ document.addEventListener(
             }
 
 
-            if (
-                alertadosElemento
-            ) {
+            if (alertadosElemento) {
 
                 alertadosElemento.textContent =
                     alertados;
@@ -1700,13 +1538,20 @@ document.addEventListener(
                 "KPIs:",
                 {
 
-                    total,
+                    total:
+                        total,
 
-                    proceso,
+                    atendidos:
+                        total,
 
-                    pendientes,
+                    proceso:
+                        proceso,
 
-                    alertados
+                    pendientes:
+                        pendientes,
+
+                    alertados:
+                        alertados
 
                 }
             );
@@ -1715,11 +1560,10 @@ document.addEventListener(
 
 
         /* =====================================================
-           GRÁFICA DIARIA
+           GRÁFICA TICKETS POR DÍA
         ===================================================== */
 
         function generarGraficaDiaria() {
-
 
             const añoActual =
                 new Date()
@@ -1730,12 +1574,18 @@ document.addEventListener(
 
             const valores = [];
 
+
             const mapa = {};
 
 
+            /*
+             * ===============================================
+             * CONTAR TICKETS POR FECHA LOCAL
+             * ===============================================
+             */
+
             tickets.forEach(
                 function (ticket) {
-
 
                     const fecha =
                         obtenerFechaTicket(
@@ -1743,8 +1593,25 @@ document.addEventListener(
                         );
 
 
+                    if (!fecha) {
+
+                        console.warn(
+                            "Ticket sin fecha de creación:",
+                            ticket.id,
+                            ticket
+                        );
+
+                        return;
+
+                    }
+
+
+                    const año =
+                        fecha.getFullYear();
+
+
                     if (
-                        !fecha
+                        año !== añoActual
                     ) {
 
                         return;
@@ -1752,32 +1619,37 @@ document.addEventListener(
                     }
 
 
-                    if (
-                        fecha.getFullYear() !==
-                        añoActual
-                    ) {
-
-                        return;
-
-                    }
-
+                    /*
+                     * IMPORTANTE:
+                     *
+                     * Se utiliza fecha LOCAL.
+                     *
+                     * NO:
+                     *
+                     * fecha.toISOString()
+                     */
 
                     const clave =
-                        obtenerClaveFecha(
+                        obtenerClaveFechaLocal(
                             fecha
                         );
 
 
                     mapa[clave] =
                         (
-                            mapa[clave] ||
-                            0
+                            mapa[clave] || 0
                         ) + 1;
-
 
                 }
             );
 
+
+            /*
+             * ===============================================
+             * GENERAR DÍAS DESDE 1 DE ENERO
+             * HASTA HOY
+             * ===============================================
+             */
 
             const inicio =
                 new Date(
@@ -1791,20 +1663,35 @@ document.addEventListener(
                 new Date();
 
 
+            /*
+             * Eliminar horas para evitar
+             * problemas durante el recorrido.
+             */
+
+            hoy.setHours(
+                23,
+                59,
+                59,
+                999
+            );
+
+
             for (
                 let fecha =
-                    new Date(inicio);
+                    new Date(
+                        inicio
+                    );
 
                 fecha <= hoy;
 
                 fecha.setDate(
                     fecha.getDate() + 1
                 )
+
             ) {
 
-
                 const clave =
-                    obtenerClaveFecha(
+                    obtenerClaveFechaLocal(
                         fecha
                     );
 
@@ -1826,11 +1713,32 @@ document.addEventListener(
 
 
                 valores.push(
-                    mapa[clave] ||
-                    0
+                    mapa[clave] || 0
                 );
 
             }
+
+
+            /*
+             * ===============================================
+             * DIAGNÓSTICO
+             * ===============================================
+             */
+
+            console.log(
+                "Datos gráfica diaria:",
+                mapa
+            );
+
+
+            console.log(
+                "Tickets registrados hoy:",
+                mapa[
+                    obtenerClaveFechaLocal(
+                        new Date()
+                    )
+                ] || 0
+            );
 
 
             const canvas =
@@ -1839,19 +1747,18 @@ document.addEventListener(
                 );
 
 
-            if (
-                !canvas ||
-                typeof Chart === "undefined"
-            ) {
+            if (!canvas) {
+
+                console.warn(
+                    "No existe ticketsDailyChart."
+                );
 
                 return;
 
             }
 
 
-            if (
-                dailyChart
-            ) {
+            if (dailyChart) {
 
                 dailyChart.destroy();
 
@@ -1867,39 +1774,47 @@ document.addEventListener(
                             "line",
 
 
-                        data:
-                        {
+                        data: {
 
-                            labels,
+                            labels:
+                                labels,
 
-                            datasets:
-                            [
+
+                            datasets: [
 
                                 {
 
                                     label:
                                         "Tickets",
 
+
                                     data:
                                         valores,
+
 
                                     borderColor:
                                         "#c8102e",
 
+
                                     backgroundColor:
                                         "rgba(200,16,46,.10)",
+
 
                                     borderWidth:
                                         2,
 
+
                                     pointRadius:
-                                        2,
+                                        3,
+
 
                                     pointHoverRadius:
-                                        5,
+                                        6,
+
 
                                     fill:
                                         true,
+
 
                                     tension:
                                         .35
@@ -1911,20 +1826,21 @@ document.addEventListener(
                         },
 
 
-                        options:
-                        {
+                        options: {
 
                             responsive:
                                 true,
 
+
                             maintainAspectRatio:
                                 false,
 
-                            interaction:
-                            {
+
+                            interaction: {
 
                                 intersect:
                                     false,
+
 
                                 mode:
                                     "index"
@@ -1932,11 +1848,9 @@ document.addEventListener(
                             },
 
 
-                            plugins:
-                            {
+                            plugins: {
 
-                                legend:
-                                {
+                                legend: {
 
                                     display:
                                         false
@@ -1946,28 +1860,25 @@ document.addEventListener(
                             },
 
 
-                            scales:
-                            {
+                            scales: {
 
-                                x:
-                                {
+                                x: {
 
-                                    grid:
-                                    {
+                                    grid: {
 
                                         display:
                                             false
 
                                     },
 
-                                    ticks:
-                                    {
+
+                                    ticks: {
 
                                         maxTicksLimit:
                                             12,
 
-                                        font:
-                                        {
+
+                                        font: {
 
                                             size:
                                                 10
@@ -1979,20 +1890,19 @@ document.addEventListener(
                                 },
 
 
-                                y:
-                                {
+                                y: {
 
                                     beginAtZero:
                                         true,
 
-                                    ticks:
-                                    {
+
+                                    ticks: {
 
                                         precision:
                                             0,
 
-                                        font:
-                                        {
+
+                                        font: {
 
                                             size:
                                                 10
@@ -2014,57 +1924,12 @@ document.addEventListener(
 
 
         /* =====================================================
-           CLAVE FECHA
-        ===================================================== */
-
-        function obtenerClaveFecha(
-            fecha
-        ) {
-
-
-            const año =
-                fecha.getFullYear();
-
-
-            const mes =
-                String(
-                    fecha.getMonth() + 1
-                )
-                .padStart(
-                    2,
-                    "0"
-                );
-
-
-            const dia =
-                String(
-                    fecha.getDate()
-                )
-                .padStart(
-                    2,
-                    "0"
-                );
-
-
-            return (
-                año +
-                "-" +
-                mes +
-                "-" +
-                dia
-            );
-
-        }
-
-
-        /* =====================================================
            CATEGORÍA
         ===================================================== */
 
         function obtenerCategoria(
             ticket
         ) {
-
 
             return (
 
@@ -2077,6 +1942,8 @@ document.addEventListener(
                         "categoría",
 
                         "categoria_id",
+
+                        "categoriaId",
 
                         "tipo",
 
@@ -2104,19 +1971,15 @@ document.addEventListener(
 
         function generarGraficaCategorias() {
 
-
             const contador = {};
 
 
             tickets.forEach(
                 function (ticket) {
 
-
                     const categoria =
-                        String(
-                            obtenerCategoria(
-                                ticket
-                            )
+                        obtenerCategoria(
+                            ticket
                         );
 
 
@@ -2126,12 +1989,11 @@ document.addEventListener(
                             0
                         ) + 1;
 
-
                 }
             );
 
 
-            let categorias =
+            const categorias =
                 Object.keys(
                     contador
                 )
@@ -2139,8 +2001,10 @@ document.addEventListener(
                     function (a, b) {
 
                         return (
+
                             contador[b] -
                             contador[a]
+
                         );
 
                     }
@@ -2151,7 +2015,7 @@ document.addEventListener(
                 );
 
 
-            let valores =
+            const valores =
                 categorias.map(
                     function (categoria) {
 
@@ -2169,19 +2033,14 @@ document.addEventListener(
                 );
 
 
-            if (
-                !canvas ||
-                typeof Chart === "undefined"
-            ) {
+            if (!canvas) {
 
                 return;
 
             }
 
 
-            if (
-                categoriesChart
-            ) {
+            if (categoriesChart) {
 
                 categoriesChart.destroy();
 
@@ -2192,15 +2051,13 @@ document.addEventListener(
                 categorias.length === 0
             ) {
 
-
-                categorias = [
+                categorias.push(
                     "Sin datos"
-                ];
+                );
 
-
-                valores = [
+                valores.push(
                     1
-                ];
+                );
 
             }
 
@@ -2214,15 +2071,13 @@ document.addEventListener(
                             "doughnut",
 
 
-                        data:
-                        {
+                        data: {
 
                             labels:
                                 categorias,
 
 
-                            datasets:
-                            [
+                            datasets: [
 
                                 {
 
@@ -2230,8 +2085,7 @@ document.addEventListener(
                                         valores,
 
 
-                                    backgroundColor:
-                                    [
+                                    backgroundColor: [
 
                                         "#c8102e",
 
@@ -2262,23 +2116,23 @@ document.addEventListener(
                         },
 
 
-                        options:
-                        {
+                        options: {
 
                             responsive:
                                 true,
 
+
                             maintainAspectRatio:
                                 false,
+
 
                             cutout:
                                 "65%",
 
-                            plugins:
-                            {
 
-                                legend:
-                                {
+                            plugins: {
+
+                                legend: {
 
                                     display:
                                         false
@@ -2310,24 +2164,20 @@ document.addEventListener(
             valores
         ) {
 
-
             const container =
                 document.getElementById(
                     "categoryLegend"
                 );
 
 
-            if (
-                !container
-            ) {
+            if (!container) {
 
                 return;
 
             }
 
 
-            const colores =
-            [
+            const colores = [
 
                 "#c8102e",
 
@@ -2353,7 +2203,6 @@ document.addEventListener(
                     index
                 ) {
 
-
                     html += `
 
                         <div class="legend-item">
@@ -2364,7 +2213,7 @@ document.addEventListener(
                                     class="legend-dot"
                                     style="
                                         background:
-                                        ${colores[index] || "#54565a"};
+                                        ${colores[index] || "#999999"};
                                     "
                                 ></span>
 
@@ -2402,7 +2251,6 @@ document.addEventListener(
 
         function obtenerTicketsAlertados() {
 
-
             const ahora =
                 new Date();
 
@@ -2423,18 +2271,29 @@ document.addEventListener(
                 .filter(
                     function (ticket) {
 
-
                         const estado =
                             obtenerEstatus(
                                 ticket
                             );
 
 
+                        /*
+                         * Cerrados / resueltos /
+                         * completados no requieren
+                         * seguimiento.
+                         */
+
                         if (
                             estado === "resuelto" ||
+
                             estado === "cerrado" ||
+
                             estado === "cancelado" ||
+
+                            estado === "solucionado" ||
+
                             estado === "finalizado" ||
+
                             estado === "completado"
                         ) {
 
@@ -2443,14 +2302,31 @@ document.addEventListener(
                         }
 
 
+                        /*
+                         * Utilizamos primero
+                         * fecha de creación.
+                         */
+
                         const fecha =
                             obtenerFechaTicket(
                                 ticket
                             );
 
 
+                        /*
+                         * Si no existe fecha de creación,
+                         * usamos actualización.
+                         */
+
+                        const fechaSeguimiento =
+                            fecha ||
+                            obtenerFechaActualizacion(
+                                ticket
+                            );
+
+
                         if (
-                            !fecha
+                            !fechaSeguimiento
                         ) {
 
                             return true;
@@ -2459,25 +2335,29 @@ document.addEventListener(
 
 
                         return (
-                            fecha <=
+                            fechaSeguimiento <=
                             limite
                         );
-
 
                     }
                 )
                 .sort(
                     function (a, b) {
 
-
                         const fechaA =
                             obtenerFechaTicket(
+                                a
+                            ) ||
+                            obtenerFechaActualizacion(
                                 a
                             );
 
 
                         const fechaB =
                             obtenerFechaTicket(
+                                b
+                            ) ||
+                            obtenerFechaActualizacion(
                                 b
                             );
 
@@ -2492,18 +2372,14 @@ document.addEventListener(
                         }
 
 
-                        if (
-                            !fechaA
-                        ) {
+                        if (!fechaA) {
 
                             return 1;
 
                         }
 
 
-                        if (
-                            !fechaB
-                        ) {
+                        if (!fechaB) {
 
                             return -1;
 
@@ -2522,11 +2398,10 @@ document.addEventListener(
 
 
         /* =====================================================
-           ALERTAS
+           MOSTRAR ALERTAS
         ===================================================== */
 
         function generarAlertas() {
-
 
             const alertas =
                 obtenerTicketsAlertados();
@@ -2544,9 +2419,7 @@ document.addEventListener(
                 );
 
 
-            if (
-                counter
-            ) {
+            if (counter) {
 
                 counter.textContent =
                     alertas.length;
@@ -2554,9 +2427,7 @@ document.addEventListener(
             }
 
 
-            if (
-                !container
-            ) {
+            if (!container) {
 
                 return;
 
@@ -2566,7 +2437,6 @@ document.addEventListener(
             if (
                 alertas.length === 0
             ) {
-
 
                 container.innerHTML = `
 
@@ -2587,7 +2457,6 @@ document.addEventListener(
 
                 `;
 
-
                 return;
 
             }
@@ -2603,7 +2472,6 @@ document.addEventListener(
                 )
                 .forEach(
                     function (ticket) {
-
 
                         const folio =
                             obtenerCampo(
@@ -2664,12 +2532,20 @@ document.addEventListener(
                         const fecha =
                             obtenerFechaTicket(
                                 ticket
+                            ) ||
+                            obtenerFechaActualizacion(
+                                ticket
                             );
 
 
-                        const fechaTexto =
-                            fecha
-                                ? fecha.toLocaleDateString(
+                        let fechaTexto =
+                            "Sin fecha";
+
+
+                        if (fecha) {
+
+                            fechaTexto =
+                                fecha.toLocaleDateString(
                                     "es-MX",
                                     {
 
@@ -2683,8 +2559,9 @@ document.addEventListener(
                                             "numeric"
 
                                     }
-                                )
-                                : "Sin fecha";
+                                );
+
+                        }
 
 
                         const prioridad =
@@ -2711,10 +2588,13 @@ document.addEventListener(
                                 "critica" ||
 
                             prioridadNormalizada ===
-                                "crítica" ||
+                                "alta" ||
 
                             prioridadNormalizada ===
-                                "alta";
+                                "urgente" ||
+
+                            prioridadNormalizada ===
+                                "critico";
 
 
                         html += `
@@ -2741,7 +2621,6 @@ document.addEventListener(
                                         )}
 
                                     </div>
-
 
                                     <div class="alert-title">
 
@@ -2809,7 +2688,6 @@ document.addEventListener(
 
                         `;
 
-
                     }
                 );
 
@@ -2817,7 +2695,6 @@ document.addEventListener(
             if (
                 alertas.length > 10
             ) {
-
 
                 html += `
 
@@ -2840,7 +2717,6 @@ document.addEventListener(
 
                 `;
 
-
             }
 
 
@@ -2856,16 +2732,13 @@ document.addEventListener(
 
         function generarResumen() {
 
-
             const mensaje =
                 document.getElementById(
                     "performanceMessage"
                 );
 
 
-            if (
-                !mensaje
-            ) {
+            if (!mensaje) {
 
                 return;
 
@@ -2876,10 +2749,8 @@ document.addEventListener(
                 tickets.length === 0
             ) {
 
-
                 mensaje.textContent =
                     "Todavía no tienes tickets registrados.";
-
 
                 return;
 
@@ -2894,7 +2765,6 @@ document.addEventListener(
             const ticketsEsteAño =
                 tickets.filter(
                     function (ticket) {
-
 
                         const fecha =
                             obtenerFechaTicket(
@@ -2911,19 +2781,6 @@ document.addEventListener(
 
                         );
 
-
-                    }
-                ).length;
-
-
-            const ticketsCerrados =
-                tickets.filter(
-                    function (ticket) {
-
-                        return esTicketAtendido(
-                            ticket
-                        );
-
                     }
                 ).length;
 
@@ -2937,8 +2794,7 @@ document.addEventListener(
 
 
             mensaje.textContent =
-                `Has atendido ${ticketsCerrados} tickets cerrados o resueltos durante ${añoActual}, de ${ticketsEsteAño} tickets registrados este año, con un promedio de ${promedio.toFixed(1)} tickets por día.`;
-
+                `Has atendido ${ticketsEsteAño} tickets durante ${añoActual}, con un promedio de ${promedio.toFixed(1)} tickets por día.`;
 
         }
 
@@ -2949,17 +2805,16 @@ document.addEventListener(
 
         function obtenerDiasTranscurridos() {
 
+            const ahora =
+                new Date();
+
 
             const inicio =
                 new Date(
-                    new Date().getFullYear(),
+                    ahora.getFullYear(),
                     0,
                     1
                 );
-
-
-            const ahora =
-                new Date();
 
 
             const diferencia =
@@ -2992,26 +2847,28 @@ document.addEventListener(
             valor
         ) {
 
+            return String(valor)
 
-            return String(
-                valor
-            )
                 .replace(
                     /&/g,
                     "&amp;"
                 )
+
                 .replace(
                     /</g,
                     "&lt;"
                 )
+
                 .replace(
                     />/g,
                     "&gt;"
                 )
+
                 .replace(
                     /"/g,
                     "&quot;"
                 )
+
                 .replace(
                     /'/g,
                     "&#039;"
@@ -3028,92 +2885,64 @@ document.addEventListener(
             mensaje
         ) {
 
-
             const container =
                 document.getElementById(
                     "alertsContainer"
                 );
 
 
-            if (
-                container
-            ) {
+            if (!container) {
 
-
-                container.innerHTML = `
-
-                    <div class="no-alerts">
-
-                        <i
-                            class="
-                                fa-solid
-                                fa-triangle-exclamation
-                            "
-                            style="
-                                color:#c8102e;
-                            "
-                        ></i>
-
-                        <strong>
-                            No se pudo cargar el dashboard
-                        </strong>
-
-                        <span>
-                            ${escapeHtml(
-                                mensaje
-                            )}
-                        </span>
-
-                    </div>
-
-                `;
+                return;
 
             }
 
+
+            container.innerHTML = `
+
+                <div class="no-alerts">
+
+                    <i
+                        class="
+                            fa-solid
+                            fa-triangle-exclamation
+                        "
+                        style="
+                            color:#c8102e;
+                        "
+                    ></i>
+
+                    <strong>
+                        No se pudo cargar el dashboard
+                    </strong>
+
+                    <span>
+                        ${escapeHtml(
+                            mensaje
+                        )}
+                    </span>
+
+                </div>
+
+            `;
+
         }
 
 
         /* =====================================================
-           PROCESAR DASHBOARD
-        ===================================================== */
-
-        function procesarDashboard() {
-
-
-            actualizarKPIs();
-
-
-            generarGraficaDiaria();
-
-
-            generarGraficaCategorias();
-
-
-            generarAlertas();
-
-
-            generarResumen();
-
-
-        }
-
-
-        /* =====================================================
-           INICIAR
+           INICIALIZACIÓN
         ===================================================== */
 
         async function iniciar() {
-
 
             console.log(
                 "Newsroom Portal: iniciando Dashboard Técnico..."
             );
 
 
-            /* ---------------------------------------------
-               FIREBASE
-            --------------------------------------------- */
-
+            /*
+             * Firebase
+             */
 
             if (
                 !iniciarFirebase()
@@ -3124,19 +2953,15 @@ document.addEventListener(
             }
 
 
-            /* ---------------------------------------------
-               AUTH
-            --------------------------------------------- */
-
+            /*
+             * Usuario autenticado
+             */
 
             currentUser =
                 await esperarUsuario();
 
 
-            if (
-                !currentUser
-            ) {
-
+            if (!currentUser) {
 
                 console.warn(
                     "No hay usuario autenticado."
@@ -3166,10 +2991,9 @@ document.addEventListener(
             );
 
 
-            /* ---------------------------------------------
-               TÉCNICO
-            --------------------------------------------- */
-
+            /*
+             * Datos del técnico
+             */
 
             technicianData =
                 await cargarTecnico();
@@ -3181,43 +3005,27 @@ document.addEventListener(
             );
 
 
-            console.log(
-                "Rol ID detectado:",
-                obtenerRolIdTecnico()
-            );
-
-
-            console.log(
-                "Rol nombre detectado:",
-                obtenerRolNombreTecnico()
-            );
-
-
-            /* ---------------------------------------------
-               TOPBAR
-            --------------------------------------------- */
-
+            /*
+             * Actualizar interfaz
+             */
 
             actualizarUsuario();
 
 
-            /* ---------------------------------------------
-               TICKETS
-            --------------------------------------------- */
-
+            /*
+             * Cargar tickets
+             */
 
             await cargarTickets();
-
 
         }
 
 
         /* =====================================================
-           ARRANCAR
+           EJECUTAR
         ===================================================== */
 
         iniciar();
-
 
     }
 

@@ -1,20 +1,122 @@
 /* =========================================================
    NEWSROOM PORTAL
-   DASHBOARD ADMINISTRATIVO DE TICKETS
+   DASHBOARD TÉCNICO
+   ESTILOS DEL MÓDULO
 ========================================================= */
 
 
 /* =========================================================
-   DASHBOARD ACTIONS
+   HEADER TÉCNICO
 ========================================================= */
 
-.dashboard-actions {
+.technician-header {
+
+    background: #ffffff;
+
+    color: #374151;
+
+    border-radius: 20px;
+
+    padding: 28px 32px;
+
+    margin-bottom: 24px;
 
     display: flex;
 
     align-items: center;
 
-    gap: 10px;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border: 1px solid #e5e7eb;
+
+    box-shadow:
+        0 6px 20px rgba(15, 23, 42, .05);
+
+}
+
+
+/* =========================================================
+   ETIQUETA
+========================================================= */
+
+.technician-label {
+
+    display: block;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    color: #6b7280;
+
+    opacity: 1;
+
+}
+
+
+/* =========================================================
+   TÍTULO
+========================================================= */
+
+.technician-header h1 {
+
+    margin: 7px 0 6px;
+
+    font-size: 28px;
+
+    font-weight: 800;
+
+    color: #374151;
+
+}
+
+
+/* =========================================================
+   DESCRIPCIÓN
+========================================================= */
+
+.technician-header p {
+
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #6b7280;
+
+    opacity: 1;
+
+}
+
+
+/* =========================================================
+   ICONO DEL HEADER
+========================================================= */
+
+.technician-header-icon {
+
+    width: 70px;
+
+    height: 70px;
+
+    border-radius: 18px;
+
+    background: #f3f4f6;
+
+    color: #4b5563;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 30px;
+
+    flex-shrink: 0;
 
 }
 
@@ -23,7 +125,7 @@
    KPI GRID
 ========================================================= */
 
-.dashboard-kpi-grid {
+.stats-grid {
 
     display: grid;
 
@@ -41,9 +143,15 @@
    KPI CARD
 ========================================================= */
 
-.dashboard-kpi-card {
+.stat-card {
 
-    position: relative;
+    background: #ffffff;
+
+    border: 1px solid #edf0f4;
+
+    border-radius: 18px;
+
+    padding: 20px;
 
     display: flex;
 
@@ -51,20 +159,8 @@
 
     gap: 15px;
 
-    min-height: 105px;
-
-    padding: 20px;
-
-    background: #ffffff;
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 18px;
-
     box-shadow:
-        0 6px 20px rgba(15, 23, 42, .05);
-
-    overflow: hidden;
+        0 5px 18px rgba(0, 0, 0, .05);
 
     transition:
         transform .2s ease,
@@ -73,34 +169,13 @@
 }
 
 
-.dashboard-kpi-card::after {
+.stat-card:hover {
 
-    content: "";
-
-    position: absolute;
-
-    width: 80px;
-
-    height: 80px;
-
-    right: -25px;
-
-    top: -25px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(200, 16, 46, .05);
-
-}
-
-
-.dashboard-kpi-card:hover {
-
-    transform: translateY(-3px);
+    transform:
+        translateY(-2px);
 
     box-shadow:
-        0 12px 28px rgba(15, 23, 42, .09);
+        0 8px 22px rgba(0, 0, 0, .08);
 
 }
 
@@ -109,13 +184,13 @@
    KPI ICON
 ========================================================= */
 
-.dashboard-kpi-icon {
+.stat-icon {
 
-    width: 52px;
+    width: 50px;
 
-    height: 52px;
+    height: 50px;
 
-    flex-shrink: 0;
+    border-radius: 14px;
 
     display: flex;
 
@@ -123,18 +198,61 @@
 
     justify-content: center;
 
-    border-radius: 15px;
+    font-size: 20px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #c8102e,
-            #a30d26
-        );
+    flex-shrink: 0;
 
-    color: #ffffff;
+}
 
-    font-size: 21px;
+
+/* =========================================================
+   KPI RED
+========================================================= */
+
+.stat-icon.red {
+
+    background: #fee2e2;
+
+    color: #c8102e;
+
+}
+
+
+/* =========================================================
+   KPI ORANGE
+========================================================= */
+
+.stat-icon.orange {
+
+    background: #ffedd5;
+
+    color: #c2410c;
+
+}
+
+
+/* =========================================================
+   KPI YELLOW
+========================================================= */
+
+.stat-icon.yellow {
+
+    background: #fef3c7;
+
+    color: #92400e;
+
+}
+
+
+/* =========================================================
+   KPI DANGER
+========================================================= */
+
+.stat-icon.danger {
+
+    background: #fee2e2;
+
+    color: #991b1b;
 
 }
 
@@ -143,219 +261,89 @@
    KPI TEXT
 ========================================================= */
 
-.dashboard-kpi-card span {
+.stat-label {
 
     display: block;
 
-    margin-bottom: 7px;
+    font-size: 11px;
 
     color: #6b7280;
 
-    font-size: 12px;
+    font-weight: 600;
 
-    font-weight: 700;
-
-    text-transform: uppercase;
-
-    letter-spacing: .35px;
+    margin-bottom: 5px;
 
 }
 
 
-.dashboard-kpi-card strong {
+.stat-value {
 
     display: block;
 
     color: #1f2937;
 
-    font-size: 30px;
+    font-size: 26px;
+
+    font-weight: 800;
 
     line-height: 1;
 
-    font-weight: 800;
-
 }
 
 
 /* =========================================================
-   FILTER CARD
+   DASHBOARD GRID
 ========================================================= */
 
-.dashboard-filter-card {
-
-    background: #ffffff;
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 18px;
-
-    padding: 20px;
-
-    margin-bottom: 24px;
-
-    box-shadow:
-        0 5px 18px rgba(15, 23, 42, .05);
-
-}
-
-
-/* =========================================================
-   FILTER TITLE
-========================================================= */
-
-.filter-title {
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 9px;
-
-    margin-bottom: 18px;
-
-    color: #374151;
-
-    font-size: 14px;
-
-    font-weight: 800;
-
-}
-
-
-.filter-title i {
-
-    color: #c8102e;
-
-}
-
-
-/* =========================================================
-   FILTER GRID
-========================================================= */
-
-.dashboard-filters {
+.dashboard-grid {
 
     display: grid;
 
     grid-template-columns:
-        repeat(4, minmax(160px, 1fr));
+        minmax(0, 2fr)
+        minmax(320px, 1fr);
 
-    gap: 16px;
+    gap: 20px;
 
-}
-
-
-.filter-group {
-
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 7px;
-
-}
-
-
-.filter-group label {
-
-    color: #4b5563;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-}
-
-
-.filter-group select,
-.filter-group input {
-
-    width: 100%;
-
-    height: 42px;
-
-    padding:
-        0 12px;
-
-    background: #ffffff;
-
-    border:
-        1px solid #d1d5db;
-
-    border-radius: 10px;
-
-    color: #374151;
-
-    font-size: 13px;
-
-    outline: none;
-
-    transition:
-        border-color .2s ease,
-        box-shadow .2s ease;
-
-}
-
-
-.filter-group select:focus,
-.filter-group input:focus {
-
-    border-color: #c8102e;
-
-    box-shadow:
-        0 0 0 3px rgba(200, 16, 46, .10);
-
-}
-
-
-.filter-search {
-
-    grid-column:
-        span 2;
+    margin-bottom: 20px;
 
 }
 
 
 /* =========================================================
-   DASHBOARD COLUMNS
+   DASHBOARD CARDS
 ========================================================= */
 
-.dashboard-columns {
-
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
-    gap: 18px;
-
-    margin-bottom: 24px;
-
-}
-
-
-/* =========================================================
-   PANELS
-========================================================= */
-
-.dashboard-panel {
+.dashboard-card {
 
     background: #ffffff;
 
-    border:
-        1px solid #e5e7eb;
+    border: 1px solid #edf0f4;
 
     border-radius: 18px;
 
-    padding: 20px;
-
     box-shadow:
-        0 5px 18px rgba(15, 23, 42, .05);
+        0 5px 18px rgba(0, 0, 0, .05);
 
 }
 
 
-.dashboard-panel-header {
+/* =========================================================
+   CHART CARD
+========================================================= */
+
+.chart-card {
+
+    padding: 22px;
+
+}
+
+
+/* =========================================================
+   CARD HEADER
+========================================================= */
+
+.card-header {
 
     display: flex;
 
@@ -363,40 +351,237 @@
 
     justify-content: space-between;
 
-    margin-bottom: 18px;
+    gap: 15px;
+
+    margin-bottom: 20px;
 
 }
 
 
-.dashboard-panel-header h3 {
+.card-header h3 {
 
-    margin: 0 0 5px;
+    margin: 0;
 
     color: #1f2937;
 
-    font-size: 15px;
+    font-size: 16px;
 
     font-weight: 800;
 
 }
 
 
-.dashboard-panel-header p {
+.card-header p {
 
-    margin: 0;
+    margin: 5px 0 0;
 
-    color: #9ca3af;
+    color: #6b7280;
 
-    font-size: 12px;
+    font-size: 11px;
 
 }
 
 
 /* =========================================================
-   SUMMARY LIST
+   CARD HEADER ICON
 ========================================================= */
 
-.dashboard-summary-list {
+.card-header-icon {
+
+    width: 40px;
+
+    height: 40px;
+
+    border-radius: 12px;
+
+    background: #fef2f2;
+
+    color: #c8102e;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+/* =========================================================
+   CHART
+========================================================= */
+
+.chart-wrapper {
+
+    position: relative;
+
+    height: 330px;
+
+    width: 100%;
+
+}
+
+
+/* =========================================================
+   DONUT CHART
+========================================================= */
+
+.donut-wrapper {
+
+    position: relative;
+
+    height: 260px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+/* =========================================================
+   CATEGORY LEGEND
+========================================================= */
+
+.category-legend {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-top: 15px;
+
+}
+
+
+.legend-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    font-size: 11px;
+
+    color: #4b5563;
+
+}
+
+
+.legend-name {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+}
+
+
+.legend-dot {
+
+    width: 9px;
+
+    height: 9px;
+
+    border-radius: 50%;
+
+    background: #c8102e;
+
+    flex-shrink: 0;
+
+}
+
+
+.legend-value {
+
+    font-weight: 800;
+
+    color: #1f2937;
+
+}
+
+
+/* =========================================================
+   ALERTAS
+========================================================= */
+
+.alerts-card {
+
+    padding: 22px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.alerts-card .card-header {
+
+    margin-bottom: 15px;
+
+}
+
+
+.alerts-card h3 {
+
+    color: #1f2937;
+
+}
+
+
+.alerts-card h3 i {
+
+    color: #c8102e;
+
+    margin-right: 5px;
+
+}
+
+
+/* =========================================================
+   ALERT COUNTER
+========================================================= */
+
+.alert-counter {
+
+    min-width: 34px;
+
+    height: 34px;
+
+    padding: 0 8px;
+
+    border-radius: 50%;
+
+    background: #fee2e2;
+
+    color: #991b1b;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+}
+
+
+/* =========================================================
+   ALERTS CONTAINER
+========================================================= */
+
+.alerts-container {
 
     display: flex;
 
@@ -407,137 +592,164 @@
 }
 
 
-.dashboard-summary-item {
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 12px;
-
-    padding: 10px 12px;
-
-    background: #f8fafc;
-
-    border-radius: 10px;
-
-}
-
-
-.dashboard-summary-item span {
-
-    color: #4b5563;
-
-    font-size: 12px;
-
-    font-weight: 600;
-
-}
-
-
-.dashboard-summary-item strong {
-
-    color: #1f2937;
-
-    font-size: 13px;
-
-    font-weight: 800;
-
-}
-
-
 /* =========================================================
-   TABLE CARD
+   ALERT ITEM
 ========================================================= */
 
-.dashboard-table-card {
+.alert-item {
+
+    border: 1px solid #edf0f4;
+
+    border-left: 4px solid #c8102e;
+
+    border-radius: 12px;
+
+    padding: 14px 16px;
 
     background: #ffffff;
 
-    border:
-        1px solid #e5e7eb;
-
-    border-radius: 18px;
-
-    box-shadow:
-        0 5px 18px rgba(15, 23, 42, .05);
-
-    overflow: hidden;
-
-}
-
-
-/* =========================================================
-   TABLE HEADER
-========================================================= */
-
-.dashboard-table-header {
-
     display: flex;
 
     align-items: center;
 
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 15px;
 
-    padding: 20px;
-
-    border-bottom:
-        1px solid #edf0f4;
-
-}
-
-
-.dashboard-table-header h3 {
-
-    margin: 0 0 5px;
-
-    color: #1f2937;
-
-    font-size: 17px;
-
-    font-weight: 800;
+    transition:
+        background .2s ease,
+        box-shadow .2s ease;
 
 }
 
 
-.dashboard-table-header p {
+.alert-item:hover {
 
-    margin: 0;
+    background: #fafafa;
 
-    color: #9ca3af;
-
-    font-size: 12px;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, .04);
 
 }
 
 
 /* =========================================================
-   RESULTS COUNTER
+   ALERT WARNING
 ========================================================= */
 
-.results-counter {
+.alert-item.warning {
 
-    display: inline-flex;
+    border-left-color: #f59e0b;
 
-    align-items: center;
+}
 
-    justify-content: center;
 
-    padding: 7px 11px;
+/* =========================================================
+   ALERT INFO
+========================================================= */
 
-    border-radius: 50px;
+.alert-info {
+
+    min-width: 0;
+
+}
+
+
+.alert-ticket {
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    color: #1f2937;
+
+}
+
+
+.alert-title {
+
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    color: #6b7280;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    max-width: 500px;
+
+}
+
+
+/* =========================================================
+   ALERT META
+========================================================= */
+
+.alert-meta {
+
+    margin-top: 6px;
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+
+}
+
+
+/* =========================================================
+   ALERT BADGE
+========================================================= */
+
+.alert-badge {
+
+    padding: 4px 8px;
+
+    border-radius: 30px;
+
+    font-size: 9px;
+
+    font-weight: 700;
 
     background: #f3f4f6;
 
     color: #4b5563;
 
-    font-size: 11px;
+}
 
-    font-weight: 700;
+
+.alert-badge.danger {
+
+    background: #fee2e2;
+
+    color: #991b1b;
+
+}
+
+
+.alert-badge.warning {
+
+    background: #fef3c7;
+
+    color: #92400e;
+
+}
+
+
+/* =========================================================
+   ALERT DATE
+========================================================= */
+
+.alert-date {
+
+    font-size: 10px;
+
+    color: #9ca3af;
 
     white-space: nowrap;
 
@@ -545,343 +757,153 @@
 
 
 /* =========================================================
-   TABLE WRAPPER
+   LOADING
 ========================================================= */
 
-.dashboard-table-wrapper {
+.loading-state {
 
-    width: 100%;
+    padding: 35px;
 
-    overflow-x: auto;
+    text-align: center;
 
-}
-
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-.dashboard-table {
-
-    width: 100%;
-
-    min-width: 1250px;
-
-    border-collapse: collapse;
-
-}
-
-
-/* =========================================================
-   TABLE HEAD
-========================================================= */
-
-.dashboard-table thead th {
-
-    padding:
-        13px 14px;
-
-    background: #f8fafc;
-
-    border-bottom:
-        1px solid #e5e7eb;
-
-    color: #374151;
-
-    text-align: left;
-
-    font-size: 11px;
-
-    font-weight: 800;
-
-    white-space: nowrap;
-
-}
-
-
-/* =========================================================
-   TABLE BODY
-========================================================= */
-
-.dashboard-table tbody td {
-
-    padding:
-        13px 14px;
-
-    border-bottom:
-        1px solid #edf0f4;
-
-    color: #374151;
+    color: #6b7280;
 
     font-size: 12px;
 
-    vertical-align: middle;
-
 }
 
 
-.dashboard-table tbody tr {
+.loading-state i {
 
-    transition:
-        background .15s ease;
+    color: #c8102e;
 
-}
-
-
-.dashboard-table tbody tr:hover {
-
-    background: #fafafa;
-
-}
-
-
-.dashboard-table tbody tr:last-child td {
-
-    border-bottom: none;
+    margin-right: 6px;
 
 }
 
 
 /* =========================================================
-   TICKET TITLE
+   NO ALERTS
 ========================================================= */
 
-.ticket-title-cell {
+.no-alerts {
 
-    max-width: 280px;
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+}
+
+
+.no-alerts i {
+
+    display: block;
+
+    font-size: 32px;
+
+    color: #16a34a;
+
+    margin-bottom: 10px;
+
+}
+
+
+.no-alerts strong {
+
+    display: block;
+
+    color: #374151;
+
+    margin-bottom: 5px;
+
+}
+
+
+/* =========================================================
+   SUMMARY CARD
+========================================================= */
+
+.summary-card {
+
+    padding: 20px 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* =========================================================
+   SUMMARY ICON
+========================================================= */
+
+.summary-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    border-radius: 14px;
+
+    background: #fef2f2;
+
+    color: #c8102e;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 20px;
+
+    flex-shrink: 0;
+
+}
+
+
+/* =========================================================
+   SUMMARY TEXT
+========================================================= */
+
+.summary-card h3 {
+
+    margin: 0 0 5px;
+
+    font-size: 14px;
+
+    font-weight: 800;
 
     color: #1f2937;
 
-    font-weight: 700;
+}
 
-    line-height: 1.4;
+
+.summary-card p {
+
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 11px;
 
 }
 
 
 /* =========================================================
-   BADGES
+   ALERT CARD
 ========================================================= */
 
-.priority-badge,
-.status-badge {
+.alert-card {
 
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding:
-        6px 10px;
-
-    border-radius: 50px;
-
-    font-size: 10px;
-
-    font-weight: 800;
-
-    white-space: nowrap;
-
-}
-
-
-/* =========================================================
-   PRIORITIES
-========================================================= */
-
-.priority-crítica,
-.priority-critica {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-}
-
-
-.priority-alta {
-
-    background: #ffedd5;
-
-    color: #c2410c;
-
-}
-
-
-.priority-media {
-
-    background: #fef3c7;
-
-    color: #92400e;
-
-}
-
-
-.priority-baja {
-
-    background: #dcfce7;
-
-    color: #166534;
-
-}
-
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-.status-registrado {
-
-    background: #dbeafe;
-
-    color: #1d4ed8;
-
-}
-
-
-.status-pendiente {
-
-    background: #fef3c7;
-
-    color: #92400e;
-
-}
-
-
-.status-en-proceso {
-
-    background: #fef3c7;
-
-    color: #b45309;
-
-}
-
-
-.status-resuelto {
-
-    background: #dcfce7;
-
-    color: #166534;
-
-}
-
-
-.status-cancelado {
-
-    background: #fee2e2;
-
-    color: #991b1b;
-
-}
-
-
-.status-cerrado {
-
-    background: #e5e7eb;
-
-    color: #374151;
-
-}
-
-
-/* =========================================================
-   BUTTON VIEW
-========================================================= */
-
-.btn-view {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 6px;
-
-    padding:
-        8px 11px;
-
-    background: #c8102e;
-
-    color: #ffffff;
-
-    border-radius: 9px;
-
-    text-decoration: none;
-
-    font-size: 10px;
-
-    font-weight: 700;
-
-    white-space: nowrap;
-
-    transition:
-        background .2s ease,
-        transform .2s ease;
-
-}
-
-
-.btn-view:hover {
-
-    background: #a30d26;
-
-    transform:
-        translateY(-1px);
-
-}
-
-
-/* =========================================================
-   PRIMARY BUTTON
-========================================================= */
-
-.dashboard-actions .btn-primary {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 8px;
-
-    min-height: 42px;
-
-    padding:
-        0 16px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: #c8102e;
-
-    color: #ffffff;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 4px 12px rgba(200, 16, 46, .18);
-
-    transition:
-        background .2s ease,
-        transform .2s ease;
-
-}
-
-
-.dashboard-actions .btn-primary:hover {
-
-    background: #a30d26;
-
-    transform:
-        translateY(-1px);
+    border-color: #f3d4d8;
 
 }
 
@@ -890,36 +912,12 @@
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
 
-    .dashboard-kpi-grid {
-
-        grid-template-columns:
-            repeat(3, minmax(0, 1fr));
-
-    }
-
-
-    .dashboard-filters {
+    .stats-grid {
 
         grid-template-columns:
             repeat(2, minmax(0, 1fr));
-
-    }
-
-
-    .filter-search {
-
-        grid-column:
-            span 2;
-
-    }
-
-
-    .dashboard-columns {
-
-        grid-template-columns:
-            1fr;
 
     }
 
@@ -932,19 +930,9 @@
 
 @media (max-width: 900px) {
 
-    .dashboard-kpi-grid {
+    .dashboard-grid {
 
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
-
-    }
-
-
-    .dashboard-table-header {
-
-        align-items: flex-start;
-
-        flex-direction: column;
+        grid-template-columns: 1fr;
 
     }
 
@@ -955,46 +943,9 @@
    MOBILE
 ========================================================= */
 
-@media (max-width: 600px) {
+@media (max-width: 650px) {
 
-    .dashboard-kpi-grid {
-
-        grid-template-columns:
-            1fr;
-
-    }
-
-
-    .dashboard-kpi-card {
-
-        min-height: 90px;
-
-        padding: 16px;
-
-    }
-
-
-    .dashboard-kpi-icon {
-
-        width: 46px;
-
-        height: 46px;
-
-        border-radius: 13px;
-
-        font-size: 18px;
-
-    }
-
-
-    .dashboard-kpi-card strong {
-
-        font-size: 26px;
-
-    }
-
-
-    .dashboard-filters {
+    .stats-grid {
 
         grid-template-columns:
             1fr;
@@ -1002,31 +953,101 @@
     }
 
 
-    .filter-search {
+    .technician-header {
 
-        grid-column:
-            auto;
+        padding: 22px;
 
     }
 
 
-    .dashboard-filter-card {
+    .technician-header h1 {
+
+        font-size: 23px;
+
+    }
+
+
+    .technician-header-icon {
+
+        width: 55px;
+
+        height: 55px;
+
+        font-size: 23px;
+
+    }
+
+
+    .chart-wrapper {
+
+        height: 260px;
+
+    }
+
+
+    .donut-wrapper {
+
+        height: 230px;
+
+    }
+
+
+    .alert-item {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .alert-date {
+
+        align-self: flex-end;
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE PEQUEÑO
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .stat-card {
 
         padding: 16px;
 
     }
 
 
-    .dashboard-panel {
+    .stat-value {
+
+        font-size: 22px;
+
+    }
+
+
+    .chart-card,
+    .alerts-card {
 
         padding: 16px;
 
     }
 
 
-    .dashboard-table-header {
+    .technician-header {
 
-        padding: 16px;
+        gap: 15px;
+
+    }
+
+
+    .technician-header p {
+
+        line-height: 1.5;
 
     }
 

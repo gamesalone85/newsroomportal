@@ -1,274 +1,161 @@
 /* =========================================================
    NEWSROOM PORTAL
    MESA DE AYUDA PÚBLICA
+   CREAR TICKET
    FIREBASE / FIRESTORE
 
    IMPORTANTE:
 
-   Este módulo NO utiliza:
+   Esta página NO requiere autenticación.
 
-       auth.js
-       verificarSesion()
-       obtenerSesion()
-       data.js
-       sidebar.js
+   El usuario público puede crear un ticket
+   proporcionando sus datos de contacto.
 
-   Es un portal independiente para usuarios libres.
-
-   Se comunica con la plataforma interna únicamente
-   mediante la colección:
-
-       tickets
 ========================================================= */
 
 
 document.addEventListener(
     "DOMContentLoaded",
-    iniciarMesaAyuda
-);
+    function () {
 
 
-/* =========================================================
-   VARIABLES
-========================================================= */
-
-let pasoActual = 1;
-
-
-/* =========================================================
-   CATÁLOGOS
-========================================================= */
-
-const DIVISIONES = [
-
-    {
-        id: "DNI",
-        nombre: "DNI"
-    },
-
-    {
-        id: "DUCTER",
-        nombre: "DUCTER"
-    },
-
-    {
-        id: "FSN",
-        nombre: "FSN"
-    }
-
-];
-
-
-const AREAS = [
-
-    ["CONT", "Contabilidad"],
-    ["TES", "Tesorería"],
-    ["SIST", "Sistemas"],
-    ["ACT", "Activo Fijo"],
-    ["ARCH", "Archivo"],
-    ["COMP", "Compras"],
-    ["CXP", "Cuentas por Pagar"],
-    ["CXC", "Cuentas por Cobrar"],
-    ["REG", "Regulación"],
-    ["DIR", "Dirección"],
-    ["RH", "Recursos Humanos"],
-    ["JUR", "Jurídico"],
-    ["ADM", "Administración"],
-    ["FIN", "Finanzas"],
-    ["AUD", "Auditoría"],
-    ["CONTR", "Contraloría"],
-    ["OPER", "Operaciones"],
-    ["LOG", "Logística"],
-    ["ALM", "Almacén"],
-    ["MANT", "Mantenimiento"],
-    ["CAL", "Calidad"],
-    ["PROY", "Proyectos"],
-    ["PLANE", "Planeación"],
-    ["PROC", "Procesos"],
-    ["CUM", "Cumplimiento"],
-    ["SEG", "Seguridad"],
-    ["COMEX", "Comercio Exterior"],
-    ["IMP", "Impuestos"],
-    ["NOM", "Nómina"],
-    ["CAP", "Capacitación"],
-    ["DES", "Desarrollo Organizacional"],
-    ["RECEP", "Recepción"],
-    ["ATC", "Atención a Clientes"],
-    ["DOC", "Documentación"],
-    ["INFRA", "Infraestructura"],
-    ["DAT", "Datos / BI"],
-    ["SOP", "Soporte"],
-    ["PRES", "Presupuesto"],
-    ["RIES", "Riesgos"],
-    ["CONTROL", "Control Interno"],
-    ["COMERCIAL", "Comercial / Ventas"],
-    ["MKT", "Marketing"]
-
-];
-
-
-const CATEGORIAS = [
-
-    ["HARDWARE", "Hardware"],
-    ["SOFTWARE", "Software"],
-    ["RED", "Red / Conectividad"],
-    ["IMPRESORAS", "Impresoras"],
-    ["CORREO", "Correo Electrónico"],
-    ["ACCESOS", "Accesos y Permisos"],
-    ["CUENTAS", "Cuentas de Usuario"],
-    ["INTERNET", "Internet"],
-    ["TELEFONIA", "Telefonía"],
-    ["SERVIDORES", "Servidores"],
-    ["SISTEMAS", "Sistemas / Aplicaciones"],
-    ["SEGURIDAD", "Seguridad Informática"],
-    ["BACKUP", "Respaldos"],
-    ["DATOS", "Datos / Información"],
-    ["PERIFERICOS", "Periféricos"],
-    ["EQUIPOS", "Equipos de Cómputo"],
-    ["MANTENIMIENTO", "Mantenimiento"],
-    ["INSTALACION", "Instalación / Configuración"],
-    ["ACTUALIZACION", "Actualización"],
-    ["SOLICITUD", "Solicitud de Servicio"],
-    ["OTRO", "Otro"]
-
-];
-
-
-/* =========================================================
-   INICIO
-========================================================= */
-
-function iniciarMesaAyuda() {
-
-    console.log(
-        "Newsroom Portal: Mesa de Ayuda pública iniciada."
-    );
-
-
-    /* =====================================================
-       VERIFICAR FIREBASE
-    ===================================================== */
-
-    if (
-        typeof firebase ===
-        "undefined"
-    ) {
-
-        mostrarMensaje(
-            "No fue posible cargar Firebase.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    if (
-        typeof newsroomDB ===
-        "undefined"
-    ) {
-
-        mostrarMensaje(
-            "No fue posible conectar con Firebase.",
-            "error"
-        );
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       CARGAR CATÁLOGOS
-    ===================================================== */
-
-    cargarDivisiones();
-
-    cargarAreas();
-
-    cargarCategorias();
-
-
-    /* =====================================================
-       NAVEGACIÓN
-    ===================================================== */
-
-    document
-        .querySelectorAll(
-            ".next-btn"
-        )
-        .forEach(
-            boton => {
-
-                boton.addEventListener(
-                    "click",
-                    avanzarPaso
-                );
-
-            }
+        console.log(
+            "Newsroom Portal: Mesa de Ayuda pública iniciada."
         );
 
 
-    document
-        .querySelectorAll(
-            ".prev-btn"
-        )
-        .forEach(
-            boton => {
+        /* =================================================
+           VERIFICAR FIREBASE
+        ================================================= */
 
-                boton.addEventListener(
-                    "click",
-                    retrocederPaso
-                );
+        if (
+            typeof firebase ===
+            "undefined"
+        ) {
 
-            }
-        );
+            console.error(
+                "Newsroom Portal: Firebase SDK no está disponible."
+            );
 
+            mostrarMensaje(
+                "No fue posible cargar el servicio de soporte.",
+                "error"
+            );
 
-    /* =====================================================
-       FORMULARIO
-    ===================================================== */
+            return;
 
-    const formulario =
-        document.getElementById(
-            "ticketForm"
-        );
+        }
 
 
-    if (formulario) {
+        /* =================================================
+           VERIFICAR FIRESTORE
+        ================================================= */
+
+        if (
+            typeof newsroomDB ===
+            "undefined"
+        ) {
+
+            console.error(
+                "Newsroom Portal: Firestore no está disponible."
+            );
+
+            mostrarMensaje(
+                "No fue posible conectar con el servicio de soporte.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /* =================================================
+           IDENTIDAD PÚBLICA
+        ================================================= */
+
+        actualizarUsuarioPublico();
+
+
+        /* =================================================
+           CARGAR CATÁLOGOS
+        ================================================= */
+
+        cargarDivisiones();
+
+        cargarAreas();
+
+        cargarCategorias();
+
+
+        /* =================================================
+           FORMULARIO
+        ================================================= */
+
+        const formulario =
+            document.getElementById(
+                "ticketForm"
+            );
+
+
+        if (!formulario) {
+
+            console.error(
+                "Newsroom Portal: formulario ticketForm no encontrado."
+            );
+
+            return;
+
+        }
+
 
         formulario.addEventListener(
             "submit",
-            crearTicketPublico
+            crearTicket
         );
 
+
     }
+);
 
 
-    /* =====================================================
-       NUEVO TICKET
-    ===================================================== */
 
-    const nuevoTicket =
+/* =========================================================
+   ACTUALIZAR IDENTIDAD PÚBLICA
+========================================================= */
+
+function actualizarUsuarioPublico() {
+
+
+    const userName =
         document.getElementById(
-            "nuevoTicketBtn"
+            "userName"
         );
 
 
-    if (nuevoTicket) {
-
-        nuevoTicket.addEventListener(
-            "click",
-            reiniciarFormulario
+    const userAvatar =
+        document.getElementById(
+            "userAvatar"
         );
+
+
+    if (userName) {
+
+        userName.textContent =
+            "Usuario";
 
     }
 
 
-    actualizarProgreso();
+    if (userAvatar) {
+
+        userAvatar.textContent =
+            "U";
+
+    }
 
 }
+
 
 
 /* =========================================================
@@ -276,6 +163,7 @@ function iniciarMesaAyuda() {
 ========================================================= */
 
 function cargarDivisiones() {
+
 
     const select =
         document.getElementById(
@@ -290,8 +178,27 @@ function cargarDivisiones() {
     }
 
 
-    DIVISIONES.forEach(
-        division => {
+    if (
+        typeof obtenerDivisiones !==
+        "function"
+    ) {
+
+        console.error(
+            "Newsroom Portal: obtenerDivisiones() no está disponible."
+        );
+
+        return;
+
+    }
+
+
+    const divisiones =
+        obtenerDivisiones();
+
+
+    divisiones.forEach(
+        function (division) {
+
 
             const option =
                 document.createElement(
@@ -311,10 +218,13 @@ function cargarDivisiones() {
                 option
             );
 
+
         }
     );
 
+
 }
+
 
 
 /* =========================================================
@@ -322,6 +232,7 @@ function cargarDivisiones() {
 ========================================================= */
 
 function cargarAreas() {
+
 
     const select =
         document.getElementById(
@@ -336,8 +247,27 @@ function cargarAreas() {
     }
 
 
-    AREAS.forEach(
-        area => {
+    if (
+        typeof obtenerAreas !==
+        "function"
+    ) {
+
+        console.error(
+            "Newsroom Portal: obtenerAreas() no está disponible."
+        );
+
+        return;
+
+    }
+
+
+    const areas =
+        obtenerAreas();
+
+
+    areas.forEach(
+        function (area) {
+
 
             const option =
                 document.createElement(
@@ -346,21 +276,24 @@ function cargarAreas() {
 
 
             option.value =
-                area[0];
+                area.id;
 
 
             option.textContent =
-                area[1];
+                area.nombre;
 
 
             select.appendChild(
                 option
             );
 
+
         }
     );
 
+
 }
+
 
 
 /* =========================================================
@@ -368,6 +301,7 @@ function cargarAreas() {
 ========================================================= */
 
 function cargarCategorias() {
+
 
     const select =
         document.getElementById(
@@ -382,8 +316,27 @@ function cargarCategorias() {
     }
 
 
-    CATEGORIAS.forEach(
-        categoria => {
+    if (
+        typeof obtenerCategorias !==
+        "function"
+    ) {
+
+        console.error(
+            "Newsroom Portal: obtenerCategorias() no está disponible."
+        );
+
+        return;
+
+    }
+
+
+    const categorias =
+        obtenerCategorias();
+
+
+    categorias.forEach(
+        function (categoria) {
+
 
             const option =
                 document.createElement(
@@ -392,389 +345,65 @@ function cargarCategorias() {
 
 
             option.value =
-                categoria[0];
+                categoria.id;
 
 
             option.textContent =
-                categoria[1];
+                categoria.nombre;
 
 
             select.appendChild(
                 option
             );
 
+
         }
     );
 
-}
-
-
-/* =========================================================
-   AVANZAR PASO
-========================================================= */
-
-function avanzarPaso() {
-
-    if (
-        !validarPaso(
-            pasoActual
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    if (
-        pasoActual < 3
-    ) {
-
-        pasoActual++;
-
-        mostrarPaso();
-
-    }
 
 }
 
-
-/* =========================================================
-   RETROCEDER
-========================================================= */
-
-function retrocederPaso() {
-
-    if (
-        pasoActual > 1
-    ) {
-
-        pasoActual--;
-
-        mostrarPaso();
-
-    }
-
-}
-
-
-/* =========================================================
-   MOSTRAR PASO
-========================================================= */
-
-function mostrarPaso() {
-
-    document
-        .querySelectorAll(
-            ".form-step"
-        )
-        .forEach(
-            step => {
-
-                const numero =
-                    Number(
-                        step.dataset.step
-                    );
-
-
-                step.classList.toggle(
-                    "active",
-                    numero === pasoActual
-                );
-
-            }
-        );
-
-
-    document
-        .querySelectorAll(
-            ".step"
-        )
-        .forEach(
-            step => {
-
-                const numero =
-                    Number(
-                        step.dataset.step
-                    );
-
-
-                step.classList.toggle(
-                    "active",
-                    numero <= pasoActual
-                );
-
-            }
-        );
-
-
-    actualizarProgreso();
-
-
-    ocultarMensaje();
-
-}
-
-
-/* =========================================================
-   PROGRESO
-========================================================= */
-
-function actualizarProgreso() {
-
-    const progreso =
-        document.getElementById(
-            "progressFill"
-        );
-
-
-    if (!progreso) {
-
-        return;
-
-    }
-
-
-    progreso.style.width =
-        `${(
-            pasoActual / 3
-        ) * 100}%`;
-
-}
-
-
-/* =========================================================
-   VALIDAR PASO
-========================================================= */
-
-function validarPaso(
-    paso
-) {
-
-    let valido = true;
-
-
-    if (
-        paso === 1
-    ) {
-
-        const empleado =
-            obtenerValor(
-                "empleado"
-            );
-
-
-        const contacto =
-            obtenerValor(
-                "contacto"
-            );
-
-
-        const division =
-            obtenerValor(
-                "division"
-            );
-
-
-        if (!empleado) {
-
-            marcarError(
-                "empleado",
-                "Ingresa tu nombre completo."
-            );
-
-            valido = false;
-
-        }
-
-
-        if (
-            contacto &&
-            !validarCorreo(contacto)
-        ) {
-
-            marcarError(
-                "contacto",
-                "Ingresa un correo válido."
-            );
-
-            valido = false;
-
-        }
-        else if (!contacto) {
-
-            marcarError(
-                "contacto",
-                "Ingresa tu correo corporativo."
-            );
-
-            valido = false;
-
-        }
-
-
-        if (!division) {
-
-            marcarError(
-                "division",
-                "Selecciona una división."
-            );
-
-            valido = false;
-
-        }
-
-    }
-
-
-
-    if (
-        paso === 2
-    ) {
-
-        const area =
-            obtenerValor(
-                "area"
-            );
-
-
-        const categoria =
-            obtenerValor(
-                "categoria"
-            );
-
-
-        const impacto =
-            obtenerValor(
-                "impacto"
-            );
-
-
-        const equipo =
-            obtenerValor(
-                "equipo"
-            );
-
-
-        if (!area) {
-
-            marcarError(
-                "area",
-                "Selecciona un área."
-            );
-
-            valido = false;
-
-        }
-
-
-        if (!categoria) {
-
-            marcarError(
-                "categoria",
-                "Selecciona una categoría."
-            );
-
-            valido = false;
-
-        }
-
-
-        if (!impacto) {
-
-            marcarError(
-                "impacto",
-                "Selecciona el impacto."
-            );
-
-            valido = false;
-
-        }
-
-
-        if (!equipo) {
-
-            marcarError(
-                "equipo",
-                "Indica el equipo afectado."
-            );
-
-            valido = false;
-
-        }
-
-    }
-
-
-
-    if (
-        paso === 3
-    ) {
-
-        const titulo =
-            obtenerValor(
-                "titulo"
-            );
-
-
-        const descripcion =
-            obtenerValor(
-                "descripcion"
-            );
-
-
-        if (!titulo) {
-
-            marcarError(
-                "titulo",
-                "Ingresa un resumen del problema."
-            );
-
-            valido = false;
-
-        }
-
-
-        if (!descripcion) {
-
-            marcarError(
-                "descripcion",
-                "Describe detalladamente el problema."
-            );
-
-            valido = false;
-
-        }
-
-    }
-
-
-    return valido;
-
-}
 
 
 /* =========================================================
    CREAR TICKET
 ========================================================= */
 
-async function crearTicketPublico(
+async function crearTicket(
     event
 ) {
+
 
     event.preventDefault();
 
 
+    console.log(
+        "Newsroom Portal: iniciando creación de ticket público."
+    );
+
+
+    /* =====================================================
+       VERIFICAR FIRESTORE
+    ===================================================== */
+
     if (
-        !validarPaso(1) ||
-        !validarPaso(2) ||
-        !validarPaso(3)
+        typeof newsroomDB ===
+        "undefined"
     ) {
+
+        mostrarMensaje(
+            "El servicio de soporte no está disponible.",
+            "error"
+        );
 
         return;
 
     }
 
+
+    /* =====================================================
+       BOTÓN
+    ===================================================== */
 
     const boton =
         document.getElementById(
@@ -789,19 +418,16 @@ async function crearTicketPublico(
 
 
         boton.innerHTML =
-            '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+            '<i class="fa-solid fa-spinner fa-spin"></i> Creando Ticket...';
 
     }
-
-
-    ocultarMensaje();
 
 
     try {
 
 
         /* =================================================
-           DATOS
+           DATOS DEL FORMULARIO
         ================================================= */
 
         const empleado =
@@ -834,12 +460,6 @@ async function crearTicketPublico(
             );
 
 
-        const impacto =
-            obtenerValor(
-                "impacto"
-            );
-
-
         const equipo =
             obtenerValor(
                 "equipo"
@@ -858,102 +478,292 @@ async function crearTicketPublico(
             );
 
 
+        const prioridad =
+            obtenerValor(
+                "prioridad"
+            ) ||
+            "Media";
+
+
+        /* =================================================
+           VALIDACIONES
+        ================================================= */
+
+        if (
+            !empleado ||
+            !contacto ||
+            !divisionId ||
+            !areaId ||
+            !categoriaId ||
+            !titulo ||
+            !descripcion
+        ) {
+
+            mostrarMensaje(
+                "Por favor completa todos los campos obligatorios.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
+
+        if (
+            empleado.length >
+            120
+        ) {
+
+            mostrarMensaje(
+                "El nombre del empleado es demasiado largo.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
+
+        if (
+            contacto.length >
+            150
+        ) {
+
+            mostrarMensaje(
+                "El contacto es demasiado largo.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
+
+        if (
+            titulo.length >
+            200
+        ) {
+
+            mostrarMensaje(
+                "El título es demasiado largo.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
+
+        if (
+            descripcion.length >
+            3000
+        ) {
+
+            mostrarMensaje(
+                "La descripción es demasiado larga.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
+
+        /* =================================================
+           VALIDAR PRIORIDAD
+        ================================================= */
+
+        const prioridadesPermitidas = [
+
+            "Baja",
+            "Media",
+            "Alta",
+            "Crítica"
+
+        ];
+
+
+        if (
+            !prioridadesPermitidas.includes(
+                prioridad
+            )
+        ) {
+
+            mostrarMensaje(
+                "La prioridad seleccionada no es válida.",
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
 
         /* =================================================
            CATÁLOGOS
         ================================================= */
 
+        const divisiones =
+            obtenerDivisiones();
+
+
+        const areas =
+            obtenerAreas();
+
+
+        const categorias =
+            obtenerCategorias();
+
+
         const division =
-            DIVISIONES.find(
-                item =>
-                    item.id ===
-                    divisionId
+            divisiones.find(
+                function (item) {
+
+                    return String(
+                        item.id
+                    ) === String(
+                        divisionId
+                    );
+
+                }
             );
 
 
         const area =
-            AREAS.find(
-                item =>
-                    item[0] ===
-                    areaId
+            areas.find(
+                function (item) {
+
+                    return String(
+                        item.id
+                    ) === String(
+                        areaId
+                    );
+
+                }
             );
 
 
         const categoria =
-            CATEGORIAS.find(
-                item =>
-                    item[0] ===
-                    categoriaId
+            categorias.find(
+                function (item) {
+
+                    return String(
+                        item.id
+                    ) === String(
+                        categoriaId
+                    );
+
+                }
             );
 
 
-        if (
-            !division ||
-            !area ||
-            !categoria
-        ) {
+        /* =================================================
+           VALIDAR DIVISIÓN
+        ================================================= */
 
-            throw new Error(
-                "Los datos de clasificación no son válidos."
+        if (!division) {
+
+            mostrarMensaje(
+                "La división seleccionada no es válida.",
+                "error"
             );
+
+            restaurarBoton();
+
+            return;
 
         }
 
 
-
         /* =================================================
-           PRIORIDAD
+           VALIDAR ÁREA
         ================================================= */
 
-        const prioridad =
-            obtenerPrioridad(
-                impacto
+        if (!area) {
+
+            mostrarMensaje(
+                "El área seleccionada no es válida.",
+                "error"
             );
 
+            restaurarBoton();
+
+            return;
+
+        }
 
 
         /* =================================================
-           DOCUMENTO
+           VALIDAR CATEGORÍA
         ================================================= */
 
-        const referencia =
-            newsroomDB
-                .collection(
-                    "tickets"
-                )
-                .doc();
+        if (!categoria) {
 
+            mostrarMensaje(
+                "La categoría seleccionada no es válida.",
+                "error"
+            );
 
-        const fecha =
-            firebase.firestore
-                .FieldValue
-                .serverTimestamp();
+            restaurarBoton();
+
+            return;
+
+        }
 
 
         /* =================================================
-           FOLIO
-
-           Se genera utilizando el ID único del
-           documento para evitar depender de un
-           contador local o de Math.random().
+           GENERAR FOLIO
         ================================================= */
 
         const folio =
-            generarFolio(
-                referencia.id
-            );
-
+            generarFolio();
 
 
         /* =================================================
-           TICKET
+           OBJETO TICKET PÚBLICO
         ================================================= */
 
         const ticket = {
 
+            /* =============================================
+               IDENTIFICACIÓN
+            ============================================= */
+
             folio:
                 folio,
 
+
+            origen:
+                "mesa_ayuda_publica",
+
+
+            /* =============================================
+               SOLICITANTE
+            ============================================= */
+
+            solicitante_nombre:
+                empleado,
+
+
+            solicitante_contacto:
+                contacto,
+
+
+            /* =============================================
+               DATOS DEL TICKET
+            ============================================= */
 
             titulo:
                 titulo,
@@ -967,76 +777,44 @@ async function crearTicketPublico(
                 prioridad,
 
 
-            /* =============================================
-               USUARIO PÚBLICO
-            ============================================= */
-
-            usuario_id:
-                null,
-
-
-            usuario:
-                "publico",
-
-
-            nombre_usuario:
-                empleado,
-
-
-            correo_usuario:
-                contacto,
-
-
-            empleado:
-                empleado,
-
-
-            contacto:
-                contacto,
+            equipo:
+                equipo,
 
 
             /* =============================================
-               CLASIFICACIÓN
+               DIVISIÓN
             ============================================= */
 
             division_id:
-                division.id,
+                divisionId,
 
 
             division:
                 division.nombre,
 
 
+            /* =============================================
+               ÁREA
+            ============================================= */
+
             area_id:
-                area[0],
+                areaId,
 
 
             area:
-                area[1],
+                area.nombre,
 
+
+            /* =============================================
+               CATEGORÍA
+            ============================================= */
 
             categoria_id:
-                categoria[0],
+                categoriaId,
 
 
             categoria:
-                categoria[1],
-
-
-            /* =============================================
-               EQUIPO
-            ============================================= */
-
-            equipo:
-                equipo,
-
-
-            /* =============================================
-               IMPACTO
-            ============================================= */
-
-            impacto:
-                impacto,
+                categoria.nombre,
 
 
             /* =============================================
@@ -1047,28 +825,8 @@ async function crearTicketPublico(
                 "Registrado",
 
 
-            /* =============================================
-               TÉCNICO
-            ============================================= */
-
             tecnico:
                 null,
-
-
-            tecnico_id:
-                null,
-
-
-            /* =============================================
-               ORIGEN
-            ============================================= */
-
-            origen:
-                "Mesa de Ayuda Pública",
-
-
-            canal:
-                "publico",
 
 
             /* =============================================
@@ -1076,49 +834,101 @@ async function crearTicketPublico(
             ============================================= */
 
             fecha_creacion:
-                fecha,
+                firebase.firestore
+                    .FieldValue
+                    .serverTimestamp(),
 
 
             fecha_actualizacion:
-                fecha
+                firebase.firestore
+                    .FieldValue
+                    .serverTimestamp()
 
         };
 
 
-
         /* =================================================
-           GUARDAR
+           LOG
         ================================================= */
 
         console.log(
-            "Newsroom Portal: creando ticket público...",
+            "Newsroom Portal: ticket público preparado.",
             ticket
         );
 
 
-        await referencia.set(
-            ticket
-        );
+        /* =================================================
+           GUARDAR EN FIRESTORE
+        ================================================= */
 
-
-        console.log(
-            "Newsroom Portal: ticket público creado.",
-            folio
-        );
+        const referencia =
+            await newsroomDB
+                .collection(
+                    "tickets"
+                )
+                .add(
+                    ticket
+                );
 
 
         /* =================================================
            ÉXITO
         ================================================= */
 
-        mostrarExito(
-            folio
+        console.log(
+            "Newsroom Portal: ticket creado correctamente.",
+            referencia.id
+        );
+
+
+        mostrarMensaje(
+            `Ticket ${folio} creado correctamente. Guarda este folio para futuras consultas.`,
+            "success"
+        );
+
+
+        /* =================================================
+           LIMPIAR FORMULARIO
+        ================================================= */
+
+        const formulario =
+            document.getElementById(
+                "ticketForm"
+            );
+
+
+        if (formulario) {
+
+            formulario.reset();
+
+        }
+
+
+        /* =================================================
+           REDIRECCIÓN
+
+           Dejamos un pequeño tiempo para que el usuario
+           pueda ver el folio generado.
+
+        ================================================= */
+
+        setTimeout(
+            function () {
+
+                restaurarBoton();
+
+            },
+            3000
         );
 
 
     }
     catch (error) {
 
+
+        /* =================================================
+           ERROR
+        ================================================= */
 
         console.error(
             "Newsroom Portal: error creando ticket público.",
@@ -1127,7 +937,7 @@ async function crearTicketPublico(
 
 
         let mensaje =
-            "No fue posible registrar el ticket.";
+            "No fue posible crear el ticket.";
 
 
         if (
@@ -1149,7 +959,19 @@ async function crearTicketPublico(
         ) {
 
             mensaje =
-                "Firebase no está disponible en este momento.";
+                "El servicio de soporte no está disponible temporalmente.";
+
+        }
+
+
+        if (
+            error &&
+            error.code ===
+            "failed-precondition"
+        ) {
+
+            mensaje =
+                "La configuración de Firebase requiere atención.";
 
         }
 
@@ -1160,65 +982,52 @@ async function crearTicketPublico(
         );
 
 
-        if (boton) {
-
-            boton.disabled =
-                false;
-
-
-            boton.innerHTML =
-                '<i class="fa-solid fa-paper-plane"></i> Enviar Ticket';
-
-        }
+        restaurarBoton();
 
     }
 
 }
+
 
 
 /* =========================================================
-   PRIORIDAD
+   OBTENER VALOR
 ========================================================= */
 
-function obtenerPrioridad(
-    impacto
+function obtenerValor(
+    id
 ) {
 
-    switch (
-        impacto
-    ) {
 
-        case "No puedo trabajar":
-
-            return "Crítica";
+    const elemento =
+        document.getElementById(
+            id
+        );
 
 
-        case "Trabajo limitado":
+    if (!elemento) {
 
-            return "Alta";
-
-
-        case "Consulta":
-
-            return "Media";
-
-
-        default:
-
-            return "Media";
+        return "";
 
     }
 
+
+    return String(
+        elemento.value ||
+        ""
+    )
+        .trim();
+
 }
+
 
 
 /* =========================================================
    GENERAR FOLIO
 ========================================================= */
 
-function generarFolio(
-    documentId
-) {
+function generarFolio() {
+
 
     const fecha =
         new Date();
@@ -1248,147 +1057,59 @@ function generarFolio(
         );
 
 
-    const codigo =
+    const hora =
         String(
-            documentId
+            fecha.getHours()
         )
-        .substring(
-            0,
-            6
-        )
-        .toUpperCase();
+        .padStart(
+            2,
+            "0"
+        );
 
 
-    return `TK-${year}${month}${day}-${codigo}`;
+    const minutos =
+        String(
+            fecha.getMinutes()
+        )
+        .padStart(
+            2,
+            "0"
+        );
+
+
+    const segundos =
+        String(
+            fecha.getSeconds()
+        )
+        .padStart(
+            2,
+            "0"
+        );
+
+
+    const numero =
+        Math.floor(
+            100 +
+            Math.random() *
+            900
+        );
+
+
+    return (
+        `TK-${year}${month}${day}-` +
+        `${hora}${minutos}${segundos}-` +
+        `${numero}`
+    );
 
 }
 
 
-/* =========================================================
-   MOSTRAR ÉXITO
-========================================================= */
-
-function mostrarExito(
-    folio
-) {
-
-    const formulario =
-        document.getElementById(
-            "ticketForm"
-        );
-
-
-    const progreso =
-        document.querySelector(
-            ".progress-wrapper"
-        );
-
-
-    const resultado =
-        document.getElementById(
-            "successContainer"
-        );
-
-
-    const folioElemento =
-        document.getElementById(
-            "folioResultado"
-        );
-
-
-    if (formulario) {
-
-        formulario.style.display =
-            "none";
-
-    }
-
-
-    if (progreso) {
-
-        progreso.style.display =
-            "none";
-
-    }
-
-
-    if (folioElemento) {
-
-        folioElemento.textContent =
-            folio;
-
-    }
-
-
-    if (resultado) {
-
-        resultado.classList.add(
-            "active"
-        );
-
-    }
-
-
-    ocultarMensaje();
-
-}
-
 
 /* =========================================================
-   REINICIAR
+   RESTAURAR BOTÓN
 ========================================================= */
 
-function reiniciarFormulario() {
-
-    const formulario =
-        document.getElementById(
-            "ticketForm"
-        );
-
-
-    const progreso =
-        document.querySelector(
-            ".progress-wrapper"
-        );
-
-
-    const resultado =
-        document.getElementById(
-            "successContainer"
-        );
-
-
-    if (formulario) {
-
-        formulario.reset();
-
-        formulario.style.display =
-            "";
-
-    }
-
-
-    if (progreso) {
-
-        progreso.style.display =
-            "";
-
-    }
-
-
-    if (resultado) {
-
-        resultado.classList.remove(
-            "active"
-        );
-
-    }
-
-
-    pasoActual = 1;
-
-
-    mostrarPaso();
+function restaurarBoton() {
 
 
     const boton =
@@ -1397,123 +1118,33 @@ function reiniciarFormulario() {
         );
 
 
-    if (boton) {
-
-        boton.disabled =
-            false;
-
-
-        boton.innerHTML =
-            '<i class="fa-solid fa-paper-plane"></i> Enviar Ticket';
-
-    }
-
-}
-
-
-/* =========================================================
-   OBTENER VALOR
-========================================================= */
-
-function obtenerValor(
-    id
-) {
-
-    const elemento =
-        document.getElementById(
-            id
-        );
-
-
-    if (!elemento) {
-
-        return "";
-
-    }
-
-
-    return String(
-        elemento.value || ""
-    )
-    .trim();
-
-}
-
-
-/* =========================================================
-   CORREO
-========================================================= */
-
-function validarCorreo(
-    correo
-) {
-
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        .test(
-            correo
-        );
-
-}
-
-
-/* =========================================================
-   MARCAR ERROR
-========================================================= */
-
-function marcarError(
-    id,
-    mensaje
-) {
-
-    const elemento =
-        document.getElementById(
-            id
-        );
-
-
-    if (!elemento) {
+    if (!boton) {
 
         return;
 
     }
 
 
-    elemento.classList.add(
-        "input-error"
-    );
+    boton.disabled =
+        false;
 
 
-    elemento.focus();
-
-
-    mostrarMensaje(
-        mensaje,
-        "error"
-    );
-
-
-    setTimeout(
-        () => {
-
-            elemento.classList.remove(
-                "input-error"
-            );
-
-        },
-        2500
-    );
+    boton.innerHTML =
+        '<i class="fa-solid fa-ticket"></i> Crear Ticket';
 
 }
 
 
+
 /* =========================================================
-   MENSAJE
+   MENSAJES
 ========================================================= */
 
 function mostrarMensaje(
     mensaje,
     tipo
 ) {
+
 
     const elemento =
         document.getElementById(
@@ -1532,40 +1163,30 @@ function mostrarMensaje(
         mensaje;
 
 
-    elemento.className =
-        `message-box ${tipo}`;
-
-
     elemento.style.display =
         "block";
 
-}
 
+    if (
+        tipo ===
+        "success"
+    ) {
 
-/* =========================================================
-   OCULTAR MENSAJE
-========================================================= */
+        elemento.className =
+            "success-message full-width";
 
-function ocultarMensaje() {
+    }
+    else {
 
-    const elemento =
-        document.getElementById(
-            "ticketMessage"
-        );
-
-
-    if (!elemento) {
-
-        return;
+        elemento.className =
+            "error-message full-width";
 
     }
 
 
-    elemento.style.display =
-        "none";
-
-
-    elemento.textContent =
-        "";
+    elemento.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+    });
 
 }

@@ -9,13 +9,15 @@ HEADER DEL TÉCNICO
 ========================================================= */
 
 .technician-header {
-background: linear-gradient(
-135deg,
-#c8102e,
-#a50d26
-);
 
 ```
+background:
+    linear-gradient(
+        135deg,
+        #c8102e,
+        #a50d26
+    );
+
 color: #ffffff;
 
 border-radius: 20px;
@@ -33,15 +35,21 @@ justify-content: space-between;
 gap: 20px;
 
 box-shadow:
-    0 10px 30px rgba(200, 16, 46, 0.16);
+    0 10px 30px rgba(
+        200,
+        16,
+        46,
+        0.16
+    );
 ```
 
 }
 
 .technician-label {
-display: block;
 
 ```
+display: block;
+
 font-size: 11px;
 
 font-weight: 800;
@@ -54,9 +62,10 @@ opacity: 0.85;
 }
 
 .technician-header h1 {
-margin: 7px 0 6px;
 
 ```
+margin: 7px 0 6px;
+
 font-size: 28px;
 
 line-height: 1.2;
@@ -67,9 +76,10 @@ font-weight: 800;
 }
 
 .technician-header p {
-margin: 0;
 
 ```
+margin: 0;
+
 font-size: 13px;
 
 line-height: 1.6;
@@ -80,14 +90,21 @@ opacity: 0.9;
 }
 
 .technician-header-icon {
-width: 70px;
 
 ```
+width: 70px;
+
 height: 70px;
 
 border-radius: 18px;
 
-background: rgba(255, 255, 255, 0.15);
+background:
+    rgba(
+        255,
+        255,
+        255,
+        0.15
+    );
 
 display: flex;
 
@@ -107,11 +124,18 @@ KPI
 ========================================================= */
 
 .stats-grid {
-display: grid;
 
 ```
+display: grid;
+
 grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+    repeat(
+        4,
+        minmax(
+            0,
+            1fr
+        )
+    );
 
 gap: 18px;
 
@@ -121,9 +145,10 @@ margin-bottom: 24px;
 }
 
 .stat-card {
-background: #ffffff;
 
 ```
+background: #ffffff;
+
 border: 1px solid #edf0f4;
 
 border-radius: 18px;
@@ -139,7 +164,12 @@ align-items: center;
 gap: 15px;
 
 box-shadow:
-    0 5px 18px rgba(0, 0, 0, 0.05);
+    0 5px 18px rgba(
+        0,
+        0,
+        0,
+        0.05
+    );
 
 transition:
     transform 0.2s ease,
@@ -149,19 +179,27 @@ transition:
 }
 
 .stat-card:hover {
-transform: translateY(-2px);
 
 ```
+transform:
+    translateY(-2px);
+
 box-shadow:
-    0 8px 22px rgba(0, 0, 0, 0.08);
+    0 8px 22px rgba(
+        0,
+        0,
+        0,
+        0.08
+    );
 ```
 
 }
 
 .stat-icon {
-width: 50px;
 
 ```
+width: 50px;
+
 height: 50px;
 
 border-radius: 14px;
@@ -180,45 +218,50 @@ flex-shrink: 0;
 }
 
 .stat-icon.red {
-background: #fee2e2;
 
 ```
+background: #fee2e2;
+
 color: #c8102e;
 ```
 
 }
 
 .stat-icon.orange {
-background: #ffedd5;
 
 ```
+background: #ffedd5;
+
 color: #c2410c;
 ```
 
 }
 
 .stat-icon.yellow {
-background: #fef3c7;
 
 ```
+background: #fef3c7;
+
 color: #92400e;
 ```
 
 }
 
 .stat-icon.danger {
-background: #fee2e2;
 
 ```
+background: #fee2e2;
+
 color: #991b1b;
 ```
 
 }
 
 .stat-label {
-display: block;
 
 ```
+display: block;
+
 margin-bottom: 5px;
 
 color: #6b7280;
@@ -231,9 +274,10 @@ font-weight: 600;
 }
 
 .stat-value {
-display: block;
 
 ```
+display: block;
+
 color: #1f2937;
 
 font-size: 26px;
@@ -250,12 +294,19 @@ GRID PRINCIPAL
 ========================================================= */
 
 .dashboard-grid {
-display: grid;
 
 ```
+display: grid;
+
 grid-template-columns:
-    minmax(0, 2fr)
-    minmax(320px, 1fr);
+    minmax(
+        0,
+        2fr
+    )
+    minmax(
+        320px,
+        1fr
+    );
 
 gap: 20px;
 
@@ -269,27 +320,45 @@ CARDS
 ========================================================= */
 
 .dashboard-card {
-background: #ffffff;
 
 ```
+background: #ffffff;
+
 border: 1px solid #edf0f4;
 
 border-radius: 18px;
 
 box-shadow:
-    0 5px 18px rgba(0, 0, 0, 0.05);
+    0 5px 18px rgba(
+        0,
+        0,
+        0,
+        0.05
+    );
 ```
 
 }
 
 .chart-card {
+
+```
 padding: 22px;
+
+/*
+ * Importante para evitar que
+ * Chart.js expanda la tarjeta.
+ */
+
+overflow: hidden;
+```
+
 }
 
 .card-header {
-display: flex;
 
 ```
+display: flex;
+
 align-items: center;
 
 justify-content: space-between;
@@ -302,9 +371,10 @@ margin-bottom: 20px;
 }
 
 .card-header h3 {
-margin: 0;
 
 ```
+margin: 0;
+
 color: #1f2937;
 
 font-size: 16px;
@@ -317,9 +387,10 @@ font-weight: 800;
 }
 
 .card-header p {
-margin: 5px 0 0;
 
 ```
+margin: 5px 0 0;
+
 color: #6b7280;
 
 font-size: 11px;
@@ -330,9 +401,10 @@ line-height: 1.5;
 }
 
 .card-header-icon {
-width: 40px;
 
 ```
+width: 40px;
+
 height: 40px;
 
 border-radius: 12px;
@@ -356,24 +428,63 @@ flex-shrink: 0;
 GRÁFICA DE TICKETS POR DÍA
 ========================================================= */
 
+/*
+
+* IMPORTANTE:
+*
+* Chart.js calcula el tamaño del canvas
+* basándose en el contenedor.
+*
+* No debemos forzar:
+*
+* width: 100% !important
+* height: 100% !important
+*
+* porque puede producir problemas de
+* redimensionamiento y recorte.
+  */
+
 .chart-wrapper {
-position: relative;
 
 ```
+position: relative;
+
 width: 100%;
 
 height: 330px;
+
+min-height: 330px;
+
+overflow: hidden;
 ```
 
 }
 
+/*
+
+* Canvas principal de Chart.js.
+  */
+
 .chart-wrapper canvas {
-display: block;
 
 ```
-width: 100% !important;
+display: block;
 
-height: 100% !important;
+width: 100% !important;
+```
+
+}
+
+/*
+
+* Evitar que el canvas cree un
+* espacio adicional por ser inline.
+  */
+
+.chart-wrapper > canvas {
+
+```
+max-width: 100%;
 ```
 
 }
@@ -383,9 +494,10 @@ GRÁFICA DONUT
 ========================================================= */
 
 .donut-wrapper {
-position: relative;
 
 ```
+position: relative;
+
 width: 100%;
 
 height: 260px;
@@ -400,9 +512,10 @@ justify-content: center;
 }
 
 .donut-wrapper canvas {
-display: block;
 
 ```
+display: block;
+
 max-width: 100%;
 
 max-height: 100%;
@@ -415,9 +528,10 @@ LEYENDA DE CATEGORÍAS
 ========================================================= */
 
 .category-legend {
-display: flex;
 
 ```
+display: flex;
+
 flex-direction: column;
 
 gap: 8px;
@@ -428,9 +542,10 @@ margin-top: 15px;
 }
 
 .legend-item {
-display: flex;
 
 ```
+display: flex;
+
 align-items: center;
 
 justify-content: space-between;
@@ -445,9 +560,10 @@ color: #4b5563;
 }
 
 .legend-name {
-display: flex;
 
 ```
+display: flex;
+
 align-items: center;
 
 gap: 7px;
@@ -458,9 +574,10 @@ min-width: 0;
 }
 
 .legend-dot {
-width: 9px;
 
 ```
+width: 9px;
+
 height: 9px;
 
 border-radius: 50%;
@@ -473,9 +590,10 @@ flex-shrink: 0;
 }
 
 .legend-value {
-color: #1f2937;
 
 ```
+color: #1f2937;
+
 font-weight: 800;
 
 white-space: nowrap;
@@ -488,22 +606,28 @@ ALERTAS
 ========================================================= */
 
 .alerts-card {
-padding: 22px;
 
 ```
+padding: 22px;
+
 margin-bottom: 20px;
 ```
 
 }
 
 .alerts-card .card-header {
+
+```
 margin-bottom: 15px;
+```
+
 }
 
 .alerts-card h3 {
-display: flex;
 
 ```
+display: flex;
+
 align-items: center;
 
 gap: 5px;
@@ -512,13 +636,18 @@ gap: 5px;
 }
 
 .alerts-card h3 i {
+
+```
 color: #c8102e;
+```
+
 }
 
 .alert-counter {
-min-width: 34px;
 
 ```
+min-width: 34px;
+
 height: 34px;
 
 padding: 0 8px;
@@ -545,9 +674,10 @@ flex-shrink: 0;
 }
 
 .alerts-container {
-display: flex;
 
 ```
+display: flex;
+
 flex-direction: column;
 
 gap: 10px;
@@ -556,9 +686,10 @@ gap: 10px;
 }
 
 .alert-item {
-background: #ffffff;
 
 ```
+background: #ffffff;
+
 border: 1px solid #edf0f4;
 
 border-left: 4px solid #c8102e;
@@ -579,22 +710,28 @@ gap: 15px;
 }
 
 .alert-item.warning {
+
+```
 border-left-color: #f59e0b;
+```
+
 }
 
 .alert-info {
-min-width: 0;
 
 ```
+min-width: 0;
+
 flex: 1;
 ```
 
 }
 
 .alert-ticket {
-color: #1f2937;
 
 ```
+color: #1f2937;
+
 font-size: 12px;
 
 font-weight: 800;
@@ -603,9 +740,10 @@ font-weight: 800;
 }
 
 .alert-title {
-margin-top: 4px;
 
 ```
+margin-top: 4px;
+
 max-width: 500px;
 
 overflow: hidden;
@@ -624,9 +762,10 @@ white-space: nowrap;
 }
 
 .alert-meta {
-display: flex;
 
 ```
+display: flex;
+
 flex-wrap: wrap;
 
 gap: 6px;
@@ -637,9 +776,10 @@ margin-top: 6px;
 }
 
 .alert-badge {
-padding: 4px 8px;
 
 ```
+padding: 4px 8px;
+
 border-radius: 30px;
 
 background: #f3f4f6;
@@ -656,27 +796,30 @@ white-space: nowrap;
 }
 
 .alert-badge.danger {
-background: #fee2e2;
 
 ```
+background: #fee2e2;
+
 color: #991b1b;
 ```
 
 }
 
 .alert-badge.warning {
-background: #fef3c7;
 
 ```
+background: #fef3c7;
+
 color: #92400e;
 ```
 
 }
 
 .alert-date {
-color: #9ca3af;
 
 ```
+color: #9ca3af;
+
 font-size: 10px;
 
 white-space: nowrap;
@@ -691,9 +834,10 @@ LOADING
 ========================================================= */
 
 .loading-state {
-padding: 35px 20px;
 
 ```
+padding: 35px 20px;
+
 color: #6b7280;
 
 font-size: 12px;
@@ -704,9 +848,10 @@ text-align: center;
 }
 
 .loading-state i {
-margin-right: 6px;
 
 ```
+margin-right: 6px;
+
 color: #c8102e;
 ```
 
@@ -717,9 +862,10 @@ SIN ALERTAS
 ========================================================= */
 
 .no-alerts {
-padding: 35px 20px;
 
 ```
+padding: 35px 20px;
+
 color: #6b7280;
 
 text-align: center;
@@ -728,9 +874,10 @@ text-align: center;
 }
 
 .no-alerts i {
-display: block;
 
 ```
+display: block;
+
 margin-bottom: 10px;
 
 color: #16a34a;
@@ -741,9 +888,10 @@ font-size: 32px;
 }
 
 .no-alerts strong {
-display: block;
 
 ```
+display: block;
+
 margin-bottom: 5px;
 
 color: #374151;
@@ -758,9 +906,10 @@ RESUMEN
 ========================================================= */
 
 .summary-card {
-padding: 20px 22px;
 
 ```
+padding: 20px 22px;
+
 margin-bottom: 20px;
 
 display: flex;
@@ -773,9 +922,10 @@ gap: 15px;
 }
 
 .summary-icon {
-width: 48px;
 
 ```
+width: 48px;
+
 height: 48px;
 
 border-radius: 14px;
@@ -798,9 +948,10 @@ flex-shrink: 0;
 }
 
 .summary-card h3 {
-margin: 0 0 5px;
 
 ```
+margin: 0 0 5px;
+
 color: #1f2937;
 
 font-size: 14px;
@@ -811,9 +962,10 @@ font-weight: 800;
 }
 
 .summary-card p {
-margin: 0;
 
 ```
+margin: 0;
+
 color: #6b7280;
 
 font-size: 11px;
@@ -828,13 +980,18 @@ TARJETA DE ALERTA
 ========================================================= */
 
 .alert-card {
+
+```
 position: relative;
+```
+
 }
 
 .alert-card::after {
-content: "";
 
 ```
+content: "";
+
 position: absolute;
 
 top: 0;
@@ -845,7 +1002,8 @@ width: 4px;
 
 height: 100%;
 
-border-radius: 0 18px 18px 0;
+border-radius:
+    0 18px 18px 0;
 
 background: #c8102e;
 
@@ -862,8 +1020,16 @@ RESPONSIVE
 
 ```
 .stats-grid {
+
     grid-template-columns:
-        repeat(2, minmax(0, 1fr));
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
 }
 ```
 
@@ -873,7 +1039,18 @@ RESPONSIVE
 
 ```
 .dashboard-grid {
+
     grid-template-columns: 1fr;
+
+}
+
+
+.chart-wrapper {
+
+    height: 320px;
+
+    min-height: 320px;
+
 }
 ```
 
@@ -883,41 +1060,66 @@ RESPONSIVE
 
 ```
 .stats-grid {
+
     grid-template-columns: 1fr;
+
 }
+
 
 .technician-header {
+
     padding: 22px;
+
 }
+
 
 .technician-header h1 {
+
     font-size: 23px;
+
 }
 
+
 .technician-header-icon {
+
     width: 55px;
 
     height: 55px;
 
     font-size: 23px;
+
 }
+
 
 .chart-wrapper {
-    height: 260px;
+
+    height: 280px;
+
+    min-height: 280px;
+
 }
+
 
 .donut-wrapper {
+
     height: 230px;
+
 }
 
+
 .alert-item {
+
     align-items: flex-start;
 
     flex-direction: column;
+
 }
 
+
 .alert-date {
+
     align-self: flex-end;
+
 }
 ```
 
@@ -927,38 +1129,65 @@ RESPONSIVE
 
 ```
 .technician-header {
+
     flex-direction: column;
 
     align-items: flex-start;
+
 }
+
 
 .technician-header-icon {
+
     display: none;
+
 }
+
 
 .stat-card {
+
     padding: 16px;
+
 }
+
 
 .stat-value {
+
     font-size: 22px;
+
 }
+
 
 .chart-card,
+
 .alerts-card {
+
     padding: 16px;
+
 }
+
 
 .card-header h3 {
+
     font-size: 14px;
+
 }
+
 
 .chart-wrapper {
-    height: 230px;
+
+    height: 250px;
+
+    min-height: 250px;
+
 }
 
+
 .donut-wrapper {
+
     height: 210px;
+
 }
+```
 
 }

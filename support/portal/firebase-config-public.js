@@ -64,7 +64,7 @@ if (
 
 
 /* =========================================================
-   INICIALIZAR APP PÚBLICA
+   VARIABLES PÚBLICAS
 ========================================================= */
 
 let newsroomPublicApp = null;
@@ -72,18 +72,52 @@ let newsroomPublicApp = null;
 let newsroomPublicDB = null;
 
 
+/* =========================================================
+   INICIALIZAR FIREBASE PÚBLICO
+========================================================= */
+
 try {
 
-    newsroomPublicApp =
-        firebase.initializeApp(
-            firebaseConfigPublic,
-            "NewsroomPublic"
-        );
+    /*
+     * Evitar inicializar dos veces la misma aplicación.
+     */
 
+    try {
+
+        newsroomPublicApp =
+            firebase.app(
+                "NewsroomPublic"
+            );
+
+    }
+    catch (error) {
+
+        newsroomPublicApp =
+            firebase.initializeApp(
+                firebaseConfigPublic,
+                "NewsroomPublic"
+            );
+
+    }
+
+
+    /* =====================================================
+       FIRESTORE
+    ===================================================== */
 
     newsroomPublicDB =
-        newsroomPublicApp.firestore();
+        newsroomPublicAhttps://tikfinity.zerody.one/#actionsandeventspp.firestore();
 
+
+    console.log(
+        "Newsroom Portal: Firebase público inicializado correctamente."
+    );
+
+
+    console.log(
+        "Firestore público:",
+        !!newsroomPublicDB
+    );
 
 }
 catch (error) {
@@ -93,20 +127,8 @@ catch (error) {
         error
     );
 
+    newsroomPublicApp = null;
+
+    newsroomPublicDB = null;
+
 }
-
-
-
-/* =========================================================
-   CONFIRMACIÓN
-========================================================= */
-
-console.log(
-    "Newsroom Portal: Firebase público inicializado."
-);
-
-
-console.log(
-    "Firestore público:",
-    !!newsroomPublicDB
-);

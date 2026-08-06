@@ -39,288 +39,6 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
     >
 
-
-    <!-- ==================================================
-         ESTILOS DEL MÓDULO DE EVIDENCIAS
-    ================================================== -->
-
-    <style>
-
-        /* =================================================
-           EVIDENCIAS
-        ================================================= */
-
-        .evidence-container {
-
-            width: 100%;
-
-            margin-top: 4px;
-
-        }
-
-
-        .evidence-upload {
-
-            width: 100%;
-
-            border: 2px dashed #d7dce3;
-
-            border-radius: 12px;
-
-            padding: 24px;
-
-            background: #fafbfc;
-
-            text-align: center;
-
-            transition:
-                border-color .2s ease,
-                background .2s ease;
-
-        }
-
-
-        .evidence-upload:hover {
-
-            border-color: #0d6efd;
-
-            background: #f5f9ff;
-
-        }
-
-
-        .evidence-upload.dragover {
-
-            border-color: #0d6efd;
-
-            background: #eef5ff;
-
-        }
-
-
-        .evidence-upload-icon {
-
-            font-size: 30px;
-
-            color: #0d6efd;
-
-            margin-bottom: 10px;
-
-        }
-
-
-        .evidence-upload-title {
-
-            font-size: 15px;
-
-            font-weight: 700;
-
-            color: #252a31;
-
-            margin-bottom: 5px;
-
-        }
-
-
-        .evidence-upload-text {
-
-            font-size: 13px;
-
-            color: #707782;
-
-            margin-bottom: 14px;
-
-        }
-
-
-        .evidence-button {
-
-            display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            gap: 8px;
-
-            padding: 9px 16px;
-
-            border-radius: 8px;
-
-            border: 1px solid #0d6efd;
-
-            background: #0d6efd;
-
-            color: #fff;
-
-            cursor: pointer;
-
-            font-size: 13px;
-
-            font-weight: 600;
-
-        }
-
-
-        .evidence-button:hover {
-
-            background: #0b5ed7;
-
-        }
-
-
-        .evidence-help {
-
-            margin-top: 10px;
-
-            font-size: 12px;
-
-            color: #7a818b;
-
-        }
-
-
-        .evidence-list {
-
-            display: flex;
-
-            flex-direction: column;
-
-            gap: 8px;
-
-            margin-top: 14px;
-
-        }
-
-
-        .evidence-item {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 12px;
-
-            padding: 11px 13px;
-
-            border: 1px solid #e1e5ea;
-
-            border-radius: 9px;
-
-            background: #fff;
-
-        }
-
-
-        .evidence-icon {
-
-            width: 36px;
-
-            height: 36px;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            border-radius: 8px;
-
-            background: #eef4ff;
-
-            color: #0d6efd;
-
-            flex-shrink: 0;
-
-        }
-
-
-        .evidence-info {
-
-            flex: 1;
-
-            min-width: 0;
-
-        }
-
-
-        .evidence-name {
-
-            font-size: 13px;
-
-            font-weight: 600;
-
-            color: #252a31;
-
-            white-space: nowrap;
-
-            overflow: hidden;
-
-            text-overflow: ellipsis;
-
-        }
-
-
-        .evidence-size {
-
-            font-size: 11px;
-
-            color: #7a818b;
-
-            margin-top: 2px;
-
-        }
-
-
-        .evidence-remove {
-
-            width: 32px;
-
-            height: 32px;
-
-            border: 0;
-
-            border-radius: 7px;
-
-            background: #fff1f1;
-
-            color: #dc3545;
-
-            cursor: pointer;
-
-            flex-shrink: 0;
-
-        }
-
-
-        .evidence-remove:hover {
-
-            background: #ffe1e1;
-
-        }
-
-
-        .evidence-counter {
-
-            margin-top: 8px;
-
-            font-size: 12px;
-
-            color: #6c757d;
-
-            text-align: right;
-
-        }
-
-
-        #evidencia {
-
-            display: none;
-
-        }
-
-    </style>
-
 </head>
 
 
@@ -340,6 +58,7 @@
     ></div>
 
 
+
     <!-- ==================================================
          MAIN
     ================================================== -->
@@ -353,12 +72,17 @@
 
         <header class="topbar">
 
+
             <div class="page-title">
+
                 Crear Ticket
+
             </div>
 
 
+
             <div class="topbar-user">
+
 
                 <div
                     class="user-avatar"
@@ -368,21 +92,28 @@
                 </div>
 
 
+
                 <div class="user-info">
+
 
                     <strong id="userName">
                         Usuario
                     </strong>
 
+
                     <span>
                         Support Portal
                     </span>
 
+
                 </div>
+
 
             </div>
 
+
         </header>
+
 
 
         <!-- ==================================================
@@ -398,19 +129,25 @@
 
             <div class="page-header">
 
+
                 <div>
+
 
                     <h2>
                         Nuevo Ticket
                     </h2>
 
+
                     <p class="page-subtitle">
                         Registro de incidencias y solicitudes internas
                     </p>
 
+
                 </div>
 
+
             </div>
+
 
 
             <!-- ==================================================
@@ -433,9 +170,11 @@
 
                     <div class="form-group">
 
+
                         <label for="empleado">
                             Nombre del Empleado
                         </label>
+
 
                         <input
                             type="text"
@@ -443,7 +182,9 @@
                             required
                         >
 
+
                     </div>
+
 
 
                     <!-- ==================================================
@@ -452,9 +193,11 @@
 
                     <div class="form-group">
 
+
                         <label for="contacto">
                             Contacto
                         </label>
+
 
                         <input
                             type="text"
@@ -463,7 +206,9 @@
                             required
                         >
 
+
                     </div>
+
 
 
                     <!-- ==================================================
@@ -472,9 +217,11 @@
 
                     <div class="form-group">
 
+
                         <label for="division">
                             División
                         </label>
+
 
                         <select
                             id="division"
@@ -487,7 +234,9 @@
 
                         </select>
 
+
                     </div>
+
 
 
                     <!-- ==================================================
@@ -496,9 +245,11 @@
 
                     <div class="form-group">
 
+
                         <label for="area">
                             Área
                         </label>
+
 
                         <select
                             id="area"
@@ -511,7 +262,9 @@
 
                         </select>
 
+
                     </div>
+
 
 
                     <!-- ==================================================
@@ -520,9 +273,11 @@
 
                     <div class="form-group">
 
+
                         <label for="categoria">
                             Categoría
                         </label>
+
 
                         <select
                             id="categoria"
@@ -535,7 +290,9 @@
 
                         </select>
 
+
                     </div>
+
 
 
                     <!-- ==================================================
@@ -544,9 +301,11 @@
 
                     <div class="form-group">
 
+
                         <label for="equipo">
                             Equipo Afectado
                         </label>
+
 
                         <input
                             type="text"
@@ -554,7 +313,9 @@
                             placeholder="Laptop, impresora, desktop..."
                         >
 
+
                     </div>
+
 
 
                     <!-- ==================================================
@@ -563,9 +324,11 @@
 
                     <div class="form-group full-width">
 
+
                         <label for="titulo">
                             Título
                         </label>
+
 
                         <input
                             type="text"
@@ -573,7 +336,9 @@
                             required
                         >
 
+
                     </div>
+
 
 
                     <!-- ==================================================
@@ -582,9 +347,11 @@
 
                     <div class="form-group full-width">
 
+
                         <label for="descripcion">
                             Descripción
                         </label>
+
 
                         <textarea
                             id="descripcion"
@@ -592,7 +359,9 @@
                             required
                         ></textarea>
 
+
                     </div>
+
 
 
                     <!-- ==================================================
@@ -601,9 +370,11 @@
 
                     <div class="form-group">
 
+
                         <label for="prioridad">
                             Prioridad
                         </label>
+
 
                         <select
                             id="prioridad"
@@ -630,100 +401,9 @@
 
                         </select>
 
-                    </div>
-
-                    <!-- ==================================================
-                         EVIDENCIAS
-                    ================================================== -->
-
-                    <div class="form-group full-width">
-
-                        <label>
-                            Evidencia / Archivos adjuntos
-                        </label>
-
-
-                        <div
-                            class="evidence-container"
-                            id="evidenceContainer"
-                        >
-
-
-                            <div
-                                class="evidence-upload"
-                                id="evidenceDropzone"
-                            >
-
-                                <div class="evidence-upload-icon">
-
-                                    <i class="fa-solid fa-paperclip"></i>
-
-                                </div>
-
-
-                                <div class="evidence-upload-title">
-
-                                    Adjunta evidencia del incidente
-
-                                </div>
-
-
-                                <div class="evidence-upload-text">
-
-                                    Puedes agregar capturas de pantalla,
-                                    fotografías o documentos relacionados
-                                    con el ticket.
-
-                                </div>
-
-
-                                <label
-                                    for="evidencia"
-                                    class="evidence-button"
-                                >
-
-                                    <i class="fa-solid fa-folder-open"></i>
-
-                                    Seleccionar archivos
-
-                                </label>
-
-
-                                <input
-                                    type="file"
-                                    id="evidencia"
-                                    accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
-                                    multiple
-                                >
-
-
-                                <div class="evidence-help">
-
-                                    JPG, JPEG, PNG o PDF · Máximo 5 archivos ·
-                                    Máximo 5 MB por archivo
-
-                                </div>
-
-                            </div>
-
-
-                            <div
-                                id="evidenceList"
-                                class="evidence-list"
-                            ></div>
-
-
-                            <div
-                                id="evidenceCounter"
-                                class="evidence-counter"
-                            >
-                                0 de 5 archivos seleccionados
-                            </div>
-
-
-                        </div>
 
                     </div>
+
 
 
                     <!-- ==================================================
@@ -737,11 +417,13 @@
                     ></div>
 
 
+
                     <!-- ==================================================
                          ACTIONS
                     ================================================== -->
 
                     <div class="form-actions full-width">
+
 
                         <button
                             class="btn-primary"
@@ -755,18 +437,24 @@
 
                         </button>
 
+
                     </div>
 
 
                 </form>
 
+
             </div>
+
 
         </section>
 
+
     </main>
 
+
 </div>
+
 
 
 <!-- =========================================================
@@ -777,24 +465,14 @@
     src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"
 ></script>
 
-
 <script
     src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"
 ></script>
-
 
 <script
     src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"
 ></script>
 
-
-<!-- =========================================================
-     FIREBASE STORAGE
-========================================================= -->
-
-<script
-    src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"
-></script>
 
 
 <!-- =========================================================

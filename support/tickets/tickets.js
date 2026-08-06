@@ -1,10 +1,45 @@
+
 /* =========================================================
    NEWSROOM PORTAL
    TICKETS
    CREAR TICKET
-   FIREBASE / FIRESTORE
+   FIREBASE / FIRESTORE / STORAGE
 ========================================================= */
 
+
+/* =========================================================
+   CONFIGURACIÓN DE EVIDENCIAS
+========================================================= */
+
+const MAX_ARCHIVOS = 5;
+
+const MAX_TAMANO_ARCHIVO =
+    5 * 1024 * 1024;
+
+const TIPOS_PERMITIDOS = [
+    "image/jpeg",
+    "image/png",
+    "application/pdf"
+];
+
+const EXTENSIONES_PERMITIDAS = [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".pdf"
+];
+
+
+/* =========================================================
+   ARCHIVOS SELECCIONADOS
+========================================================= */
+
+let archivosSeleccionados = [];
+
+
+/* =========================================================
+   INICIALIZACIÓN
+========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -51,7 +86,6 @@ document.addEventListener(
         }
 
 
-
         /* =================================================
            VERIFICAR FIREBASE
         ================================================= */
@@ -94,6 +128,28 @@ document.addEventListener(
         }
 
 
+        /* =================================================
+           VERIFICAR STORAGE
+        ================================================= */
+
+        if (
+            typeof firebase.storage !==
+            "function"
+        ) {
+
+            console.error(
+                "Newsroom Portal: Firebase Storage no está disponible."
+            );
+
+            mostrarMensaje(
+                "Firebase Storage no está disponible.",
+                "error"
+            );
+
+            return;
+
+        }
+
 
         /* =================================================
            USUARIO
@@ -102,7 +158,6 @@ document.addEventListener(
         actualizarUsuario(
             session
         );
-
 
 
         /* =================================================
@@ -115,6 +170,12 @@ document.addEventListener(
 
         cargarCategorias();
 
+
+        /* =================================================
+           CONFIGURAR EVIDENCIAS
+        ================================================= */
+
+        inicializarEvidencias();
 
 
         /* =================================================
@@ -138,7 +199,6 @@ document.addEventListener(
 
     }
 );
-
 
 
 /* =========================================================
@@ -185,7 +245,6 @@ function actualizarUsuario(
     }
 
 }
-
 
 
 /* =========================================================
@@ -243,21 +302,14 @@ function cargarDivisiones() {
 }
 
 
-
 /* =========================================================
    CARGAR ÁREAS
-=========================================================
 
-   Todas las áreas están disponibles para las tres
-   divisiones:
+   Todas las áreas están disponibles para:
 
-       DNI
-       DUCTER
-       FSN
-
-   La propiedad division_id del catálogo actualmente
-   utiliza "TODAS".
-
+   DNI
+   DUCTER
+   FSN
 ========================================================= */
 
 function cargarAreas() {
@@ -309,7 +361,6 @@ function cargarAreas() {
     );
 
 }
-
 
 
 /* =========================================================
@@ -367,6 +418,583 @@ function cargarCategorias() {
 }
 
 
+/* =========================================================
+   INICIALIZAR EVIDENCIAS
+========================================================= */
+
+function inicializarEvidencias() {
+
+    const input =
+        document.getElementById(
+            "evidencia"
+        );
+
+
+    const dropzone =
+        document.getElementById(
+            "evidenceDropzone"
+        );
+
+
+    if (!input) {
+
+        return;
+
+    }
+
+
+    /* =================================================
+       SELECCIÓN NORMAL
+    ================================================= */
+
+    input.addEventListener(
+        "change",
+        event => {
+
+            procesarArchivos(
+                Array.from(
+                    event.target.files
+                )
+            );
+
+            input.value = "";
+
+        }
+    );
+
+
+    /* =================================================
+       DRAG & DROP
+    ================================================= */
+
+    if (!dropzone) {
+
+        return;
+
+    }
+
+
+    dropzone.addEventListener(
+        "dragover",
+        event => {
+
+            event.preventDefault();
+
+            dropzone.classList.add(
+                "dragover"
+            );
+
+        }
+    );
+
+
+    dropzone.addEventListener(
+        "dragleave",
+        () => {
+
+            dropzone.classList.remove(
+                "dragover"
+            );
+
+        }
+    );
+
+
+    dropzone.addEventListener(
+        "drop",
+        event => {
+
+            event.preventDefault();
+
+            dropzone.classList.remove(
+                "dragover"
+            );
+
+
+            procesarArchivos(
+                Array.from(
+                    event.dataTransfer.files
+                )
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   PROCESAR ARCHIVOS
+========================================================= */
+
+function procesarArchivos(
+    archivos
+) {
+
+    if (
+        !Array.isArray(
+            archivos
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    for (
+        const archivo of archivos
+    ) {
+
+
+        /* =============================================
+           LÍMITE DE ARCHIVOS
+        ============================================= */
+
+        if (
+            archivosSeleccionados.length >=
+            MAX_ARCHIVOS
+        ) {
+
+            mostrarMensaje(
+                `Solo puedes adjuntar un máximo de ${MAX_ARCHIVOS} archivos.`,
+                "error"
+            );
+
+            break;
+
+        }
+
+
+        /* =============================================
+           VALIDAR TIPO
+        ============================================= */
+
+        const nombre =
+            archivo.name ||
+            "";
+
+
+        const extension =
+            obtenerExtension(
+                nombre
+            );
+
+
+        const tipoValido =
+            TIPOS_PERMITIDOS.includes(
+                archivo.type
+            );
+
+
+        const extensionValida =
+            EXTENSIONES_PERMITIDAS.includes(
+                extension
+            );
+
+
+        if (
+            !tipoValido &&
+            !extensionValida
+        ) {
+
+            mostrarMensaje(
+                `El archivo "${nombre}" no es válido. Solo se permiten JPG, JPEG, PNG o PDF.`,
+                "error"
+            );
+
+            continue;
+
+        }
+
+
+        /* =============================================
+           VALIDAR TAMAÑO
+        ============================================= */
+
+        if (
+            archivo.size >
+            MAX_TAMANO_ARCHIVO
+        ) {
+
+            mostrarMensaje(
+                `El archivo "${nombre}" supera el límite de 5 MB.`,
+                "error"
+            );
+
+            continue;
+
+        }
+
+
+        /* =============================================
+           EVITAR DUPLICADOS
+        ============================================= */
+
+        const duplicado =
+            archivosSeleccionados.some(
+                item =>
+                    item.name ===
+                    archivo.name
+                    &&
+                    item.size ===
+                    archivo.size
+                    &&
+                    item.lastModified ===
+                    archivo.lastModified
+            );
+
+
+        if (duplicado) {
+
+            continue;
+
+        }
+
+
+        archivosSeleccionados.push(
+            archivo
+        );
+
+    }
+
+
+    renderizarListaEvidencias();
+
+}
+
+
+/* =========================================================
+   OBTENER EXTENSIÓN
+========================================================= */
+
+function obtenerExtension(
+    nombre
+) {
+
+    const posicion =
+        nombre.lastIndexOf(
+            "."
+        );
+
+
+    if (
+        posicion === -1
+    ) {
+
+        return "";
+
+    }
+
+
+    return nombre
+        .substring(
+            posicion
+        )
+        .toLowerCase();
+
+}
+
+
+/* =========================================================
+   RENDERIZAR EVIDENCIAS
+========================================================= */
+
+function renderizarListaEvidencias() {
+
+    const lista =
+        document.getElementById(
+            "evidenceList"
+        );
+
+
+    const contador =
+        document.getElementById(
+            "evidenceCounter"
+        );
+
+
+    if (!lista) {
+
+        return;
+
+    }
+
+
+    lista.innerHTML =
+        "";
+
+
+    archivosSeleccionados.forEach(
+        (
+            archivo,
+            indice
+        ) => {
+
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "evidence-item";
+
+
+            const icono =
+                document.createElement(
+                    "div"
+                );
+
+
+            icono.className =
+                "evidence-icon";
+
+
+            icono.innerHTML =
+                obtenerIconoArchivo(
+                    archivo
+                );
+
+
+            const info =
+                document.createElement(
+                    "div"
+                );
+
+
+            info.className =
+                "evidence-info";
+
+
+            const nombre =
+                document.createElement(
+                    "div"
+                );
+
+
+            nombre.className =
+                "evidence-name";
+
+
+            nombre.textContent =
+                archivo.name;
+
+
+            const tamaño =
+                document.createElement(
+                    "div"
+                );
+
+
+            tamaño.className =
+                "evidence-size";
+
+
+            tamaño.textContent =
+                formatearTamano(
+                    archivo.size
+                );
+
+
+            info.appendChild(
+                nombre
+            );
+
+            info.appendChild(
+                tamaño
+            );
+
+
+            const boton =
+                document.createElement(
+                    "button"
+                );
+
+
+            boton.type =
+                "button";
+
+
+            boton.className =
+                "evidence-remove";
+
+
+            boton.title =
+                "Eliminar archivo";
+
+
+            boton.innerHTML =
+                '<i class="fa-solid fa-xmark"></i>';
+
+
+            boton.addEventListener(
+                "click",
+                () => {
+
+                    eliminarArchivo(
+                        indice
+                    );
+
+                }
+            );
+
+
+            item.appendChild(
+                icono
+            );
+
+            item.appendChild(
+                info
+            );
+
+            item.appendChild(
+                boton
+            );
+
+
+            lista.appendChild(
+                item
+            );
+
+        }
+    );
+
+
+    if (contador) {
+
+        contador.textContent =
+            `${archivosSeleccionados.length} de ${MAX_ARCHIVOS} archivos seleccionados`;
+
+    }
+
+}
+
+
+/* =========================================================
+   ICONO DE ARCHIVO
+========================================================= */
+
+function obtenerIconoArchivo(
+    archivo
+) {
+
+    const tipo =
+        archivo.type ||
+        "";
+
+
+    if (
+        tipo ===
+        "application/pdf"
+    ) {
+
+        return '<i class="fa-solid fa-file-pdf"></i>';
+
+    }
+
+
+    if (
+        tipo.startsWith(
+            "image/"
+        )
+    ) {
+
+        return '<i class="fa-solid fa-file-image"></i>';
+
+    }
+
+
+    return '<i class="fa-solid fa-file"></i>';
+
+}
+
+
+/* =========================================================
+   ELIMINAR ARCHIVO
+========================================================= */
+
+function eliminarArchivo(
+    indice
+) {
+
+    if (
+        indice < 0 ||
+        indice >=
+        archivosSeleccionados.length
+    ) {
+
+        return;
+
+    }
+
+
+    archivosSeleccionados.splice(
+        indice,
+        1
+    );
+
+
+    renderizarListaEvidencias();
+
+}
+
+
+/* =========================================================
+   FORMATEAR TAMAÑO
+========================================================= */
+
+function formatearTamano(
+    bytes
+) {
+
+    if (
+        bytes === 0
+    ) {
+
+        return "0 Bytes";
+
+    }
+
+
+    const unidades = [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+    ];
+
+
+    const indice =
+        Math.floor(
+            Math.log(
+                bytes
+            ) /
+            Math.log(
+                1024
+            )
+        );
+
+
+    return (
+        parseFloat(
+            (
+                bytes /
+                Math.pow(
+                    1024,
+                    indice
+                )
+            )
+            .toFixed(2)
+        )
+        +
+        " " +
+        unidades[indice]
+    );
+
+}
+
 
 /* =========================================================
    CREAR TICKET
@@ -399,7 +1027,6 @@ async function crearTicket(
     }
 
 
-
     /* =====================================================
        FIRESTORE
     ===================================================== */
@@ -419,6 +1046,24 @@ async function crearTicket(
     }
 
 
+    /* =====================================================
+       STORAGE
+    ===================================================== */
+
+    if (
+        typeof firebase.storage !==
+        "function"
+    ) {
+
+        mostrarMensaje(
+            "Firebase Storage no está disponible.",
+            "error"
+        );
+
+        return;
+
+    }
+
 
     /* =====================================================
        BOTÓN
@@ -435,11 +1080,11 @@ async function crearTicket(
         boton.disabled =
             true;
 
+
         boton.innerHTML =
             '<i class="fa-solid fa-spinner fa-spin"></i> Creando Ticket...';
 
     }
-
 
 
     try {
@@ -467,19 +1112,6 @@ async function crearTicket(
                 .trim();
 
 
-        /* =================================================
-           DIVISIÓN
-
-           IMPORTANTE:
-           Los nuevos IDs son texto:
-
-               DNI
-               DUCTER
-               FSN
-
-           Por eso NO utilizamos Number().
-        ================================================= */
-
         const divisionId =
             document
                 .getElementById(
@@ -489,19 +1121,6 @@ async function crearTicket(
                 .trim();
 
 
-        /* =================================================
-           ÁREA
-
-           IDs como:
-
-               CONT
-               TES
-               SIST
-               CXP
-               CXC
-               etc.
-        ================================================= */
-
         const areaId =
             document
                 .getElementById(
@@ -510,18 +1129,6 @@ async function crearTicket(
                 .value
                 .trim();
 
-
-        /* =================================================
-           CATEGORÍA
-
-           IDs como:
-
-               HARDWARE
-               SOFTWARE
-               RED
-               CORREO
-               etc.
-        ================================================= */
 
         const categoriaId =
             document
@@ -567,7 +1174,6 @@ async function crearTicket(
                 .value;
 
 
-
         /* =================================================
            VALIDACIONES
         ================================================= */
@@ -593,6 +1199,49 @@ async function crearTicket(
 
         }
 
+
+        /* =================================================
+           VALIDAR ARCHIVOS
+        ================================================= */
+
+        if (
+            archivosSeleccionados.length >
+            MAX_ARCHIVOS
+        ) {
+
+            mostrarMensaje(
+                `Solo puedes adjuntar un máximo de ${MAX_ARCHIVOS} archivos.`,
+                "error"
+            );
+
+            restaurarBoton();
+
+            return;
+
+        }
+
+
+        for (
+            const archivo of archivosSeleccionados
+        ) {
+
+            if (
+                archivo.size >
+                MAX_TAMANO_ARCHIVO
+            ) {
+
+                mostrarMensaje(
+                    `El archivo "${archivo.name}" supera el límite de 5 MB.`,
+                    "error"
+                );
+
+                restaurarBoton();
+
+                return;
+
+            }
+
+        }
 
 
         /* =================================================
@@ -624,7 +1273,6 @@ async function crearTicket(
                         String(item.id) ===
                         String(categoriaId)
                 );
-
 
 
         /* =================================================
@@ -673,14 +1321,12 @@ async function crearTicket(
         }
 
 
-
         /* =================================================
            GENERAR FOLIO
         ================================================= */
 
         const folio =
             generarFolio();
-
 
 
         /* =================================================
@@ -707,6 +1353,32 @@ async function crearTicket(
 
         }
 
+
+        /* =================================================
+           SUBIR EVIDENCIAS
+        ================================================= */
+
+        let adjuntos = [];
+
+
+        if (
+            archivosSeleccionados.length >
+            0
+        ) {
+
+            mostrarMensaje(
+                "Subiendo evidencias...",
+                "success"
+            );
+
+
+            adjuntos =
+                await subirEvidencias(
+                    folio,
+                    usuarioId
+                );
+
+        }
 
 
         /* =================================================
@@ -812,6 +1484,18 @@ async function crearTicket(
 
 
             /* =============================================
+               EVIDENCIAS
+            ============================================= */
+
+            total_adjuntos:
+                adjuntos.length,
+
+
+            adjuntos:
+                adjuntos,
+
+
+            /* =============================================
                FECHAS
             ============================================= */
 
@@ -827,7 +1511,6 @@ async function crearTicket(
                     .serverTimestamp()
 
         };
-
 
 
         /* =================================================
@@ -850,7 +1533,6 @@ async function crearTicket(
                 );
 
 
-
         /* =================================================
            ÉXITO
         ================================================= */
@@ -865,7 +1547,6 @@ async function crearTicket(
             `Ticket ${folio} creado correctamente.`,
             "success"
         );
-
 
 
         /* =================================================
@@ -884,6 +1565,12 @@ async function crearTicket(
 
         }
 
+
+        archivosSeleccionados =
+            [];
+
+
+        renderizarListaEvidencias();
 
 
         /* =================================================
@@ -921,6 +1608,42 @@ async function crearTicket(
         if (
             error &&
             error.code ===
+            "storage/unauthorized"
+        ) {
+
+            mensaje =
+                "Firebase Storage rechazó la subida de la evidencia. Debemos revisar las reglas de Storage.";
+
+        }
+
+
+        else if (
+            error &&
+            error.code ===
+            "storage/canceled"
+        ) {
+
+            mensaje =
+                "La subida de una evidencia fue cancelada.";
+
+        }
+
+
+        else if (
+            error &&
+            error.code ===
+            "storage/unknown"
+        ) {
+
+            mensaje =
+                "Firebase Storage encontró un error inesperado.";
+
+        }
+
+
+        else if (
+            error &&
+            error.code ===
             "permission-denied"
         ) {
 
@@ -930,7 +1653,7 @@ async function crearTicket(
         }
 
 
-        if (
+        else if (
             error &&
             error.code ===
             "unavailable"
@@ -954,6 +1677,248 @@ async function crearTicket(
 
 }
 
+
+/* =========================================================
+   SUBIR EVIDENCIAS A FIREBASE STORAGE
+========================================================= */
+
+async function subirEvidencias(
+    folio,
+    usuarioId
+) {
+
+    const storage =
+        firebase.storage();
+
+
+    const resultados = [];
+
+
+    for (
+        let indice = 0;
+        indice <
+        archivosSeleccionados.length;
+        indice++
+    ) {
+
+        const archivo =
+            archivosSeleccionados[
+                indice
+            ];
+
+
+        /* =============================================
+           NOMBRE SEGURO
+        ============================================= */
+
+        const nombreSeguro =
+            crearNombreSeguro(
+                archivo.name
+            );
+
+
+        const nombreFinal =
+            `${Date.now()}_${indice}_${nombreSeguro}`;
+
+
+        /* =============================================
+           RUTA
+        ============================================= */
+
+        const ruta =
+            `tickets/${folio}/${nombreFinal}`;
+
+
+        console.log(
+            "Newsroom Portal: subiendo evidencia:",
+            ruta
+        );
+
+
+        /* =============================================
+           REFERENCIA STORAGE
+        ============================================= */
+
+        const referencia =
+            storage.ref(
+                ruta
+            );
+
+
+        /* =============================================
+           METADATA
+        ============================================= */
+
+        const metadata = {
+
+            contentType:
+                archivo.type ||
+                obtenerTipoPorExtension(
+                    archivo.name
+                ),
+
+            customMetadata: {
+
+                ticketFolio:
+                    folio,
+
+                usuarioId:
+                    String(
+                        usuarioId
+                    ),
+
+                nombreOriginal:
+                    archivo.name
+
+            }
+
+        };
+
+
+        /* =============================================
+           SUBIR
+        ============================================= */
+
+        await referencia.put(
+            archivo,
+            metadata
+        );
+
+
+        /* =============================================
+           URL
+        ============================================= */
+
+        const url =
+            await referencia.getDownloadURL();
+
+
+        /* =============================================
+           REGISTRAR RESULTADO
+        ============================================= */
+
+        resultados.push({
+
+            nombre:
+                archivo.name,
+
+            nombreStorage:
+                nombreFinal,
+
+            tipo:
+                archivo.type ||
+                obtenerTipoPorExtension(
+                    archivo.name
+                ),
+
+            extension:
+                obtenerExtension(
+                    archivo.name
+                ),
+
+            tamano:
+                archivo.size,
+
+            tamano_formateado:
+                formatearTamano(
+                    archivo.size
+                ),
+
+            url:
+                url,
+
+            storage_path:
+                ruta,
+
+            usuario_id:
+                usuarioId,
+
+            fecha_subida:
+                new Date()
+
+        });
+
+    }
+
+
+    return resultados;
+
+}
+
+
+/* =========================================================
+   CREAR NOMBRE SEGURO
+========================================================= */
+
+function crearNombreSeguro(
+    nombre
+) {
+
+    return nombre
+        .normalize(
+            "NFD"
+        )
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+        .replace(
+            /[^a-zA-Z0-9._-]/g,
+            "_"
+        );
+
+}
+
+
+/* =========================================================
+   OBTENER TIPO POR EXTENSIÓN
+========================================================= */
+
+function obtenerTipoPorExtension(
+    nombre
+) {
+
+    const extension =
+        obtenerExtension(
+            nombre
+        );
+
+
+    if (
+        extension ===
+        ".jpg" ||
+        extension ===
+        ".jpeg"
+    ) {
+
+        return "image/jpeg";
+
+    }
+
+
+    if (
+        extension ===
+        ".png"
+    ) {
+
+        return "image/png";
+
+    }
+
+
+    if (
+        extension ===
+        ".pdf"
+    ) {
+
+        return "application/pdf";
+
+    }
+
+
+    return "application/octet-stream";
+
+}
 
 
 /* =========================================================
@@ -983,7 +1948,6 @@ function restaurarBoton() {
         '<i class="fa-solid fa-ticket"></i> Crear Ticket';
 
 }
-
 
 
 /* =========================================================
@@ -1028,10 +1992,9 @@ function generarFolio() {
         );
 
 
-    return `TK-${year}${month}${day}-${numero}`;
+    return `TK-${year}${month}-${day}-${numero}`;
 
 }
-
 
 
 /* =========================================================

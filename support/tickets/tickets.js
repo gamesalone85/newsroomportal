@@ -4,8 +4,6 @@
    CREAR TICKET
    FIREBASE / FIRESTORE
 ========================================================= */
-
-
 document.addEventListener(
     "DOMContentLoaded",
     () => {
@@ -1031,8 +1029,6 @@ function generarFolio() {
     return `TK-${year}${month}${day}-${numero}`;
 
 }
-
-
 
 /* =========================================================
    MENSAJES

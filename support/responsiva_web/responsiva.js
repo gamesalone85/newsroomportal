@@ -73,21 +73,70 @@ function clearForm(){
   syncPreview();
 }
 
-function generatePdf(){
+async function generatePdf(){
   const element=$('responsivaPdf');
-  if(typeof html2pdf==='undefined'){
+
+  if(typeof html2canvas==='undefined' || !window.jspdf?.jsPDF){
     alert('No fue posible cargar el generador de PDF. Usa el botón Imprimir y selecciona “Guardar como PDF”.');
     return;
   }
-  const name=($('responsable').value.trim() || 'responsiva').replace(/[^a-z0-9áéíóúñü _-]/gi,'').replace(/\s+/g,'_');
-  const options={
-    margin:0,
-    filename:`Responsiva_${name}.pdf`,
-    image:{type:'jpeg',quality:0.98},
-    html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
-    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
-  };
-  html2pdf().set(options).from(element).save();
+
+  const btn=$('btnPdf');
+  const originalText=btn.innerHTML;
+  btn.disabled=true;
+  btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+
+  try{
+    // Espera a que el logo y demás imágenes estén completamente cargados.
+    const images=[...element.querySelectorAll('img')];
+    await Promise.all(images.map(img=>{
+      if(img.complete) return Promise.resolve();
+      return new Promise(resolve=>{
+        img.addEventListener('load',resolve,{once:true});
+        img.addEventListener('error',resolve,{once:true});
+      });
+    }));
+
+    const canvas=await html2canvas(element,{
+      scale:2,
+      useCORS:true,
+      allowTaint:false,
+      backgroundColor:'#ffffff',
+      logging:false,
+      scrollX:0,
+      scrollY:0,
+      windowWidth:element.scrollWidth,
+      windowHeight:element.scrollHeight
+    });
+
+    const { jsPDF }=window.jspdf;
+    const pdf=new jsPDF({
+      orientation:'portrait',
+      unit:'mm',
+      format:'letter',
+      compress:true
+    });
+
+    const pageWidth=215.9;
+    const pageHeight=279.4;
+    const imgData=canvas.toDataURL('image/jpeg',0.98);
+
+    // Inserta la vista completa como UNA sola imagen, exactamente en una hoja Carta.
+    // Así evitamos que html2pdf divida el documento en dos páginas.
+    pdf.addImage(imgData,'JPEG',0,0,pageWidth,pageHeight,undefined,'FAST');
+
+    const name=($('responsable').value.trim() || 'responsiva')
+      .replace(/[^a-z0-9áéíóúñü _-]/gi,'')
+      .replace(/\s+/g,'_');
+
+    pdf.save(`Responsiva_${name}.pdf`);
+  }catch(error){
+    console.error(error);
+    alert('Ocurrió un error al generar el PDF. Prueba con el botón Imprimir y selecciona “Guardar como PDF”.');
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML=originalText;
+  }
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
